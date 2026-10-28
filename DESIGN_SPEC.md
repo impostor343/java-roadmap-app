@@ -4,7 +4,9 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 (replaces the earlier workbook). Changes need the user's agreement.
 
 ## Look and feel
-- Clean and minimal. Warm cream base with a soft green accent.
+- Clean and minimal. White base with green as the main accent; blue, purple
+  and pink as supporting colours. (Changed from cream by the user after seeing
+  Stage 1.)
 - Light and dark both supported; follows the phone setting.
 - Soft rounded buttons, generous spacing, large readable text.
 - Only gentle fade/slide animation; none when "reduce motion" is on.
@@ -45,8 +47,8 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 
 ## Projects (from the workbook)
 Guessing Game (blue), Banking (green), Smart Library (purple),
-Inventory (orange), Task Management REST API (pale green),
-Semester Planner Android App in Java (pale red).
+Inventory (orange), Task Management REST API (teal, was pale green),
+Semester Planner Android App in Java (pink, was pale red).
 Frontend work is an extension of Library/Inventory.
 Concurrency is an optional Banking extension.
 
