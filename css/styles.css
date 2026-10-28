@@ -1,0 +1,171 @@
+/* Java Roadmap: design tokens and base styles (Stage 1) */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #F6F2E7;
+  --surface: #FDFBF4;
+  --ink: #2A2F28;
+  --muted: #5F665A;
+  --line: #E3DDCB;
+  --accent: #7FA68A;
+  --accent-strong: #3F6B50;
+  --on-accent: #FFFFFF;
+
+  /* Project colours (pastel versions of the workbook palette) */
+  --proj-guessing-game: #CFE0F5;
+  --proj-banking: #BFE3CF;
+  --proj-smart-library: #DCCFF0;
+  --proj-inventory: #F6D9BE;
+  --proj-task-api: #E2EDBD;
+  --proj-semester-planner: #F2C9C9;
+
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  --radius: 18px;
+  --tap: 48px;
+  --nav-h: 68px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C201B;
+    --surface: #252A23;
+    --ink: #ECEADF;
+    --muted: #A8AE9E;
+    --line: #353B32;
+    --accent: #8FBF9D;
+    --accent-strong: #A9D6B5;
+    --on-accent: #12170F;
+
+    --proj-guessing-game: #34506E;
+    --proj-banking: #2F5B45;
+    --proj-smart-library: #54447A;
+    --proj-inventory: #7A5636;
+    --proj-task-api: #55612F;
+    --proj-semester-planner: #7A3F3F;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 4px 20px;
+}
+.topbar h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  color: var(--ink);
+}
+.icon-btn svg, .tabbar svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Content */
+main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 12px 20px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom, 0px));
+}
+main:focus { outline: none; }
+.screen[hidden] { display: none; }
+
+.note, .empty { color: var(--muted); margin: 0 0 16px; }
+.empty { margin-top: 40px; text-align: center; }
+
+/* Sample daily card */
+.day-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 20px 24px;
+  text-align: center;
+}
+.card-date { margin: 0 0 20px; color: var(--muted); font-size: 0.9375rem; }
+.card-group {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.card-symbol { margin: 16px 0 8px; font-size: 4rem; line-height: 1; }
+.card-title { margin: 0 0 12px; font-size: 1.5rem; font-weight: 600; }
+.card-meta { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+.status {
+  display: inline-block;
+  margin: 20px 0 0;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.9375rem;
+}
+
+/* Bottom tab bar */
+.tabbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tabbar a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--nav-h);
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.75rem;
+}
+.tabbar a[aria-current="page"] { color: var(--accent-strong); font-weight: 600; }
+
+/* Visible focus for keyboard and switch users */
+a:focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .screen:not([hidden]) { animation: fade-in 160ms ease-out; }
+  @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
