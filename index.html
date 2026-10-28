@@ -23,16 +23,7 @@
   <main id="main" tabindex="-1">
 
     <section class="screen" id="screen-today" data-title="Today">
-      <p class="note">Sample layout. The real daily card is built in Stage 3.</p>
-      <article class="day-card" aria-label="Sample daily card">
-        <p class="card-date">Wed, 28 Oct 2026</p>
-        <h2 class="card-group">Java basics</h2>
-        <p class="card-symbol" aria-hidden="true">☕</p>
-        <p class="card-title">Methods 01</p>
-        <p class="card-meta">Day 1 of 246</p>
-        <p class="card-meta">60–90 min</p>
-        <p class="status" data-state="pending"><span aria-hidden="true">○</span> Pending</p>
-      </article>
+      <div id="today-card"><p class="empty">Loading…</p></div>
     </section>
 
     <section class="screen" id="screen-calendar" data-title="Calendar" hidden>
@@ -88,6 +79,15 @@
     </a>
   </nav>
 
+  <dialog class="sheet" id="info-sheet" aria-labelledby="info-title">
+    <div class="sheet-inner">
+      <h2 id="info-title"></h2>
+      <div id="info-body"></div>
+      <button type="button" class="btn" id="info-close">Close</button>
+    </div>
+  </dialog>
+
   <script src="js/app.js"></script>
+  <script src="js/today.js"></script>
 </body>
 </html>

@@ -14,8 +14,11 @@ java-roadmap-app/
   js/app.js               switches screens using the URL hash
   icons/                  icon-192.png, icon-512.png, icon-maskable-512.png
   data-check.html         temporary page to check the data (removed later)
+  js/today.js             Today card, Previous/Next and the Info sheet
+  data/display-titles.json  display titles for the 23 cut-off workbook titles
   js/data-check.js        loads the data files for that page
   data/roadmap.json       246 daily entries (from the repaired workbook)
+  data/title-overrides.json  31 shortened display titles (edit this file to change them)
   data/questions.json     56 Question Bank entries
   data/projects.json      7 project records with their versions
   data/resources.json     free resources list
@@ -26,7 +29,7 @@ java-roadmap-app/
 ## Stages
 - Stage 1 Foundation: BUILT. Not yet tested on the phone.
 - Stage 2 Roadmap data: BUILT. Waiting for the user to check data-check.html.
-- Stage 3 Daily card and Info sheet: not started.
+- Stage 3 Daily card and Info sheet: BUILT. Not yet tested on the phone. Done/Skipped come in Stage 5.
 - Stage 4 Calendar: not started.
 - Stage 5 Done, Skipped, catch-up, progress: not started.
 - Stage 6 Question Bank and Projects: not started.
@@ -41,7 +44,7 @@ java-roadmap-app/
 - NOT done: opening in a real browser, phone layout, install.
 
 ## Known issues and open items
-- 23 workbook display titles are cut off with "..." (e.g. "Banking project: requirements... 01"). The full text is in the topics field. User to decide how the card shows these.
+- 23 workbook display titles were cut off with "...". Decided with the user: short titles; project days use the project name plus a running number. 31 edits in data/title-overrides.json (the original workbook titles stay in data/roadmap.json). Semester Planner days 206-211 were renumbered 03-08 so days 204-211 run 01-08; the user can ask to revert this.
 - Days 218 and 221 mention projects in the project text but have no project colour key in the workbook; left as is.
 - Frontend extension has no colour of its own in the workbook; it is not coloured.
 - Codex platform name/URL still needed (8 slots stay pending).
