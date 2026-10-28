@@ -1,24 +1,29 @@
-/* Java Roadmap: design tokens and base styles (Stage 1) */
+/* Java Roadmap: design tokens and base styles (Stage 1, white palette) */
 
 :root {
   color-scheme: light dark;
 
-  --bg: #F6F2E7;
-  --surface: #FDFBF4;
-  --ink: #2A2F28;
-  --muted: #5F665A;
-  --line: #E3DDCB;
-  --accent: #7FA68A;
-  --accent-strong: #3F6B50;
+  --bg: #FFFFFF;
+  --surface: #F7F8FA;
+  --ink: #1F2933;
+  --muted: #5B6573;
+  --line: #E3E7ED;
+  --accent: #4CAF82;
+  --accent-strong: #1E7B50;
   --on-accent: #FFFFFF;
 
-  /* Project colours (pastel versions of the workbook palette) */
-  --proj-guessing-game: #CFE0F5;
-  --proj-banking: #BFE3CF;
-  --proj-smart-library: #DCCFF0;
-  --proj-inventory: #F6D9BE;
-  --proj-task-api: #E2EDBD;
-  --proj-semester-planner: #F2C9C9;
+  /* Supporting accents */
+  --blue: #3B7DC4;
+  --purple: #7458B8;
+  --pink: #C94A85;
+
+  /* Project colours (soft versions of the workbook palette) */
+  --proj-guessing-game: #D6E6FA;
+  --proj-banking: #CDEFD9;
+  --proj-smart-library: #E3DAF7;
+  --proj-inventory: #FBE2C8;
+  --proj-task-api: #CBEFEA;
+  --proj-semester-planner: #F8D3E3;
 
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -30,21 +35,25 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1C201B;
-    --surface: #252A23;
-    --ink: #ECEADF;
-    --muted: #A8AE9E;
-    --line: #353B32;
-    --accent: #8FBF9D;
-    --accent-strong: #A9D6B5;
-    --on-accent: #12170F;
+    --bg: #121417;
+    --surface: #1B1F24;
+    --ink: #E8EAED;
+    --muted: #9AA3AE;
+    --line: #2B3138;
+    --accent: #5CC59A;
+    --accent-strong: #7FD8B1;
+    --on-accent: #0B1410;
 
-    --proj-guessing-game: #34506E;
-    --proj-banking: #2F5B45;
-    --proj-smart-library: #54447A;
-    --proj-inventory: #7A5636;
-    --proj-task-api: #55612F;
-    --proj-semester-planner: #7A3F3F;
+    --blue: #7FB2E8;
+    --purple: #B7A3F0;
+    --pink: #EE8DB9;
+
+    --proj-guessing-game: #2F4B73;
+    --proj-banking: #285C45;
+    --proj-smart-library: #4B3F7A;
+    --proj-inventory: #74502A;
+    --proj-task-api: #25625C;
+    --proj-semester-planner: #7A3A5A;
   }
 }
 
@@ -136,13 +145,37 @@ main:focus { outline: none; }
   font-size: 0.9375rem;
 }
 
+/* Project colour preview (replaced by the real project list in Stage 6) */
+.swatches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.swatches li { display: flex; align-items: center; gap: 10px; }
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  flex: none;
+}
+.sw-guessing-game { background: var(--proj-guessing-game); }
+.sw-banking { background: var(--proj-banking); }
+.sw-smart-library { background: var(--proj-smart-library); }
+.sw-inventory { background: var(--proj-inventory); }
+.sw-task-api { background: var(--proj-task-api); }
+.sw-semester-planner { background: var(--proj-semester-planner); }
+
 /* Bottom tab bar */
 .tabbar {
   position: fixed;
   left: 0; right: 0; bottom: 0;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  background: var(--surface);
+  background: var(--bg);
   border-top: 1px solid var(--line);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
