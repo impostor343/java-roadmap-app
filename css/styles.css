@@ -24,6 +24,7 @@
   --proj-inventory: #FBE2C8;
   --proj-task-api: #CBEFEA;
   --proj-semester-planner: #F8D3E3;
+  --chip-plain: #E9EEF2;
 
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -54,6 +55,7 @@
     --proj-inventory: #74502A;
     --proj-task-api: #25625C;
     --proj-semester-planner: #7A3A5A;
+    --chip-plain: #2C343B;
   }
 }
 
@@ -238,49 +240,102 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, 0.4); }
 .info-line a { color: var(--accent-strong); }
 .sheet-inner .btn { width: 100%; margin-top: 8px; }
 
-/* Stage 4: calendar */
-.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.cal-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; }
-.cal-head .icon-btn { border: 0; background: none; cursor: pointer; }
-.cal-head .icon-btn:disabled { opacity: 0.3; cursor: default; }
-.cal-head .icon-btn:focus-visible { outline: 3px solid var(--accent-strong); }
-.cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-.cal-week span { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 4px 0; }
+/* Calendar: Google Calendar style rows and columns */
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.cal-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.375rem; }
+.cal-arrows { display: flex; }
+.cal-arrows .icon-btn { border: 0; background: none; cursor: pointer; }
+.cal-arrows .icon-btn:disabled { opacity: 0.3; cursor: default; }
+.cal-arrows .icon-btn:focus-visible { outline: 3px solid var(--accent-strong); }
+.cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cal-week span { text-align: center; color: var(--muted); font-size: 0.75rem; font-weight: 600; padding: 6px 0; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
 .cell {
-  min-height: 76px;
-  padding: 4px 2px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
+  position: relative;
+  min-height: 92px;
+  padding: 3px 0 2px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg);
   color: var(--ink);
   font: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 3px;
   overflow: hidden;
   cursor: pointer;
 }
-.cell.blank { border-color: transparent; background: none; cursor: default; }
-.cell.none { opacity: 0.45; cursor: default; }
+.cell.other { color: var(--muted); opacity: 0.5; cursor: default; }
 .cell-num { font-size: 0.8125rem; min-width: 22px; height: 22px; line-height: 22px; border-radius: 11px; text-align: center; }
 .cell-num.today { background: var(--accent-strong); color: var(--on-accent); font-weight: 700; }
-.cell-sym { font-size: 1rem; line-height: 1.2; }
-.cell-name {
+.chip {
+  width: calc(100% - 4px);
+  padding: 2px 3px;
+  border-radius: 4px;
   font-size: 0.625rem;
   line-height: 1.15;
-  text-align: center;
-  max-width: 100%;
+  text-align: left;
   overflow-wrap: anywhere;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.cell.selected { box-shadow: inset 0 0 0 2px var(--ink); }
-button.cell:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 1px; }
+.cell-note { position: absolute; right: 3px; bottom: 1px; font-size: 0.625rem; color: var(--muted); }
+.cell.selected { box-shadow: inset 0 0 0 2px var(--accent-strong); }
+button.cell:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: -3px; }
 .preview { margin-top: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .preview p { margin: 0 0 6px; overflow-wrap: anywhere; }
 .preview-title { margin: 0 0 10px; font-size: 1.125rem; }
 .preview .btn { width: 100%; margin-top: 8px; }
 .legend-title { margin: 20px 0 8px; font-weight: 600; }
+
+/* Notes (Calendar and Today) */
+.notes { margin-top: 16px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); }
+.notes-title { margin: 0 0 8px; font-size: 1.125rem; }
+.notes-label { display: block; margin: 12px 0 4px; font-size: 0.9375rem; font-weight: 600; }
+.notes-input {
+  width: 100%;
+  min-height: 88px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+.notes-input:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 1px; }
+.notes .btn { width: 100%; margin-top: 14px; }
+.notes-status { margin: 8px 0 0; color: var(--muted); font-size: 0.875rem; }
+
+/* Today: yesterday / today / tomorrow strip and jump to date */
+.day-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.strip-btn {
+  min-height: 52px;
+  padding: 6px 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.strip-btn small { display: block; color: var(--muted); font-size: 0.75rem; }
+.strip-btn[aria-current="true"] { background: var(--accent-strong); color: var(--on-accent); border-color: transparent; font-weight: 700; }
+.strip-btn[aria-current="true"] small { color: var(--on-accent); }
+.strip-btn:disabled { opacity: 0.4; cursor: default; }
+.strip-btn:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
+.jump { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+.jump input { min-height: var(--tap); padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font: inherit; }
