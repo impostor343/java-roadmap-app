@@ -29,12 +29,25 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 - Plain lines with a bold label, e.g. **Time:** 60-90 min.
 - Empty labels and sections are left out. No fake links or estimates.
 
-## Calendar
-- Classic month grid, previous/next month arrows.
-- Each cell: date number, emoji, topic name in very small text (2 lines).
-- Project days filled with the project's pastel colour; legend below.
-- Today and the selected date look different.
-- Tapping a date shows a preview and list, with a button to open the card.
+## Calendar (revised after user feedback: Google Calendar style)
+- Month in rows and columns with thin grid lines, weekday letters on top,
+  previous/next month arrows next to the month title.
+- Each day shows its date number and one coloured chip: emoji plus topic name
+  (project days use the project colour, plain days a neutral tint).
+- Today = date number in a green circle. Selected day = green outline.
+- A small pencil mark shows a day that has saved notes.
+- Tapping a date shows a preview (title, day, project, time, topics) with an
+  "Open card" button, then the My notes section, then the project legend.
+
+## My notes (new)
+- Under a selected date in the Calendar, and under the card on Today.
+- Three fields: What I did today; Review (what I learned, what was hard);
+  Remarks or blockers. Saved automatically on this phone, plus a Save button.
+
+## Today navigation (revised)
+- Yesterday / Today / Tomorrow buttons above the card (relative to the real date).
+- Previous/Next still follow the original roadmap order.
+- A "Jump to date" picker opens any scheduled date.
 
 ## Status markers
 - Corner symbols: done = check, skipped = arrow, catch-up done = loop.

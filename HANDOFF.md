@@ -1,7 +1,7 @@
 # HANDOFF: Java Roadmap app (read this first)
 
 This file lets any AI assistant continue the project without the earlier chat.
-Last updated after Stage 4 was BUILT (not yet tested by the user on the phone).
+Last updated after Stage 4 was rebuilt with notes and a date strip (awaiting the user's phone test).
 
 ## 1. What this is
 A personal, installable, offline-first Progressive Web App (PWA) that lets one
@@ -51,7 +51,9 @@ java-roadmap-app/
   js/app.js                screen switching by URL hash
   js/data.js               loads data once; window.RoadmapData shared helpers
   js/today.js              Today card, Previous/Next, Info sheet; window.TodayView.showDay(day)
-  js/calendar.js           month calendar, legend, preview, Open card
+  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote, saveNote, deleteNote, allNotes); db 'java-roadmap', store 'dayNotes', key = roadmap day number
+  js/notes.js              My notes section: window.DayNotes.mount(parent, entry, idPrefix, onChange) and flush()
+  js/calendar.js           Google-Calendar-style month grid, chips, legend, preview, notes
   js/data-check.js         temporary data check page script
   data-check.html          temporary data check page
   data/roadmap.json        246 entries from the workbook
@@ -64,7 +66,8 @@ java-roadmap-app/
   PROJECT_STATUS.md        short status
   HANDOFF.md               this file
 ```
-Script order in index.html: app.js, data.js, today.js, calendar.js.
+Script order in index.html: app.js, data.js, store.js, notes.js, today.js, calendar.js.
+Note record: {day, date, did, review, remarks, updatedAt}. Empty notes are deleted, not stored.
 `window.RoadmapData` has: entries, titles, ready (Promise), two(), toDate(),
 formatDate(iso), titleOf(entry), plainTitle(entry), todayIso(), projectNames.
 
@@ -102,8 +105,9 @@ plus Claude Guide and Workbook QA in the repaired file.
 7. Info content: plain lines "**Bold label:** info" (own idea). Empty ones are hidden.
 8. Navigation: bottom bar of 5 tabs (Today, Calendar, Questions, Projects,
    Progress); Settings is an icon in the top corner.
-9. Calendar: classic month grid, project days filled with colour, tapping a date
-   shows a preview and list, emoji kept, topic name written under each date.
+9. Calendar: first a card-style grid; REVISED by the user to a Google Calendar
+   style grid (rows/columns, thin lines, one coloured chip per day with emoji + topic name).
+   Tapping a date shows a preview and list, plus a My notes section.
 10. Cell text: emoji plus topic name in very small text, wrapping to 2 lines;
     full name appears in the preview.
 11. Project colours: workbook colours softened to pastel; teal and pink replace
@@ -121,6 +125,12 @@ plus Claude Guide and Workbook QA in the repaired file.
 18. Done: saves instantly, then a gentle "Add remark" link appears.
 19. Catch-up: a separate Catch-up screen reached from Progress, with a "Do it
     today" button on each item.
+
+### Later user requests (after the interview)
+- Add a notes section for any date (calendar) with: what I did today, review, remarks.
+  Also shown on Today. Saved automatically on the phone (IndexedDB).
+- Today tab: Yesterday / Today / Tomorrow buttons and a Jump to date picker.
+- These notes must be included in the Stage 7 backup export/restore.
 
 ## 7. Behaviour rules (must be implemented exactly)
 - Done: save status, timestamp, checklist state, notes locally; show in calendar
@@ -152,9 +162,9 @@ plus Claude Guide and Workbook QA in the repaired file.
 1. Foundation (shell, manifest, icons, styling): DONE, tested by user.
 2. Roadmap data (JSON from workbook, data-check page): DONE, tested by user.
 3. Daily card + Previous/Next + Info sheet: DONE, tested by user ("all fine").
-4. Calendar (month grid, colours, legend, preview, Open card): BUILT, checked
-   only with a stub-DOM script (Oct 2026 grid, month navigation, Open card to Today
-   worked). NOT yet uploaded or tested on the phone. Done/skipped markers wait for Stage 5.
+4. Calendar (Google-style grid, project colours, legend, preview, Open card, notes marker),
+   My notes section, and Today date strip: BUILT and checked in headless Chromium at phone
+   size (grid, notes saving and surviving a reload, jump to date). NOT yet tested by the user on the phone.
 5. Done, Skipped, remarks, notes, checklist, catch-up screen, Progress screen
    (needs saved data; add a small storage layer first or together).
 6. Question Bank (topic groups, search, filters, assigned vs unassigned, status,
@@ -169,7 +179,9 @@ plus Claude Guide and Workbook QA in the repaired file.
 - No saved progress yet; status on the card is always "Pending".
 - No service worker yet: no offline use and no full install until Stage 8.
 - The calendar cell text is very small by design; long names are clamped to 2 lines.
-- The user must still check Stage 4 on the phone.
+- The user must still check the rebuilt Stage 4 on the phone.
+- Notes are in IndexedDB only: backup/restore (Stage 7) must cover them.
+- Calendar chip text is tiny and long words may break mid-word in narrow cells.
 
 ## 11. Message to paste into a new AI chat
 "I am continuing a project. Read HANDOFF.md (attached) and DESIGN_SPEC.md and
