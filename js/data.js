@@ -42,6 +42,21 @@
       var o = D.titles[e.day];
       return o ? o.title : e.title.replace(/\s+\d+$/, '');
     },
+    indexOfDate: function (iso) {
+      for (var i = 0; i < D.entries.length; i++) {
+        if (D.entries[i].date === iso) { return i; }
+      }
+      return -1;
+    },
+    shiftIso: function (iso, offset) {
+      var d = toDate(iso);
+      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset);
+      return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+    },
+    shortDate: function (iso) {
+      var d = toDate(iso);
+      return DAYS3[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS3[d.getMonth()];
+    },
     todayIso: function () {
       var n = new Date();
       return n.getFullYear() + '-' + two(n.getMonth() + 1) + '-' + two(n.getDate());

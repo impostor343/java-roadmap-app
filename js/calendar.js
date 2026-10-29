@@ -1,21 +1,24 @@
-// Stage 4: month calendar. Shows the original schedule; saves nothing yet.
+// Month calendar in a Google Calendar style: rows and columns, one coloured
+// chip per day. Tap a date for a preview and your notes. Original dates never change.
 
 (function () {
   'use strict';
 
   var D = window.RoadmapData;
+  var S = window.RoadmapStore;
   var root = document.getElementById('calendar');
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
-  var WEEK = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  var WEEK = [['S', 'Sunday'], ['M', 'Monday'], ['T', 'Tuesday'], ['W', 'Wednesday'],
+              ['T', 'Thursday'], ['F', 'Friday'], ['S', 'Saturday']];
   var LEGEND_ORDER = ['guessing-game', 'banking', 'smart-library', 'inventory', 'task-api', 'semester-planner'];
   var CHEVRON_L = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
   var CHEVRON_R = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
 
   var byDate = {};
-  var firstKey, lastKey;     // 'YYYY-MM' of the first and last roadmap month
-  var viewKey;               // month being shown
-  var selected;              // selected ISO date
+  var noted = {};          // date -> true when that day has saved notes
+  var cells = {};          // date -> { btn, mark } for the month on screen
+  var firstKey, lastKey, viewKey, selected;
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -42,57 +45,90 @@
     return b;
   }
 
+  function labelFor(e, isToday, isSelected) {
+    return D.formatDate(e.date) + ', ' + D.titleOf(e) + (noted[e.date] ? ', has notes' : '') +
+      (isToday ? ', today' : '') + (isSelected ? ', selected' : '');
+  }
+
+  function refreshCell(date) {
+    var c = cells[date];
+    if (!c) { return; }
+    c.mark.hidden = !noted[date];
+    c.btn.setAttribute('aria-label', labelFor(byDate[date], date === D.todayIso(), date === selected));
+  }
+
   function draw() {
+    window.DayNotes.flush();
     var year = Number(viewKey.slice(0, 4));
     var month = Number(viewKey.slice(5, 7)) - 1;
     var today = D.todayIso();
+    cells = {};
     root.textContent = '';
 
     var head = el('div', 'cal-head');
-    head.appendChild(iconButton(CHEVRON_L, 'Previous month', viewKey === firstKey, function () { viewKey = shiftMonth(viewKey, -1); draw(); }));
     head.appendChild(el('h2', '', MONTHS[month] + ' ' + year));
-    head.appendChild(iconButton(CHEVRON_R, 'Next month', viewKey === lastKey, function () { viewKey = shiftMonth(viewKey, 1); draw(); }));
+    var arrows = el('div', 'cal-arrows');
+    arrows.appendChild(iconButton(CHEVRON_L, 'Previous month', viewKey === firstKey, function () { viewKey = shiftMonth(viewKey, -1); draw(); }));
+    arrows.appendChild(iconButton(CHEVRON_R, 'Next month', viewKey === lastKey, function () { viewKey = shiftMonth(viewKey, 1); draw(); }));
+    head.appendChild(arrows);
     root.appendChild(head);
 
     var week = el('div', 'cal-week');
-    WEEK.forEach(function (w) { week.appendChild(el('span', '', w)); });
+    WEEK.forEach(function (w) {
+      var s = el('span', '', w[0]);
+      s.setAttribute('aria-label', w[1]);
+      week.appendChild(s);
+    });
     root.appendChild(week);
 
     var grid = el('div', 'cal-grid');
     var offset = new Date(year, month, 1).getDay();
     var count = new Date(year, month + 1, 0).getDate();
-    for (var b = 0; b < offset; b++) { grid.appendChild(el('div', 'cell blank')); }
-
-    for (var d = 1; d <= count; d++) {
-      var iso = viewKey + '-' + D.two(d);
-      var e = byDate[iso];
+    var total = Math.ceil((offset + count) / 7) * 7;
+    for (var i = 0; i < total; i++) {
+      var dayNum = i - offset + 1;
+      var inMonth = dayNum >= 1 && dayNum <= count;
+      var dt = new Date(year, month, dayNum);
+      var iso = dt.getFullYear() + '-' + D.two(dt.getMonth() + 1) + '-' + D.two(dt.getDate());
+      var e = inMonth ? byDate[iso] : null;
       if (!e) {
-        var none = el('div', 'cell none');
-        none.appendChild(el('span', 'cell-num', String(d)));
-        grid.appendChild(none);
+        var other = el('div', 'cell other');
+        other.appendChild(el('span', 'cell-num', String(dt.getDate())));
+        grid.appendChild(other);
         continue;
       }
-      grid.appendChild(makeCell(e, d, iso === today, iso === selected));
+      grid.appendChild(makeCell(e, dt.getDate(), iso === today, iso === selected));
     }
     root.appendChild(grid);
 
-    if (byDate[selected]) { root.appendChild(makePreview(byDate[selected], selected === today)); }
+    var entry = byDate[selected];
+    if (entry) {
+      root.appendChild(makePreview(entry, selected === today));
+      var host = el('div');
+      root.appendChild(host);
+      window.DayNotes.mount(host, entry, 'cal', function (en, has) {
+        noted[en.date] = has;
+        refreshCell(en.date);
+      });
+    }
     root.appendChild(makeLegend());
   }
 
   function makeCell(e, d, isToday, isSelected) {
     var b = el('button', 'cell' + (isSelected ? ' selected' : ''));
     b.type = 'button';
-    b.setAttribute('aria-label', D.formatDate(e.date) + ', ' + D.titleOf(e) +
-      (isToday ? ', today' : '') + (isSelected ? ', selected' : ''));
     if (isSelected) { b.setAttribute('aria-pressed', 'true'); }
-    if (e.projectKey) { b.style.background = 'var(--proj-' + e.projectKey + ')'; }
     b.appendChild(el('span', 'cell-num' + (isToday ? ' today' : ''), String(d)));
-    var sym = el('span', 'cell-sym', e.symbol);
-    sym.setAttribute('aria-hidden', 'true');
-    b.appendChild(sym);
-    b.appendChild(el('span', 'cell-name', D.plainTitle(e)));
+    var chip = el('span', 'chip', e.symbol + ' ' + D.plainTitle(e));
+    chip.style.background = e.projectKey ? 'var(--proj-' + e.projectKey + ')' : 'var(--chip-plain)';
+    b.appendChild(chip);
+    var mark = el('span', 'cell-note', '✎');
+    mark.setAttribute('aria-hidden', 'true');
+    mark.hidden = !noted[e.date];
+    b.appendChild(mark);
+    b.setAttribute('aria-label', labelFor(e, isToday, isSelected));
     b.addEventListener('click', function () { selected = e.date; draw(); });
+    cells[e.date] = { btn: b, mark: mark };
     return b;
   }
 
@@ -116,6 +152,7 @@
     var open = el('button', 'btn primary', 'Open card');
     open.type = 'button';
     open.addEventListener('click', function () {
+      window.DayNotes.flush();
       if (window.TodayView) { window.TodayView.showDay(e.day); }
       window.location.hash = '#today';
     });
@@ -138,8 +175,15 @@
       list.appendChild(li);
     });
     wrap.appendChild(list);
-    wrap.appendChild(el('p', 'note', 'Plain days are learning or revision days.'));
+    wrap.appendChild(el('p', 'note', 'Plain days are learning or revision days. ✎ marks a day with notes.'));
     return wrap;
+  }
+
+  function loadNoted() {
+    return S.allNotes().then(function (all) {
+      noted = {};
+      all.forEach(function (n) { noted[n.date] = true; });
+    }).catch(function () { noted = {}; });
   }
 
   D.ready.then(function () {
@@ -149,9 +193,14 @@
     var today = D.todayIso();
     selected = byDate[today] ? today : (today < D.entries[0].date ? D.entries[0].date : D.entries[D.entries.length - 1].date);
     viewKey = selected.slice(0, 7);
-    draw();
+    return loadNoted().then(draw);
   }).catch(function (err) {
     root.textContent = '';
     root.appendChild(el('p', 'empty', 'Could not load the calendar: ' + err.message));
+  });
+
+  // Notes may have been edited on the Today tab; refresh the markers when coming back.
+  window.addEventListener('hashchange', function () {
+    if (window.location.hash === '#calendar' && firstKey) { loadNoted().then(draw); }
   });
 })();

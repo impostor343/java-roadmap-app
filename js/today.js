@@ -39,8 +39,10 @@
     var e = D.entries[index];
     box.textContent = '';
 
+    box.appendChild(makeStrip());
+
     var card = el('article', 'day-card');
-    card.appendChild(el('p', 'card-date', D.formatDate(e.date)));
+    card.appendChild(el('p', 'card-date', D.formatDate(e.date) + (e.date === D.todayIso() ? ' (today)' : '')));
     card.appendChild(el('h2', 'card-group', e.group));
     var sym = el('p', 'card-symbol', e.symbol);
     sym.setAttribute('aria-hidden', 'true');
@@ -61,6 +63,50 @@
     row.appendChild(button('Info', 'primary', openInfo));
     row.appendChild(button('Next', '', function () { go(1); }, index === D.entries.length - 1));
     box.appendChild(row);
+    box.appendChild(makeJump(e));
+
+    var notesHost = el('div');
+    box.appendChild(notesHost);
+    window.DayNotes.mount(notesHost, e, 'today');
+  }
+
+  function makeStrip() {
+    var strip = el('div', 'day-strip');
+    strip.setAttribute('role', 'group');
+    strip.setAttribute('aria-label', 'Yesterday, today and tomorrow');
+    var names = ['Yesterday', 'Today', 'Tomorrow'];
+    [-1, 0, 1].forEach(function (off, k) {
+      var iso = D.shiftIso(D.todayIso(), off);
+      var i = D.indexOfDate(iso);
+      var b = el('button', 'strip-btn');
+      b.type = 'button';
+      b.appendChild(el('span', '', names[k]));
+      b.appendChild(el('small', '', D.shortDate(iso)));
+      b.disabled = i < 0;
+      if (i === index) { b.setAttribute('aria-current', 'true'); }
+      b.addEventListener('click', function () { index = i; render(); window.scrollTo(0, 0); });
+      strip.appendChild(b);
+    });
+    return strip;
+  }
+
+  function makeJump(e) {
+    var row = el('div', 'jump');
+    var label = el('label', '', 'Jump to date');
+    label.htmlFor = 'jump-date';
+    var input = el('input');
+    input.type = 'date';
+    input.id = 'jump-date';
+    input.min = D.entries[0].date;
+    input.max = D.entries[D.entries.length - 1].date;
+    input.value = e.date;
+    input.addEventListener('change', function () {
+      var i = D.indexOfDate(input.value);
+      if (i >= 0) { index = i; render(); window.scrollTo(0, 0); }
+    });
+    row.appendChild(label);
+    row.appendChild(input);
+    return row;
   }
 
   function go(step) {
