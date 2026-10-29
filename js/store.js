@@ -1,12 +1,13 @@
-// Local storage in the browser (IndexedDB). Notes are saved per roadmap day.
-// Nothing leaves the phone. window.RoadmapStore: getNote, saveNote, deleteNote, allNotes.
+// Local storage in the browser (IndexedDB). Notes belong to calendar DATES.
+// Nothing leaves the phone. window.RoadmapStore: getNote(date), saveNote(note), deleteNote(date), allNotes().
 
 (function () {
   'use strict';
 
   var DB_NAME = 'java-roadmap';
-  var VERSION = 1;
-  var NOTES = 'dayNotes';
+  var VERSION = 2;
+  var OLD_NOTES = 'dayNotes';     // version 1 store (keyed by day number), copied once
+  var NOTES = 'dateNotes';
   var dbPromise = null;
 
   function open() {
@@ -14,9 +15,17 @@
     dbPromise = new Promise(function (resolve, reject) {
       var req;
       try { req = indexedDB.open(DB_NAME, VERSION); } catch (e) { reject(e); return; }
-      req.onupgradeneeded = function () {
+      req.onupgradeneeded = function (ev) {
         var db = req.result;
-        if (!db.objectStoreNames.contains(NOTES)) { db.createObjectStore(NOTES, { keyPath: 'day' }); }
+        var tx = req.transaction;
+        if (!db.objectStoreNames.contains(NOTES)) { db.createObjectStore(NOTES, { keyPath: 'date' }); }
+        if (ev.oldVersion < 2 && db.objectStoreNames.contains(OLD_NOTES)) {
+          var all = tx.objectStore(OLD_NOTES).getAll();
+          all.onsuccess = function () {
+            var dest = tx.objectStore(NOTES);
+            (all.result || []).forEach(function (n) { if (n && n.date) { dest.put(n); } });
+          };
+        }
       };
       req.onsuccess = function () { resolve(req.result); };
       req.onerror = function () { reject(req.error); };
@@ -39,9 +48,9 @@
   if (navigator.storage && navigator.storage.persist) { navigator.storage.persist(); }
 
   window.RoadmapStore = {
-    getNote: function (day) { return run('readonly', function (s) { return s.get(day); }).then(function (r) { return r || null; }); },
+    getNote: function (date) { return run('readonly', function (s) { return s.get(date); }).then(function (r) { return r || null; }); },
     saveNote: function (note) { return run('readwrite', function (s) { return s.put(note); }); },
-    deleteNote: function (day) { return run('readwrite', function (s) { return s.delete(day); }); },
+    deleteNote: function (date) { return run('readwrite', function (s) { return s.delete(date); }); },
     allNotes: function () { return run('readonly', function (s) { return s.getAll(); }).then(function (r) { return r || []; }); }
   };
 })();

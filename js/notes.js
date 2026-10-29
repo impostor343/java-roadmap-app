@@ -40,7 +40,7 @@
 
     var inputs = {};
     FIELDS.forEach(function (f) {
-      var id = prefix + '-note-' + entry.day + '-' + f.key;
+      var id = prefix + '-note-' + entry.date + '-' + f.key;
       var label = el('label', 'notes-label', f.label);
       label.htmlFor = id;
       var ta = el('textarea', 'notes-input');
@@ -62,13 +62,13 @@
     parent.appendChild(wrap);
 
     function save() {
-      var note = { day: entry.day, date: entry.date, updatedAt: new Date().toISOString() };
+      var note = { date: entry.date, day: entry.day, updatedAt: new Date().toISOString() };
       var any = false;
       FIELDS.forEach(function (f) {
         note[f.key] = inputs[f.key].value;
         if (note[f.key].trim()) { any = true; }
       });
-      var job = any ? S.saveNote(note) : S.deleteNote(entry.day);
+      var job = any ? S.saveNote(note) : S.deleteNote(entry.date);
       return job.then(function () {
         status.textContent = any ? 'Saved on this phone.' : 'Nothing to save.';
         if (onChange) { onChange(entry, any); }
@@ -83,7 +83,7 @@
       pending = { run: save, timer: setTimeout(flush, 800) };
     }
 
-    S.getNote(entry.day).then(function (n) {
+    S.getNote(entry.date).then(function (n) {
       FIELDS.forEach(function (f) {
         inputs[f.key].value = n && n[f.key] ? n[f.key] : '';
         inputs[f.key].disabled = false;

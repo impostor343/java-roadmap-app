@@ -66,6 +66,7 @@
   D.ready = Promise.all([load('data/roadmap.json'), load('data/display-titles.json')])
     .then(function (res) {
       D.entries = res[0].entries;
+      D.entries.forEach(function (e, i) { e.seq = i + 1; });   // position in the schedule; e.day stays the fixed id
       D.titles = res[1];
       return D;
     });

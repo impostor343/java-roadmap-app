@@ -21,12 +21,15 @@
 
   Promise.all([
     load('data/roadmap.json'), load('data/questions.json'),
-    load('data/projects.json'), load('data/resources.json')
+    load('data/projects.json'), load('data/resources.json'),
+    load('data/title-overrides.json')
   ]).then(function (res) {
     var entries = res[0].entries;
     var questions = res[1].questions;
     var projects = res[2].projects;
     var resources = res[3].resources;
+    var edits = {};
+    res[4].overrides.forEach(function (o) { edits[o.day] = o.displayTitle; });
 
     var assigned = questions.filter(function (q) { return q.status === 'Assigned (suggested)'; }).length;
     var versions = projects.reduce(function (n, p) { return n + p.versions.length; }, 0);
@@ -36,7 +39,8 @@
       'Roadmap entries: ' + entries.length + ' (' + entries[0].date + ' to ' + entries[entries.length - 1].date + ')',
       'Questions: ' + questions.length + ' (' + assigned + ' assigned, ' + (questions.length - assigned) + ' not assigned)',
       'Projects: ' + projects.length + ' with ' + versions + ' versions',
-      'Resources: ' + resources.length
+      'Resources: ' + resources.length,
+      'Shortened titles: ' + res[4].overrides.length + ' (marked "edited" below)'
     ].forEach(function (t) {
       var p = document.createElement('p'); p.textContent = t; counts.appendChild(p);
     });
@@ -65,14 +69,15 @@
       var term = searchEl.value.trim().toLowerCase();
       listEl.textContent = '';
       var shown = 0;
-      entries.forEach(function (e) {
+      entries.forEach(function (e, idx) {
         if (month && e.date.slice(0, 7) !== month) { return; }
-        if (term && (e.title + ' ' + e.topics + ' ' + e.group).toLowerCase().indexOf(term) === -1) { return; }
+        var shownTitle = edits[e.day] || e.title;
+        if (term && (shownTitle + ' ' + e.topics + ' ' + e.group).toLowerCase().indexOf(term) === -1) { return; }
         shown++;
         var row = document.createElement('div'); row.className = 'row';
         var d = parseDate(e.date);
         var b = document.createElement('b');
-        b.textContent = e.symbol + ' ' + e.title;
+        b.textContent = e.symbol + ' ' + shownTitle;
         row.appendChild(b);
         if (e.projectKey) {
           var chip = document.createElement('span');
@@ -82,7 +87,7 @@
           row.appendChild(chip);
         }
         var s1 = document.createElement('small');
-        s1.textContent = DAYS[d.getDay()] + ' ' + e.date + ', Day ' + e.day + ', topic day ' + e.topicDay + ', ' + e.group;
+        s1.textContent = DAYS[d.getDay()] + ' ' + e.date + ', Day ' + (idx + 1) + ', topic day ' + e.topicDay + ', ' + e.group + (edits[e.day] ? ', edited title' : '');
         var s2 = document.createElement('small');
         s2.textContent = e.topics;
         row.appendChild(s1); row.appendChild(s2);

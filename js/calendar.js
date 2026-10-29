@@ -16,7 +16,7 @@
   var CHEVRON_R = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
 
   var byDate = {};
-  var noted = {};          // date -> true when that day has saved notes
+  var noted = {};          // calendar date -> true when that date has saved notes
   var cells = {};          // date -> { btn, mark } for the month on screen
   var firstKey, lastKey, viewKey, selected;
 
@@ -145,7 +145,7 @@
     box.setAttribute('aria-label', 'Selected day');
     box.appendChild(el('p', 'card-meta', D.formatDate(e.date) + (isToday ? ' (today)' : '')));
     box.appendChild(el('h3', 'preview-title', e.symbol + ' ' + D.titleOf(e)));
-    line(box, 'Day', e.day + ' of ' + D.entries.length + ', ' + e.group);
+    line(box, 'Day', e.seq + ' of ' + D.entries.length + ', ' + e.group);
     line(box, 'Project', e.projectKey ? D.projectNames[e.projectKey] : null);
     line(box, 'Time', e.time);
     line(box, 'Topics', e.topics);

@@ -48,7 +48,7 @@
     sym.setAttribute('aria-hidden', 'true');
     card.appendChild(sym);
     card.appendChild(el('p', 'card-title', D.titleOf(e)));
-    card.appendChild(el('p', 'card-meta', 'Day ' + e.day + ' of ' + D.entries.length));
+    card.appendChild(el('p', 'card-meta', 'Day ' + e.seq + ' of ' + D.entries.length));
     if (e.time) { card.appendChild(el('p', 'card-meta', e.time)); }
     var st = el('p', 'status');
     var mark = el('span', '', '○');
@@ -146,7 +146,7 @@
     var e = D.entries[index];
     sheetTitle.textContent = D.titleOf(e);
     sheetBody.textContent = '';
-    addLine('Overall day', e.day + ' of ' + D.entries.length);
+    addLine('Overall day', e.seq + ' of ' + D.entries.length);
     addLine('Topic day', D.two(e.topicDay));
     addLine('Topic group', e.group);
     addLine('Phase', e.phase);
