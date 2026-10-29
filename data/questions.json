@@ -12,7 +12,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Prefix sums / array traversal",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-10-29"
   },
   {
    "id": "Q002",
@@ -26,7 +27,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Nested loops and 2D arrays",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q003",
@@ -40,7 +42,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Conditions and loop control",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-11-02"
   },
   {
    "id": "Q004",
@@ -54,7 +57,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Digit processing and conditions",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-11-03"
   },
   {
    "id": "Q005",
@@ -68,7 +72,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Loops and integer operations",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q006",
@@ -82,7 +87,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Array indexing",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q007",
@@ -96,7 +102,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Index mapping",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q008",
@@ -110,7 +117,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Array mapping",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q009",
@@ -124,7 +132,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Brute force first; revisit with HashMap after Collections",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-11-04"
   },
   {
    "id": "Q010",
@@ -133,12 +142,13 @@
    "url": "https://leetcode.com/problems/contains-duplicate/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: hashset; prerequisite checkpoint: hashset appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-07",
+   "recommendedDate": "2027-02-14",
    "recommendedDay": 103,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Sets and duplicate detection",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-07"
   },
   {
    "id": "Q011",
@@ -152,7 +162,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "String processing and frequency counting",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q012",
@@ -166,7 +177,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Single pass and tracking a minimum",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q013",
@@ -175,12 +187,13 @@
    "url": "https://leetcode.com/problems/move-zeroes/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: arrays; prerequisite checkpoint: arrays appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-01",
+   "recommendedDate": "2027-02-08",
    "recommendedDay": 97,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "In-place array modification",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-01"
   },
   {
    "id": "Q014",
@@ -194,7 +207,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Counting; later compare approaches",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q015",
@@ -203,12 +217,13 @@
    "url": "https://leetcode.com/problems/binary-search/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: binary search; prerequisite checkpoint: binary search appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-03",
+   "recommendedDate": "2027-02-10",
    "recommendedDay": 99,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Search on sorted data",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-03"
   },
   {
    "id": "Q016",
@@ -217,12 +232,13 @@
    "url": "https://leetcode.com/problems/search-insert-position/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: binary search; prerequisite checkpoint: binary search appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-04",
+   "recommendedDate": "2027-02-11",
    "recommendedDay": 100,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Binary-search boundaries",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-04"
   },
   {
    "id": "Q017",
@@ -236,7 +252,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Kadane's algorithm after basic traversal",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q018",
@@ -250,7 +267,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Recurrence and introductory dynamic programming",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q019",
@@ -259,12 +277,13 @@
    "url": "https://leetcode.com/problems/reverse-linked-list/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: linked list; prerequisite checkpoint: linked list appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-05",
+   "recommendedDate": "2027-02-12",
    "recommendedDay": 101,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Pointer/reference updates",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-05"
   },
   {
    "id": "Q020",
@@ -278,7 +297,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Fast/slow pointers",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q021",
@@ -287,12 +307,13 @@
    "url": "https://leetcode.com/problems/valid-parentheses/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: stack; prerequisite checkpoint: stack appears in the roadmap before attempting.",
-   "recommendedDate": "2027-02-06",
+   "recommendedDate": "2027-02-13",
    "recommendedDay": 102,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Stack operations",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-02-06"
   },
   {
    "id": "Q022",
@@ -306,7 +327,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Stack/queue behaviour",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q023",
@@ -320,7 +342,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Stack design and invariants",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q024",
@@ -329,12 +352,13 @@
    "url": "https://leetcode.com/problems/invert-binary-tree/",
    "difficulty": "Easy",
    "prerequisites": "Learn/practise: tree; prerequisite checkpoint: tree appears in the roadmap before attempting.",
-   "recommendedDate": "2027-05-30",
+   "recommendedDate": "2027-06-06",
    "recommendedDay": 215,
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Tree recursion",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2027-05-30"
   },
   {
    "id": "Q025",
@@ -348,7 +372,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Recursive tree traversal",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q026",
@@ -362,7 +387,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "DFS/grid traversal; only after recursion",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q027",
@@ -376,7 +402,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Grid DFS/BFS; later DSA milestone",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q028",
@@ -390,7 +417,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Sliding window after strings and HashMap",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q029",
@@ -404,7 +432,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Prefix/suffix reasoning",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q030",
@@ -418,7 +447,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Prefix sums + HashMap; later milestone",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q031",
@@ -432,7 +462,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Functions, parameters, return values",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-10-28"
   },
   {
    "id": "Q032",
@@ -446,7 +477,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "String concatenation and return values",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-10-30"
   },
   {
    "id": "Q033",
@@ -460,7 +492,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Loop accumulation",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q034",
@@ -474,7 +507,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Modulo and conditional return",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q035",
@@ -488,7 +522,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "String repetition",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q036",
@@ -502,7 +537,8 @@
    "assignmentRule": "Suggested after the day's lesson and a warm-up exercise. If the prerequisite is not understood, postpone it; do not shift the roadmap.",
    "purpose": "Transform each array element",
    "status": "Assigned (suggested)",
-   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value."
+   "notes": "Curated assignment, not a deadline. Try independently first; record hints/mistakes. Revisit later only if it adds value.",
+   "workbookRecommendedDate": "2026-10-31"
   },
   {
    "id": "Q037",
@@ -516,7 +552,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Boolean arrays and counting",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q038",
@@ -530,7 +567,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Array/list traversal",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q039",
@@ -544,7 +582,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Character scanning and counting",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q040",
@@ -558,7 +597,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Filtering characters",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q041",
@@ -572,7 +612,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Digit extraction and reconstruction",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q042",
@@ -586,7 +627,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Tracking seen characters",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q043",
@@ -600,7 +642,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Repeated digit processing; attempt after loop practice",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q044",
@@ -614,7 +657,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Frequency counting / map",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q045",
@@ -628,7 +672,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Formatting and array traversal",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q046",
@@ -642,7 +687,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "String frequency and transformation",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q047",
@@ -656,7 +702,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Stack-based matching",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "Q048",
@@ -670,7 +717,8 @@
    "assignmentRule": "Catalogue only. Do not schedule automatically until its prerequisites are explicitly taught and there is room in the plan.",
    "purpose": "Repeated multiplication and digit processing",
    "status": "Catalogue only",
-   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment."
+   "notes": "Intentionally unscheduled to keep practice manageable. This is not a missing assignment.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX001",
@@ -684,7 +732,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX002",
@@ -698,7 +747,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX003",
@@ -712,7 +762,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX004",
@@ -726,7 +777,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX005",
@@ -740,7 +792,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX006",
@@ -754,7 +807,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX007",
@@ -768,7 +822,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   },
   {
    "id": "CX008",
@@ -782,7 +837,8 @@
    "assignmentRule": "Do not schedule until the user confirms the exact Codex website/platform and topic level.",
    "purpose": "Reserved question-bank slot",
    "status": "Needs clarification",
-   "notes": "Placeholder only. Never invent a problem title or URL."
+   "notes": "Placeholder only. Never invent a problem title or URL.",
+   "workbookRecommendedDate": null
   }
  ]
 }
