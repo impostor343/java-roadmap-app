@@ -14,6 +14,8 @@ java-roadmap-app/
   js/app.js               switches screens using the URL hash
   icons/                  icon-192.png, icon-512.png, icon-maskable-512.png
   data-check.html         temporary page to check the data (removed later)
+  js/data.js              loads the data once and shares helpers
+  js/calendar.js          month calendar with project colours, legend and preview
   js/today.js             Today card, Previous/Next and the Info sheet
   data/display-titles.json  display titles for the 23 cut-off workbook titles
   js/data-check.js        loads the data files for that page
@@ -23,14 +25,15 @@ java-roadmap-app/
   data/projects.json      7 project records with their versions
   data/resources.json     free resources list
   DESIGN_SPEC.md          approved design
+  HANDOFF.md              full handoff for another AI or a new session
   PROJECT_STATUS.md       this file
 ```
 
 ## Stages
 - Stage 1 Foundation: BUILT. Not yet tested on the phone.
 - Stage 2 Roadmap data: BUILT. Waiting for the user to check data-check.html.
-- Stage 3 Daily card and Info sheet: BUILT. Not yet tested on the phone. Done/Skipped come in Stage 5.
-- Stage 4 Calendar: not started.
+- Stage 3 Daily card and Info sheet: BUILT and checked on the phone by the user.
+- Stage 4 Calendar: BUILT. Not yet tested on the phone. Done/skipped markers arrive in Stage 5.
 - Stage 5 Done, Skipped, catch-up, progress: not started.
 - Stage 6 Question Bank and Projects: not started.
 - Stage 7 Storage and backup: not started.
