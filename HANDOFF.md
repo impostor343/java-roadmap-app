@@ -1,11 +1,11 @@
 # HANDOFF: Java Roadmap app (read this first)
 
 This file lets any AI assistant continue the project without the earlier chat.
-Last updated after Stage 4 was rebuilt with notes and a date strip (awaiting the user's phone test).
+Last updated after the exam-pause schedule shift and the Home rename (awaiting the user's phone test).
 
 ## 1. What this is
 A personal, installable, offline-first Progressive Web App (PWA) that lets one
-GTU CSE student follow a 246-day Java internship learning roadmap on an Android
+GTU CSE student follow a 253-day Java internship learning roadmap (246 workbook days + 7 pause days) on an Android
 phone. Source of truth: an Excel workbook, GTU_Java_Internship_Roadmap_REPAIRED.xlsx.
 The app has no Excel reader; the workbook was converted once into JSON files.
 
@@ -51,7 +51,7 @@ java-roadmap-app/
   js/app.js                screen switching by URL hash
   js/data.js               loads data once; window.RoadmapData shared helpers
   js/today.js              Today card, Previous/Next, Info sheet; window.TodayView.showDay(day)
-  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote, saveNote, deleteNote, allNotes); db 'java-roadmap', store 'dayNotes', key = roadmap day number
+  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote(date), saveNote, deleteNote(date), allNotes); db 'java-roadmap' version 2, store 'dateNotes' keyed by date; the old version-1 store 'dayNotes' is copied over once
   js/notes.js              My notes section: window.DayNotes.mount(parent, entry, idPrefix, onChange) and flush()
   js/calendar.js           Google-Calendar-style month grid, chips, legend, preview, notes
   js/data-check.js         temporary data check page script
@@ -67,7 +67,7 @@ java-roadmap-app/
   HANDOFF.md               this file
 ```
 Script order in index.html: app.js, data.js, store.js, notes.js, today.js, calendar.js.
-Note record: {day, date, did, review, remarks, updatedAt}. Empty notes are deleted, not stored.
+Note record: {date, day, did, review, remarks, updatedAt} (key = date). Empty notes are deleted, not stored.
 `window.RoadmapData` has: entries, titles, ready (Promise), two(), toDate(),
 formatDate(iso), titleOf(entry), plainTitle(entry), todayIso(), projectNames.
 
@@ -75,7 +75,7 @@ formatDate(iso), titleOf(entry), plainTitle(entry), todayIso(), projectNames.
 Sheets: Daily Roadmap, Calendar View, App Display & Design, Question Bank, Free
 Resources, Project Milestones, Project Version Map, Weekly Review, Read Me First,
 plus Claude Guide and Workbook QA in the repaired file.
-- 246 consecutive days, 28 Oct 2026 to 30 Jun 2027 (Day 1 = Wed 28 Oct 2026).
+- 246 workbook days, 28 Oct 2026 to 30 Jun 2027 (Day 1 = Wed 28 Oct 2026); the app schedule is 253 days to 7 Jul 2027, see the schedule shift below.
 - roadmap.json entry fields: day, date (ISO), phase, topics, task, resource
   {text, name, url}, practice, project, publish, folder, time, group, symbol,
   topicDay, title, projectKey (null on plain days), projectNotes.
@@ -91,6 +91,25 @@ plus Claude Guide and Workbook QA in the repaired file.
   Android App in Java (pink). Also a "frontend extension" record with no colour,
   and an optional concurrency extension of Banking. Semester 3 finals and all
   Semester 4 dates are provisional, not official.
+
+### Schedule shift (user-approved, applied to data/roadmap.json)
+- The user's GTU exams are 18-28 Nov 2026. The roadmap is paused for the 7 days
+  before them (11-17 Nov) and continues after the exams. The roadmap is simply
+  EXTENDED by 7 days: it now has 253 entries and ends 7 Jul 2027 (was 30 Jun).
+- 7 new entries "Pre-exam Pause 01-07" (ids 247-253, symbol pause, group GTU exams,
+  added: true). Wording written by Claude: "Roadmap paused before the GTU exams.
+  No new topics or project work." The user can change it.
+- Exam Buffer 01-11 stay on 18-28 Nov. The topics that were on 11-17 Nov (ids 15-21)
+  now run 29 Nov-5 Dec. Every entry from id 33 to 246 moved exactly 7 days later,
+  including the later (provisional) exam windows. Nothing was deleted or reordered.
+- Each entry keeps `day` = fixed id from the workbook and `workbookDate` = original
+  workbook date. `seq` (added at load in data.js) = position in the schedule, used for
+  "Day N of 253". Question dates follow their entries (workbookRecommendedDate keeps the
+  original). 7 of the 14 assigned dates changed.
+- Not updated: dates written inside workbook text (e.g. project milestone strings like
+  "Dec 2-6" in projects.json). Review them with the user when building the Projects tab.
+- Notes belong to calendar DATES (user decision), not to topics.
+- The Today tab was renamed Home (internal hash is still #today).
 
 ## 6. Design decisions made by the user (interview answers)
 1. Style: clean and minimal, lots of space, calm.

@@ -14,10 +14,11 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
   Topic symbols stay as the workbook's emoji.
 
 ## Navigation
-- Bottom bar, 5 tabs: Today, Calendar, Questions, Projects, Progress.
+- Bottom bar, 5 tabs: Home (was Today; renamed by the user, house icon), Calendar,
+  Questions, Projects, Progress.
 - Settings is an icon in the top corner.
 
-## Today card
+## Home card (the screen formerly called Today)
 - Order: date (small), topic group as a large heading, symbol, title with
   topic-day number (e.g. "Methods 01"), overall day ("Day 1 of 246"),
   suggested time, status marker (symbol plus word).
@@ -41,6 +42,7 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 
 ## My notes (new)
 - Under a selected date in the Calendar, and under the card on Today.
+- Notes belong to calendar dates, not topics.
 - Three fields: What I did today; Review (what I learned, what was hard);
   Remarks or blockers. Saved automatically on this phone, plus a Save button.
 

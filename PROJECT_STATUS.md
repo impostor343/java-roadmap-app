@@ -49,6 +49,8 @@ java-roadmap-app/
 - NOT done: opening in a real browser, phone layout, install.
 
 ## Known issues and open items
+- Schedule extended by 7 days for exams (see HANDOFF.md): 7 pause days 11-17 Nov, everything from id 33 moved 7 days later, ends 7 Jul 2027. Dates inside workbook text not updated.
+- Today tab renamed Home.
 - 23 workbook display titles were cut off with "...". Decided with the user: short titles; project days use the project name plus a running number. 31 edits in data/title-overrides.json (the original workbook titles stay in data/roadmap.json). Semester Planner days 206-211 were renumbered 03-08 so days 204-211 run 01-08; the user can ask to revert this.
 - Days 218 and 221 mention projects in the project text but have no project colour key in the workbook; left as is.
 - Frontend extension has no colour of its own in the workbook; it is not coloured.
