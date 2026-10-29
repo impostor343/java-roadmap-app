@@ -1,34 +1,16 @@
-// Stage 3: the Today card, Previous/Next, and the Info sheet.
-// Reads data/roadmap.json and data/display-titles.json. Saves nothing yet.
+// Today card, Previous/Next, and the Info sheet. Saves nothing yet.
 
 (function () {
   'use strict';
 
-  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
+  var D = window.RoadmapData;
   var box = document.getElementById('today-card');
   var sheet = document.getElementById('info-sheet');
   var sheetTitle = document.getElementById('info-title');
   var sheetBody = document.getElementById('info-body');
-
-  var entries = [];
-  var titles = {};
   var index = 0;
 
-  function two(n) { return n < 10 ? '0' + n : String(n); }
-
-  function formatDate(iso) {
-    var p = iso.split('-');
-    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-    return DAYS[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
-  }
-
-  function titleOf(e) {
-    var o = titles[e.day];
-    if (!o) { return e.title; }
-    return o.showNumber ? o.title + ' ' + two(e.topicDay) : o.title;
-  }
+  window.TodayView = { showDay: showDay };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -46,30 +28,30 @@
   }
 
   function todayIndex() {
-    var n = new Date();
-    var iso = n.getFullYear() + '-' + two(n.getMonth() + 1) + '-' + two(n.getDate());
-    for (var i = 0; i < entries.length; i++) {
-      if (entries[i].date === iso) { return i; }
+    var iso = D.todayIso();
+    for (var i = 0; i < D.entries.length; i++) {
+      if (D.entries[i].date === iso) { return i; }
     }
-    return iso < entries[0].date ? 0 : entries.length - 1;
+    return iso < D.entries[0].date ? 0 : D.entries.length - 1;
   }
 
   function render() {
-    var e = entries[index];
+    var e = D.entries[index];
     box.textContent = '';
 
     var card = el('article', 'day-card');
-    card.appendChild(el('p', 'card-date', formatDate(e.date)));
+    card.appendChild(el('p', 'card-date', D.formatDate(e.date)));
     card.appendChild(el('h2', 'card-group', e.group));
     var sym = el('p', 'card-symbol', e.symbol);
     sym.setAttribute('aria-hidden', 'true');
     card.appendChild(sym);
-    card.appendChild(el('p', 'card-title', titleOf(e)));
-    card.appendChild(el('p', 'card-meta', 'Day ' + e.day + ' of ' + entries.length));
+    card.appendChild(el('p', 'card-title', D.titleOf(e)));
+    card.appendChild(el('p', 'card-meta', 'Day ' + e.day + ' of ' + D.entries.length));
     if (e.time) { card.appendChild(el('p', 'card-meta', e.time)); }
     var st = el('p', 'status');
-    st.appendChild(el('span', '', '○'));
-    st.lastChild.setAttribute('aria-hidden', 'true');
+    var mark = el('span', '', '○');
+    mark.setAttribute('aria-hidden', 'true');
+    st.appendChild(mark);
     st.appendChild(document.createTextNode(' Pending'));
     card.appendChild(st);
     box.appendChild(card);
@@ -77,16 +59,22 @@
     var row = el('div', 'actions');
     row.appendChild(button('Previous', '', function () { go(-1); }, index === 0));
     row.appendChild(button('Info', 'primary', openInfo));
-    row.appendChild(button('Next', '', function () { go(1); }, index === entries.length - 1));
+    row.appendChild(button('Next', '', function () { go(1); }, index === D.entries.length - 1));
     box.appendChild(row);
   }
 
   function go(step) {
     var next = index + step;
-    if (next < 0 || next >= entries.length) { return; }
+    if (next < 0 || next >= D.entries.length) { return; }
     index = next;
     render();
     window.scrollTo(0, 0);
+  }
+
+  function showDay(day) {
+    for (var i = 0; i < D.entries.length; i++) {
+      if (D.entries[i].day === day) { index = i; render(); return; }
+    }
   }
 
   function addLine(label, value) {
@@ -109,11 +97,11 @@
   }
 
   function openInfo() {
-    var e = entries[index];
-    sheetTitle.textContent = titleOf(e);
+    var e = D.entries[index];
+    sheetTitle.textContent = D.titleOf(e);
     sheetBody.textContent = '';
-    addLine('Overall day', e.day + ' of ' + entries.length);
-    addLine('Topic day', two(e.topicDay));
+    addLine('Overall day', e.day + ' of ' + D.entries.length);
+    addLine('Topic day', D.two(e.topicDay));
     addLine('Topic group', e.group);
     addLine('Phase', e.phase);
     addLine('Time', e.time);
@@ -131,22 +119,11 @@
   document.getElementById('info-close').addEventListener('click', function () { sheet.close(); });
   sheet.addEventListener('click', function (ev) { if (ev.target === sheet) { sheet.close(); } });
 
-  function load(path) {
-    return fetch(path).then(function (r) {
-      if (!r.ok) { throw new Error(path + ' (' + r.status + ')'); }
-      return r.json();
-    });
-  }
-
-  Promise.all([load('data/roadmap.json'), load('data/display-titles.json')])
-    .then(function (res) {
-      entries = res[0].entries;
-      titles = res[1];
-      index = todayIndex();
-      render();
-    })
-    .catch(function (err) {
-      box.textContent = '';
-      box.appendChild(el('p', 'empty', 'Could not load the roadmap: ' + err.message));
-    });
+  D.ready.then(function () {
+    index = todayIndex();
+    render();
+  }).catch(function (err) {
+    box.textContent = '';
+    box.appendChild(el('p', 'empty', 'Could not load the roadmap: ' + err.message));
+  });
 })();
