@@ -10,12 +10,15 @@
   var NOTES = 'dateNotes';
   var PROGRESS = 'progress';     // Done / Skipped / catch-up, keyed by the fixed roadmap day id
   var dbPromise = null;
+  var BUSY = 'Saved data is busy. Close other tabs or windows of this app, then reload this page. Nothing is lost.';
 
   function open() {
     if (dbPromise) { return dbPromise; }
     dbPromise = new Promise(function (resolve, reject) {
       var req;
-      try { req = indexedDB.open(DB_NAME, VERSION); } catch (e) { reject(e); return; }
+      try { req = indexedDB.open(DB_NAME, VERSION); } catch (e) { dbPromise = null; reject(e); return; }
+      // If an older open copy of the app blocks the upgrade, stop waiting and say so.
+      var timer = setTimeout(function () { dbPromise = null; reject(new Error(BUSY)); }, 4000);
       req.onupgradeneeded = function (ev) {
         var db = req.result;
         var tx = req.transaction;
@@ -29,8 +32,14 @@
           };
         }
       };
-      req.onsuccess = function () { resolve(req.result); };
-      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () {
+        clearTimeout(timer);
+        var db = req.result;
+        // Let a newer copy of the app upgrade the database instead of being blocked by this one.
+        db.onversionchange = function () { db.close(); dbPromise = null; };
+        resolve(db);
+      };
+      req.onerror = function () { clearTimeout(timer); dbPromise = null; reject(req.error); };
     });
     return dbPromise;
   }

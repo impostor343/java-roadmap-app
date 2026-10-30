@@ -359,6 +359,7 @@
     else if (parts[1] === 'list') { listPage(parts[2]); }
     else if (parts[1] === 'catchup') { catchupPage(); }
     else { dashboard(); }
+    if (ST.error) { root.insertBefore(el('p', 'warn', 'Your saved progress could not be loaded. ' + ST.error), root.firstChild); }
   }
 
   function buildIndexes(projectData) {

@@ -40,6 +40,7 @@
   function render() {
     var e = D.entries[index];
     box.textContent = '';
+    if (ST.error) { box.appendChild(el('p', 'warn', 'Your saved progress could not be loaded. ' + ST.error)); }
 
     box.appendChild(makeStrip());
 
@@ -85,7 +86,7 @@
     if (!ST.isLearning(e)) { return null; }
     var s = ST.state(e.day);
     var wrap = el('div', 'status-controls');
-    function act(fn) { return function () { fn(e.day).then(render); }; }
+    function act(fn) { return function () { fn(e.day).then(render, render); }; }
     var row = el('div', 'actions two');
     if (s === 'pending') {
       row.appendChild(button('Done', 'primary', act(ST.markDone)));

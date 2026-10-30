@@ -9,7 +9,7 @@
   var S = window.RoadmapStore;
   var D = window.RoadmapData;
   var map = {};
-  var api = { unavailable: false };
+  var api = { unavailable: false, error: null };
 
   function now() { return new Date().toISOString(); }
 
@@ -48,9 +48,15 @@
 
   api.load = function () {
     return S.allProgress().then(function (all) {
+      api.error = null;
+      api.unavailable = false;
       map = {};
       all.forEach(function (r) { map[r.day] = r; });
-    }).catch(function () { map = {}; api.unavailable = true; });
+    }).catch(function (err) {
+      map = {};
+      api.unavailable = true;
+      api.error = (err && err.message) || 'Saved progress could not be loaded.';
+    });
   };
 
   // Counts for any list of entries (only learning entries are counted).
