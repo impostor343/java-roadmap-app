@@ -15,6 +15,8 @@ java-roadmap-app/
   icons/                  icon-192.png, icon-512.png, icon-maskable-512.png
   data-check.html         temporary page to check the data (removed later)
   js/data.js              loads the data once and shares helpers
+  js/status.js            Done/Skipped/catch-up status logic
+  js/progress.js          Progress dashboard, project and topic pages
   js/store.js             IndexedDB storage (day notes)
   js/notes.js             My notes section (Calendar and Today)
   js/calendar.js          month calendar with project colours, legend and preview
@@ -36,7 +38,7 @@ java-roadmap-app/
 - Stage 2 Roadmap data: BUILT. Waiting for the user to check data-check.html.
 - Stage 3 Daily card and Info sheet: BUILT and checked on the phone by the user.
 - Stage 4 Calendar: REBUILT in Google Calendar style, plus My notes and Today date strip. Checked in headless Chromium at phone size. Awaiting the user's phone test.
-- Stage 5 Done, Skipped, catch-up, progress: not started.
+- Stage 5 Done/Skipped, catch-up, Progress, project and topic pages: BUILT. Checked in headless Chromium at phone size. Awaiting the user's phone test.
 - Stage 6 Question Bank and Projects: not started.
 - Stage 7 Storage and backup: not started.
 - Stage 8 Offline and install (service worker): not started.

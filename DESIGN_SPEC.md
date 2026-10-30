@@ -67,7 +67,15 @@ Semester Planner Android App in Java (pink, was pale red).
 Frontend work is an extension of Library/Inventory.
 Concurrency is an optional Banking extension.
 
-## Progress
+## Progress (revised in Stage 5, from the user's reference image)
+- Ring and bar for overall progress, four status cards (Completed, Skipped, Pending, Catch-up),
+  Keep moving card (next pending learning day), Projects list, Topics list (first 6 + View all topics).
+- Tapping a project or topic opens its own page; tapping a status card opens a filtered list;
+  Catch-up opens the queue. Done = strikethrough + check + original date kept. Skipped = arrow +
+  label, no strikethrough. Colours stay the app's own palette.
+- Original progress notes below still apply.
+
+## Progress (original)
 - Key numbers (completed, skipped, pending, catch-up queue), one progress
   bar, problems solved, per-project milestone progress.
 - Scheduled and catch-up completions are counted separately.

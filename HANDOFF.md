@@ -1,7 +1,7 @@
 # HANDOFF: Java Roadmap app (read this first)
 
 This file lets any AI assistant continue the project without the earlier chat.
-Last updated after the exam-pause schedule shift and the Home rename (awaiting the user's phone test).
+Last updated after Stage 5 was BUILT (statuses, Progress dashboard, project and topic pages); awaiting the user's phone test.
 
 ## 1. What this is
 A personal, installable, offline-first Progressive Web App (PWA) that lets one
@@ -51,7 +51,9 @@ java-roadmap-app/
   js/app.js                screen switching by URL hash
   js/data.js               loads data once; window.RoadmapData shared helpers
   js/today.js              Today card, Previous/Next, Info sheet; window.TodayView.showDay(day)
-  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote(date), saveNote, deleteNote(date), allNotes); db 'java-roadmap' version 2, store 'dateNotes' keyed by date; the old version-1 store 'dayNotes' is copied over once
+  js/status.js             window.RoadmapStatus: Done/Skipped/catch-up logic, in-memory map, tally() counts
+  js/progress.js           Progress dashboard, project pages, topic pages, status lists, catch-up queue (hash routes under #progress)
+  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote(date), saveNote, deleteNote(date), allNotes); db 'java-roadmap' version 3; stores: 'dateNotes' (keyed by date), 'progress' (keyed by fixed day id: {day, scheduled 'done'|'skipped', scheduledAt, catchup null|'queued'|'done', catchupAt, updatedAt}); the old version-1 store 'dayNotes' is copied over once
   js/notes.js              My notes section: window.DayNotes.mount(parent, entry, idPrefix, onChange) and flush()
   js/calendar.js           Google-Calendar-style month grid, chips, legend, preview, notes
   js/data-check.js         temporary data check page script
@@ -110,6 +112,25 @@ plus Claude Guide and Workbook QA in the repaired file.
   "Dec 2-6" in projects.json). Review them with the user when building the Projects tab.
 - Notes belong to calendar DATES (user decision), not to topics.
 - The Today tab was renamed Home (internal hash is still #today).
+
+### Progress rules (Stage 5)
+- Eligible learning entries = 154 (not pause days, not "Exam Buffer" entries). The workbook has 246
+  entries = 154 learning + 92 exam-buffer days; +7 pause days = 253. The user's brief wanted
+  "246" as the denominator, but buffer days cannot be completed, so 154 is used and the dashboard
+  explains this. Change one constant (the isLearning filter in js/status.js) if the user disagrees.
+- Overall completed = done on schedule + caught up later. Cards: Completed = on schedule only;
+  Skipped = all skipped (waiting + caught up); Pending = no status; Catch-up = waiting in queue.
+- Status is keyed by the fixed day id, so it stays with the topic. Notes stay keyed by date.
+- Home card has Done / Skipped / Mark caught up / Undo. Undo deletes the record. markSkipped never
+  creates a second queue entry. Skipping never changes any date.
+- Topics = the workbook `group` field (17 groups, schedule order). Projects = `projectKey` (6).
+  The same entry can appear in one topic and one project; overall totals count each entry once.
+- Project percent = project entries done / project entries (no version-level status exists).
+- Project text dates (`returnWhen`, `milestones`) in projects.json are NOT shown: they belong to the
+  original schedule. Banking V1 says "Nov 14-17, 2026" but its entries are now 2-5 Dec 2026.
+- Routes: #progress, #progress/project/<key>, #progress/topic/<slug>, #progress/topics,
+  #progress/list/<completed|skipped|pending>, #progress/catchup.
+- Calendar cells show a corner mark (done, skipped, caught up) and dim done days.
 
 ## 6. Design decisions made by the user (interview answers)
 1. Style: clean and minimal, lots of space, calm.
@@ -184,8 +205,8 @@ plus Claude Guide and Workbook QA in the repaired file.
 4. Calendar (Google-style grid, project colours, legend, preview, Open card, notes marker),
    My notes section, and Today date strip: BUILT and checked in headless Chromium at phone
    size (grid, notes saving and surviving a reload, jump to date). NOT yet tested by the user on the phone.
-5. Done, Skipped, remarks, notes, checklist, catch-up screen, Progress screen
-   (needs saved data; add a small storage layer first or together).
+5. Done, Skipped, catch-up screen, Progress dashboard, project pages, topic pages: BUILT and checked in
+   headless Chromium at phone size (statuses, counts, strikethrough, reload persistence). NOT yet tested by the user.
 6. Question Bank (topic groups, search, filters, assigned vs unassigned, status,
    notes) and Projects tab (project list, versions/milestones from projects.json).
 7. Persistence and backup: IndexedDB, export, validated restore, Settings screen.
@@ -198,7 +219,11 @@ plus Claude Guide and Workbook QA in the repaired file.
 - No saved progress yet; status on the card is always "Pending".
 - No service worker yet: no offline use and no full install until Stage 8.
 - The calendar cell text is very small by design; long names are clamped to 2 lines.
-- The user must still check the rebuilt Stage 4 on the phone.
+- The user must still check Stage 5 on the phone.
+- Projects tab is still a placeholder (Stage 6); Progress links to it.
+- Group named "Learning" (16 entries) is a catch-all in the workbook; shown as is.
+- Group "GTU exams" has 2 real learning entries, shown as a topic.
+- Frontend extension has no roadmap entries, so it is not listed under Projects.
 - Notes are in IndexedDB only: backup/restore (Stage 7) must cover them.
 - Calendar chip text is tiny and long words may break mid-word in narrow cells.
 
