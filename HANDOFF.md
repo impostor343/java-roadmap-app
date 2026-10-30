@@ -1,7 +1,7 @@
 # HANDOFF: Java Roadmap app (read this first)
 
 This file lets any AI assistant continue the project without the earlier chat.
-Last updated after Stage 5 was BUILT (statuses, Progress dashboard, project and topic pages); awaiting the user's phone test.
+Last updated after Stage 6a: UI refresh of Home and the Info sheet (from the user's reference image) and the Question Bank; awaiting the user's phone test.
 
 ## 1. What this is
 A personal, installable, offline-first Progressive Web App (PWA) that lets one
@@ -51,9 +51,11 @@ java-roadmap-app/
   js/app.js                screen switching by URL hash
   js/data.js               loads data once; window.RoadmapData shared helpers
   js/today.js              Today card, Previous/Next, Info sheet; window.TodayView.showDay(day)
+  js/icons.js              shared line icons: window.Icons.make(name)
+  js/questions.js          Question Bank screen: search, filters, topic groups, problem sheet, own status and notes
   js/status.js             window.RoadmapStatus: Done/Skipped/catch-up logic, in-memory map, tally() counts
   js/progress.js           Progress dashboard, project pages, topic pages, status lists, catch-up queue (hash routes under #progress)
-  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote(date), saveNote, deleteNote(date), allNotes); db 'java-roadmap' version 3; stores: 'dateNotes' (keyed by date), 'progress' (keyed by fixed day id: {day, scheduled 'done'|'skipped', scheduledAt, catchup null|'queued'|'done', catchupAt, updatedAt}); the old version-1 store 'dayNotes' is copied over once
+  js/store.js              IndexedDB wrapper: window.RoadmapStore (getNote(date), saveNote, deleteNote(date), allNotes); db 'java-roadmap' version 4; stores: 'dateNotes' (keyed by date), 'questionState' (keyed by question id: {id, status 'in-progress'|'solved', notes, updatedAt}; no record = Not started), 'progress' (keyed by fixed day id: {day, scheduled 'done'|'skipped', scheduledAt, catchup null|'queued'|'done', catchupAt, updatedAt}); the old version-1 store 'dayNotes' is copied over once
   js/notes.js              My notes section: window.DayNotes.mount(parent, entry, idPrefix, onChange) and flush()
   js/calendar.js           Google-Calendar-style month grid, chips, legend, preview, notes
   js/data-check.js         temporary data check page script
@@ -131,6 +133,19 @@ plus Claude Guide and Workbook QA in the repaired file.
 - Routes: #progress, #progress/project/<key>, #progress/topic/<slug>, #progress/topics,
   #progress/list/<completed|skipped|pending>, #progress/catchup.
 - Calendar cells show a corner mark (done, skipped, caught up) and dim done days.
+
+### Question Bank and UI refresh (Stage 6a)
+- Home card and Info sheet follow the user's reference image (tinted card, group chip with icon, big emoji,
+  Done/Skipped with icons, Previous/Info/Next, Jump to date, notes card; Info sheet = section cards with
+  label/value rows, resource link row, folder row with a copy button). The mockup text "This task
+  covers..." was NOT used because it is not in the workbook.
+- Question Bank: groups come from the "Learn/practise: <topic>;" part of each question's prerequisites text
+  (18 groups incl. the 8 Codex placeholder slots). Filters: All/Assigned/Not assigned/Not started/In
+  progress/Solved plus platform. Assigned = workbook status "Assigned (suggested)" (14). Codex slots have
+  no title/URL: shown as "Needs clarification", not trackable, not counted in totals (48 trackable problems).
+- The Info sheet lists the problems assigned to that day with link and status.
+- Still to do in Stage 6: the Projects tab (placeholder).
+- Ask the user which other screens (Calendar, Progress, etc.) should get the same visual polish.
 
 ## 6. Design decisions made by the user (interview answers)
 1. Style: clean and minimal, lots of space, calm.
@@ -224,7 +239,7 @@ plus Claude Guide and Workbook QA in the repaired file.
   the app used to stay on "Loading...". store.js now gives up after 4 s, shows a warning on Home and
   Progress, and closes its own connection when a newer version needs to upgrade. Scripts and CSS in
   index.html carry ?v=5b so phones fetch fresh copies; bump it when files change.
-- Projects tab is still a placeholder (Stage 6); Progress links to it.
+- Projects tab is still a placeholder (Stage 6b); Progress links to it.
 - Group named "Learning" (16 entries) is a catch-all in the workbook; shown as is.
 - Group "GTU exams" has 2 real learning entries, shown as a topic.
 - Frontend extension has no roadmap entries, so it is not listed under Projects.

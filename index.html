@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="css/styles.css?v=5b">
+  <link rel="stylesheet" href="css/styles.css?v=6">
 </head>
 <body>
   <header class="topbar">
@@ -31,7 +31,7 @@
     </section>
 
     <section class="screen" id="screen-questions" data-title="Questions" hidden>
-      <p class="empty">The Question Bank is built in Stage 6.</p>
+      <div id="questions-root"><p class="empty">Loading…</p></div>
     </section>
 
     <section class="screen" id="screen-projects" data-title="Projects" hidden>
@@ -79,21 +79,18 @@
     </a>
   </nav>
 
-  <dialog class="sheet" id="info-sheet" aria-labelledby="info-title">
-    <div class="sheet-inner">
-      <h2 id="info-title"></h2>
-      <div id="info-body"></div>
-      <button type="button" class="btn" id="info-close">Close</button>
-    </div>
-  </dialog>
+  <dialog class="sheet" id="info-sheet" aria-label="Day details"><div class="sheet-inner" id="info-inner"></div></dialog>
+  <dialog class="sheet" id="q-sheet" aria-label="Problem details"><div class="sheet-inner" id="q-inner"></div></dialog>
 
-  <script src="js/app.js?v=5b"></script>
-  <script src="js/data.js?v=5b"></script>
-  <script src="js/store.js?v=5b"></script>
-  <script src="js/status.js?v=5b"></script>
-  <script src="js/notes.js?v=5b"></script>
-  <script src="js/today.js?v=5b"></script>
-  <script src="js/calendar.js?v=5b"></script>
-  <script src="js/progress.js?v=5b"></script>
+  <script src="js/icons.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
+  <script src="js/data.js?v=6"></script>
+  <script src="js/store.js?v=6"></script>
+  <script src="js/status.js?v=6"></script>
+  <script src="js/notes.js?v=6"></script>
+  <script src="js/today.js?v=6"></script>
+  <script src="js/calendar.js?v=6"></script>
+  <script src="js/progress.js?v=6"></script>
+  <script src="js/questions.js?v=6"></script>
 </body>
 </html>

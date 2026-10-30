@@ -18,7 +18,7 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
   Questions, Projects, Progress.
 - Settings is an icon in the top corner.
 
-## Home card (the screen formerly called Today)
+## Home card (the screen formerly called Today; restyled from the user's reference image)
 - Order: date (small), topic group as a large heading, symbol, title with
   topic-day number (e.g. "Methods 01"), overall day ("Day 1 of 246"),
   suggested time, status marker (symbol plus word).
@@ -55,7 +55,7 @@ Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 - Corner symbols: done = check, skipped = arrow, catch-up done = loop.
 - Done days are dimmed slightly. Pending days have no marker.
 
-## Question Bank
+## Question Bank (built: search, status and platform filters, topic groups, problem sheet with own status and notes)
 - Grouped by topic, collapsible groups, search box.
 - "Assigned (suggested)" stays separate from "Catalogue only".
 - Codex slots stay pending until the user gives the platform name/URL.
