@@ -8,7 +8,9 @@
   var sheet = document.getElementById('info-sheet');
   var sheetTitle = document.getElementById('info-title');
   var sheetBody = document.getElementById('info-body');
+  var ST = window.RoadmapStatus;
   var index = 0;
+  var LABELS = { pending: ['○', 'Pending'], done: ['✓', 'Done'], skipped: ['→', 'Skipped, catch-up waiting'], caughtup: ['↻', 'Caught up'] };
 
   window.TodayView = { showDay: showDay };
 
@@ -50,13 +52,10 @@
     card.appendChild(el('p', 'card-title', D.titleOf(e)));
     card.appendChild(el('p', 'card-meta', 'Day ' + e.seq + ' of ' + D.entries.length));
     if (e.time) { card.appendChild(el('p', 'card-meta', e.time)); }
-    var st = el('p', 'status');
-    var mark = el('span', '', '○');
-    mark.setAttribute('aria-hidden', 'true');
-    st.appendChild(mark);
-    st.appendChild(document.createTextNode(' Pending'));
-    card.appendChild(st);
+    card.appendChild(statusChip(e));
     box.appendChild(card);
+    var controls = makeStatusControls(e);
+    if (controls) { box.appendChild(controls); }
 
     var row = el('div', 'actions');
     row.appendChild(button('Previous', '', function () { go(-1); }, index === 0));
@@ -68,6 +67,44 @@
     var notesHost = el('div');
     box.appendChild(notesHost);
     window.DayNotes.mount(notesHost, e, 'today');
+  }
+
+  function statusChip(e) {
+    var st = el('p', 'status');
+    if (!ST.isLearning(e)) { st.textContent = e.added ? 'Pause day' : 'Exam buffer'; return st; }
+    var s = ST.state(e.day);
+    st.setAttribute('data-state', s);
+    var mark = el('span', '', LABELS[s][0]);
+    mark.setAttribute('aria-hidden', 'true');
+    st.appendChild(mark);
+    st.appendChild(document.createTextNode(' ' + LABELS[s][1]));
+    return st;
+  }
+
+  function makeStatusControls(e) {
+    if (!ST.isLearning(e)) { return null; }
+    var s = ST.state(e.day);
+    var wrap = el('div', 'status-controls');
+    function act(fn) { return function () { fn(e.day).then(render); }; }
+    var row = el('div', 'actions two');
+    if (s === 'pending') {
+      row.appendChild(button('Done', 'primary', act(ST.markDone)));
+      row.appendChild(button('Skipped', '', act(ST.markSkipped)));
+    } else if (s === 'skipped') {
+      row.appendChild(button('Mark caught up', 'primary', act(ST.markCaughtUp)));
+      row.appendChild(button('Undo', '', act(ST.reset)));
+    } else {
+      row.appendChild(button('Undo', '', act(ST.reset)));
+    }
+    wrap.appendChild(row);
+    if (s === 'done') {
+      var link = button('Add a remark', 'link', function () {
+        var ta = box.querySelector('textarea[id$="-remarks"]');
+        if (ta) { ta.focus(); }
+      });
+      wrap.appendChild(link);
+    }
+    return wrap;
   }
 
   function makeStrip() {
@@ -165,7 +202,7 @@
   document.getElementById('info-close').addEventListener('click', function () { sheet.close(); });
   sheet.addEventListener('click', function (ev) { if (ev.target === sheet) { sheet.close(); } });
 
-  D.ready.then(function () {
+  Promise.all([D.ready, ST.ready]).then(function () {
     index = todayIndex();
     render();
   }).catch(function (err) {

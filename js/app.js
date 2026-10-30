@@ -11,7 +11,7 @@
   var mainEl = document.getElementById('main');
 
   function showScreen() {
-    var id = window.location.hash.replace('#', '');
+    var id = window.location.hash.replace('#', '').split('/')[0];
     if (SCREENS.indexOf(id) === -1) { id = 'today'; }
 
     var sections = document.querySelectorAll('.screen');

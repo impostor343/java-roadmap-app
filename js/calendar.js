@@ -6,6 +6,8 @@
 
   var D = window.RoadmapData;
   var S = window.RoadmapStore;
+  var ST = window.RoadmapStatus;
+  var MARKS = { done: ['✓', 'done'], skipped: ['→', 'skipped'], caughtup: ['↻', 'caught up'] };
   var root = document.getElementById('calendar');
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -47,6 +49,7 @@
 
   function labelFor(e, isToday, isSelected) {
     return D.formatDate(e.date) + ', ' + D.titleOf(e) + (noted[e.date] ? ', has notes' : '') +
+      (ST.isLearning(e) && MARKS[ST.state(e.day)] ? ', ' + MARKS[ST.state(e.day)][1] : '') +
       (isToday ? ', today' : '') + (isSelected ? ', selected' : '');
   }
 
@@ -122,6 +125,13 @@
     var chip = el('span', 'chip', e.symbol + ' ' + D.plainTitle(e));
     chip.style.background = e.projectKey ? 'var(--proj-' + e.projectKey + ')' : 'var(--chip-plain)';
     b.appendChild(chip);
+    var stt = ST.isLearning(e) ? ST.state(e.day) : 'pending';
+    if (MARKS[stt]) {
+      var sm = el('span', 'cell-status', MARKS[stt][0]);
+      sm.setAttribute('aria-hidden', 'true');
+      b.appendChild(sm);
+      if (stt !== 'skipped') { b.classList.add('is-done'); }
+    }
     var mark = el('span', 'cell-note', '✎');
     mark.setAttribute('aria-hidden', 'true');
     mark.hidden = !noted[e.date];
@@ -193,7 +203,7 @@
     var today = D.todayIso();
     selected = byDate[today] ? today : (today < D.entries[0].date ? D.entries[0].date : D.entries[D.entries.length - 1].date);
     viewKey = selected.slice(0, 7);
-    return loadNoted().then(draw);
+    return Promise.all([loadNoted(), ST.ready]).then(draw);
   }).catch(function (err) {
     root.textContent = '';
     root.appendChild(el('p', 'empty', 'Could not load the calendar: ' + err.message));
@@ -201,6 +211,6 @@
 
   // Notes may have been edited on the Today tab; refresh the markers when coming back.
   window.addEventListener('hashchange', function () {
-    if (window.location.hash === '#calendar' && firstKey) { loadNoted().then(draw); }
+    if (window.location.hash === '#calendar' && firstKey) { Promise.all([loadNoted(), ST.load()]).then(draw); }
   });
 })();
