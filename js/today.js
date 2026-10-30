@@ -1,16 +1,17 @@
-// Today card, Previous/Next, and the Info sheet. Saves nothing yet.
+// Home: the day card, Done/Skipped, Previous/Next, Jump to date, notes, and the Info sheet.
 
 (function () {
   'use strict';
 
   var D = window.RoadmapData;
+  var ST = window.RoadmapStatus;
+  var I = window.Icons;
   var box = document.getElementById('today-card');
   var sheet = document.getElementById('info-sheet');
-  var sheetTitle = document.getElementById('info-title');
-  var sheetBody = document.getElementById('info-body');
-  var ST = window.RoadmapStatus;
+  var sheetInner = document.getElementById('info-inner');
   var index = 0;
   var LABELS = { pending: ['○', 'Pending'], done: ['✓', 'Done'], skipped: ['→', 'Skipped, catch-up waiting'], caughtup: ['↻', 'Caught up'] };
+  var Q_LABELS = { 'not-started': 'Not started', 'in-progress': 'In progress', solved: 'Solved' };
 
   window.TodayView = { showDay: showDay };
 
@@ -21,9 +22,13 @@
     return n;
   }
 
-  function button(label, cls, onClick, disabled) {
-    var b = el('button', 'btn ' + cls, label);
+  // Button with an optional line icon before (or after) the label.
+  function button(label, cls, onClick, disabled, iconName, iconAfter) {
+    var b = el('button', 'btn ' + cls);
     b.type = 'button';
+    if (iconName && !iconAfter) { b.appendChild(I.make(iconName)); }
+    b.appendChild(el('span', '', label));
+    if (iconName && iconAfter) { b.appendChild(I.make(iconName)); }
     b.disabled = !!disabled;
     b.addEventListener('click', onClick);
     return b;
@@ -31,37 +36,54 @@
 
   function todayIndex() {
     var iso = D.todayIso();
-    for (var i = 0; i < D.entries.length; i++) {
-      if (D.entries[i].date === iso) { return i; }
-    }
+    var i = D.indexOfDate(iso);
+    if (i >= 0) { return i; }
     return iso < D.entries[0].date ? 0 : D.entries.length - 1;
   }
 
+  // ---------- the card ----------
   function render() {
     var e = D.entries[index];
+    var learning = ST.isLearning(e);
     box.textContent = '';
     if (ST.error) { box.appendChild(el('p', 'warn', 'Your saved progress could not be loaded. ' + ST.error)); }
-
     box.appendChild(makeStrip());
 
     var card = el('article', 'day-card');
-    card.appendChild(el('p', 'card-date', D.formatDate(e.date) + (e.date === D.todayIso() ? ' (today)' : '')));
-    card.appendChild(el('h2', 'card-group', e.group));
-    var sym = el('p', 'card-symbol', e.symbol);
+    var top = el('div', 'card-top');
+    var left = el('div', 'card-left');
+    var date = el('p', 'card-date');
+    date.appendChild(I.make('calendar'));
+    date.appendChild(document.createTextNode(' ' + D.formatDate(e.date) + (e.date === D.todayIso() ? ' (today)' : '')));
+    left.appendChild(date);
+    var chip = el('h2', 'chip-tag');
+    chip.appendChild(I.make(learning ? 'code' : 'calendar'));
+    chip.appendChild(document.createTextNode(' ' + e.group));
+    left.appendChild(chip);
+    top.appendChild(left);
+    var sym = el('span', 'card-symbol', e.symbol);
     sym.setAttribute('aria-hidden', 'true');
-    card.appendChild(sym);
+    top.appendChild(sym);
+    card.appendChild(top);
+
     card.appendChild(el('p', 'card-title', D.titleOf(e)));
     card.appendChild(el('p', 'card-meta', 'Day ' + e.seq + ' of ' + D.entries.length));
-    if (e.time) { card.appendChild(el('p', 'card-meta', e.time)); }
+    if (e.time) {
+      var t = el('p', 'card-meta');
+      t.appendChild(I.make('clock'));
+      t.appendChild(document.createTextNode(' ' + e.time));
+      card.appendChild(t);
+    }
     card.appendChild(statusChip(e));
     box.appendChild(card);
+
     var controls = makeStatusControls(e);
     if (controls) { box.appendChild(controls); }
 
     var row = el('div', 'actions');
-    row.appendChild(button('Previous', '', function () { go(-1); }, index === 0));
-    row.appendChild(button('Info', 'primary', openInfo));
-    row.appendChild(button('Next', '', function () { go(1); }, index === D.entries.length - 1));
+    row.appendChild(button('Previous', '', function () { go(-1); }, index === 0, 'left'));
+    row.appendChild(button('Info', 'outline', openInfo, false, 'info'));
+    row.appendChild(button('Next', '', function () { go(1); }, index === D.entries.length - 1, 'right', true));
     box.appendChild(row);
     box.appendChild(makeJump(e));
 
@@ -89,21 +111,20 @@
     function act(fn) { return function () { fn(e.day).then(render, render); }; }
     var row = el('div', 'actions two');
     if (s === 'pending') {
-      row.appendChild(button('Done', 'primary', act(ST.markDone)));
-      row.appendChild(button('Skipped', '', act(ST.markSkipped)));
+      row.appendChild(button('Done', 'primary', act(ST.markDone), false, 'check'));
+      row.appendChild(button('Skipped', '', act(ST.markSkipped), false, 'skip'));
     } else if (s === 'skipped') {
-      row.appendChild(button('Mark caught up', 'primary', act(ST.markCaughtUp)));
-      row.appendChild(button('Undo', '', act(ST.reset)));
+      row.appendChild(button('Mark caught up', 'primary', act(ST.markCaughtUp), false, 'check'));
+      row.appendChild(button('Undo', '', act(ST.reset), false, 'undo'));
     } else {
-      row.appendChild(button('Undo', '', act(ST.reset)));
+      row.appendChild(button('Undo', '', act(ST.reset), false, 'undo'));
     }
     wrap.appendChild(row);
     if (s === 'done') {
-      var link = button('Add a remark', 'link', function () {
+      wrap.appendChild(button('Add a remark', 'link', function () {
         var ta = box.querySelector('textarea[id$="-remarks"]');
         if (ta) { ta.focus(); }
-      });
-      wrap.appendChild(link);
+      }));
     }
     return wrap;
   }
@@ -130,7 +151,9 @@
 
   function makeJump(e) {
     var row = el('div', 'jump');
-    var label = el('label', '', 'Jump to date');
+    var label = el('label');
+    label.appendChild(I.make('calendar'));
+    label.appendChild(document.createTextNode(' Jump to date'));
     label.htmlFor = 'jump-date';
     var input = el('input');
     input.type = 'date';
@@ -161,46 +184,136 @@
     }
   }
 
-  function addLine(label, value) {
-    if (!value) { return; }
-    var p = el('p', 'info-line');
-    p.appendChild(el('b', '', label + ': '));
-    if (typeof value === 'string') { p.appendChild(document.createTextNode(value)); }
-    else { p.appendChild(value); }
-    sheetBody.appendChild(p);
+  // ---------- Info sheet ----------
+  function section(iconName, heading) {
+    var s = el('section', 'info-card');
+    var h = el('div', 'info-card-head');
+    var ic = el('span', 'info-ic');
+    ic.appendChild(I.make(iconName));
+    h.appendChild(ic);
+    h.appendChild(el('h3', '', heading));
+    s.appendChild(h);
+    return s;
   }
 
-  function resourceNode(r) {
-    if (!r || !r.text) { return null; }
-    if (!r.url) { return document.createTextNode(r.text); }
-    var a = el('a', '', r.name || r.url);
+  function row(sec, label, value) {
+    if (!value) { return; }
+    var r = el('div', 'info-row');
+    r.appendChild(el('span', 'info-label', label));
+    var v = el('span', 'info-value');
+    if (typeof value === 'string') { v.textContent = value; } else { v.appendChild(value); }
+    r.appendChild(v);
+    sec.appendChild(r);
+  }
+
+  function linkRow(r) {
+    var a = el('a', 'info-link');
     a.href = r.url;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
+    a.appendChild(I.make('external'));
+    a.appendChild(el('span', '', r.name || r.url));
+    a.appendChild(I.make('right'));
     return a;
+  }
+
+  function copyRow(sec, text) {
+    var r = el('div', 'info-row copy-row');
+    r.appendChild(el('span', 'info-value path', text));
+    var b = el('button', 'icon-chip');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Copy folder path');
+    b.appendChild(I.make('copy'));
+    b.addEventListener('click', function () {
+      function done() { b.textContent = ''; b.appendChild(I.make('check')); setTimeout(function () { b.textContent = ''; b.appendChild(I.make('copy')); }, 1500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, function () {}); }
+    });
+    r.appendChild(b);
+    sec.appendChild(r);
+  }
+
+  function problemBlock(q) {
+    var b = el('div', 'problem');
+    var line = el('p', 'problem-title');
+    if (q.url) {
+      var a = el('a', '', q.title);
+      a.href = q.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      line.appendChild(a);
+    } else { line.textContent = q.title; }
+    b.appendChild(line);
+    var meta = q.platform.split(' (')[0] + (q.difficulty && q.difficulty !== 'TBD' ? ', ' + q.difficulty : '');
+    b.appendChild(el('p', 'entry-meta', meta + '. ' + Q_LABELS[ST.question(q.id).status]));
+    if (q.purpose) { b.appendChild(el('p', 'entry-meta', 'Why: ' + q.purpose)); }
+    return b;
   }
 
   function openInfo() {
     var e = D.entries[index];
-    sheetTitle.textContent = D.titleOf(e);
-    sheetBody.textContent = '';
-    addLine('Overall day', e.seq + ' of ' + D.entries.length);
-    addLine('Topic day', D.two(e.topicDay));
-    addLine('Topic group', e.group);
-    addLine('Phase', e.phase);
-    addLine('Time', e.time);
-    addLine('Topics', e.topics);
-    addLine('Task', e.task);
-    addLine('Resource', resourceNode(e.resource));
-    addLine('Practice', e.practice);
-    addLine('Project', e.project);
-    addLine('Folder', e.folder);
-    addLine('Publish', e.publish);
-    addLine('Notes', e.projectNotes);
+    sheetInner.textContent = '';
+    sheetInner.appendChild(el('div', 'sheet-handle'));
+    var top = el('div', 'sheet-top');
+    var chip = el('span', 'chip-tag');
+    chip.appendChild(I.make(ST.isLearning(e) ? 'code' : 'calendar'));
+    chip.appendChild(document.createTextNode(' ' + e.group));
+    top.appendChild(chip);
+    var close = el('button', 'close-btn');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Close');
+    close.appendChild(I.make('close'));
+    close.addEventListener('click', function () { sheet.close(); });
+    top.appendChild(close);
+    sheetInner.appendChild(top);
+
+    var title = el('h2', 'sheet-title', D.titleOf(e));
+    title.id = 'info-title';
+    sheet.setAttribute('aria-labelledby', 'info-title');
+    sheetInner.appendChild(title);
+    var meta = el('p', 'sheet-meta');
+    meta.appendChild(document.createTextNode('Day ' + e.seq + ' of ' + D.entries.length));
+    if (e.time) {
+      meta.appendChild(document.createTextNode('   '));
+      meta.appendChild(I.make('clock'));
+      meta.appendChild(document.createTextNode(' ' + e.time));
+    }
+    sheetInner.appendChild(meta);
+
+    var ov = section('info', 'Overview');
+    row(ov, 'Overall day', e.seq + ' of ' + D.entries.length);
+    row(ov, 'Topic day', D.two(e.topicDay));
+    row(ov, 'Topic group', e.group);
+    row(ov, 'Phase', e.phase);
+    row(ov, 'Time', e.time);
+    sheetInner.appendChild(ov);
+
+    if (e.topics) { var lr = section('book', 'Learning'); row(lr, 'Topics', e.topics); sheetInner.appendChild(lr); }
+    if (e.task) { var tk = section('task', 'Task'); row(tk, 'Task', e.task); sheetInner.appendChild(tk); }
+
+    if (e.resource && e.resource.text) {
+      var rs = section('external', 'Resource');
+      if (e.resource.url) { rs.appendChild(linkRow(e.resource)); } else { row(rs, 'Resource', e.resource.text); }
+      sheetInner.appendChild(rs);
+    }
+
+    var assigned = D.questions.filter(function (q) { return q.recommendedDay === e.day && q.status === 'Assigned (suggested)'; });
+    if (e.practice || assigned.length) {
+      var pr = section('code', 'Practice');
+      row(pr, 'Practice', e.practice);
+      assigned.forEach(function (q) { pr.appendChild(problemBlock(q)); });
+      sheetInner.appendChild(pr);
+    }
+
+    if (e.project || e.publish || e.projectNotes) {
+      var pj = section('layers', 'Project');
+      row(pj, 'Project', e.project);
+      row(pj, 'Publish', e.publish);
+      row(pj, 'Notes', e.projectNotes);
+      sheetInner.appendChild(pj);
+    }
+    if (e.folder) { var fd = section('folder', 'Folder'); copyRow(fd, e.folder); sheetInner.appendChild(fd); }
+
     sheet.showModal();
   }
 
-  document.getElementById('info-close').addEventListener('click', function () { sheet.close(); });
   sheet.addEventListener('click', function (ev) { if (ev.target === sheet) { sheet.close(); } });
 
   Promise.all([D.ready, ST.ready]).then(function () {

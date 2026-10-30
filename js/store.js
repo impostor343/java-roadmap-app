@@ -5,9 +5,10 @@
   'use strict';
 
   var DB_NAME = 'java-roadmap';
-  var VERSION = 3;
+  var VERSION = 4;
   var OLD_NOTES = 'dayNotes';     // version 1 store (keyed by day number), copied once
   var NOTES = 'dateNotes';
+  var QUESTIONS = 'questionState';   // your own status and notes per practice problem, keyed by question id
   var PROGRESS = 'progress';     // Done / Skipped / catch-up, keyed by the fixed roadmap day id
   var dbPromise = null;
   var BUSY = 'Saved data is busy. Close other tabs or windows of this app, then reload this page. Nothing is lost.';
@@ -23,6 +24,7 @@
         var db = req.result;
         var tx = req.transaction;
         if (!db.objectStoreNames.contains(NOTES)) { db.createObjectStore(NOTES, { keyPath: 'date' }); }
+        if (!db.objectStoreNames.contains(QUESTIONS)) { db.createObjectStore(QUESTIONS, { keyPath: 'id' }); }
         if (!db.objectStoreNames.contains(PROGRESS)) { db.createObjectStore(PROGRESS, { keyPath: 'day' }); }
         if (ev.oldVersion < 2 && db.objectStoreNames.contains(OLD_NOTES)) {
           var all = tx.objectStore(OLD_NOTES).getAll();
@@ -66,6 +68,9 @@
     allNotes: function () { return run('readonly', function (s) { return s.getAll(); }).then(function (r) { return r || []; }); },
     allProgress: function () { return run('readonly', function (s) { return s.getAll(); }, PROGRESS).then(function (r) { return r || []; }); },
     saveProgress: function (rec) { return run('readwrite', function (s) { return s.put(rec); }, PROGRESS); },
-    deleteProgress: function (day) { return run('readwrite', function (s) { return s.delete(day); }, PROGRESS); }
+    deleteProgress: function (day) { return run('readwrite', function (s) { return s.delete(day); }, PROGRESS); },
+    allQuestionState: function () { return run('readonly', function (s) { return s.getAll(); }, QUESTIONS).then(function (r) { return r || []; }); },
+    saveQuestionState: function (rec) { return run('readwrite', function (s) { return s.put(rec); }, QUESTIONS); },
+    deleteQuestionState: function (id) { return run('readwrite', function (s) { return s.delete(id); }, QUESTIONS); }
   };
 })();

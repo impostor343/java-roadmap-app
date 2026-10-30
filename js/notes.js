@@ -36,7 +36,10 @@
     flush();
     var wrap = el('section', 'notes');
     wrap.setAttribute('aria-label', 'My notes');
-    wrap.appendChild(el('h3', 'notes-title', 'My notes'));
+    var title = el('h3', 'notes-title');
+    title.appendChild(window.Icons.make('notes'));
+    title.appendChild(document.createTextNode(' My notes'));
+    wrap.appendChild(title);
 
     var inputs = {};
     FIELDS.forEach(function (f) {
@@ -46,6 +49,7 @@
       var ta = el('textarea', 'notes-input');
       ta.id = id;
       ta.rows = 3;
+      ta.placeholder = 'Write your notes here…';
       ta.disabled = true;
       inputs[f.key] = ta;
       wrap.appendChild(label);
@@ -54,8 +58,10 @@
 
     var status = el('p', 'notes-status', 'Loading…');
     status.setAttribute('aria-live', 'polite');
-    var saveBtn = el('button', 'btn primary', 'Save notes');
+    var saveBtn = el('button', 'btn primary');
     saveBtn.type = 'button';
+    saveBtn.appendChild(window.Icons.make('save'));
+    saveBtn.appendChild(document.createTextNode(' Save notes'));
     saveBtn.disabled = true;
     wrap.appendChild(saveBtn);
     wrap.appendChild(status);

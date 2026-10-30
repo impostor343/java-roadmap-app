@@ -63,11 +63,13 @@
     }
   };
 
-  D.ready = Promise.all([load('data/roadmap.json'), load('data/display-titles.json')])
+  D.questions = [];
+  D.ready = Promise.all([load('data/roadmap.json'), load('data/display-titles.json'), load('data/questions.json')])
     .then(function (res) {
       D.entries = res[0].entries;
       D.entries.forEach(function (e, i) { e.seq = i + 1; });   // position in the schedule; e.day stays the fixed id
       D.titles = res[1];
+      D.questions = res[2].questions;
       return D;
     });
 

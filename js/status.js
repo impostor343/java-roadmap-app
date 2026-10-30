@@ -9,6 +9,7 @@
   var S = window.RoadmapStore;
   var D = window.RoadmapData;
   var map = {};
+  var qmap = {};   // question id -> { id, status: 'in-progress'|'solved', notes, updatedAt }
   var api = { unavailable: false, error: null };
 
   function now() { return new Date().toISOString(); }
@@ -46,12 +47,25 @@
     return S.deleteProgress(day).then(function () { delete map[day]; });
   };
 
+  // Practice problems: your own status and notes. No record means Not started.
+  api.question = function (id) { return qmap[id] || { id: id, status: 'not-started', notes: '' }; };
+  api.saveQuestion = function (id, patch) {
+    var cur = api.question(id);
+    var rec = { id: id, status: patch.status !== undefined ? patch.status : cur.status,
+                notes: patch.notes !== undefined ? patch.notes : cur.notes, updatedAt: now() };
+    if (rec.status === 'not-started' && !rec.notes.trim()) { delete qmap[id]; return S.deleteQuestionState(id); }
+    qmap[id] = rec;
+    return S.saveQuestionState(rec);
+  };
+
   api.load = function () {
-    return S.allProgress().then(function (all) {
+    return Promise.all([S.allProgress(), S.allQuestionState()]).then(function (res) {
       api.error = null;
       api.unavailable = false;
       map = {};
-      all.forEach(function (r) { map[r.day] = r; });
+      res[0].forEach(function (r) { map[r.day] = r; });
+      qmap = {};
+      res[1].forEach(function (r) { qmap[r.id] = r; });
     }).catch(function (err) {
       map = {};
       api.unavailable = true;
