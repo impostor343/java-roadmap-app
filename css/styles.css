@@ -441,3 +441,5 @@ button.cell:focus-visible { outline: 3px solid var(--accent-strong); outline-off
 .version { margin-top: 10px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
 .version h4 { margin: 0 0 6px; font-size: 1rem; }
 .version .info-line { margin: 0 0 6px; font-size: 0.9375rem; }
+
+.warn { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--orange); border-radius: 12px; color: var(--ink); font-size: 0.9375rem; }
