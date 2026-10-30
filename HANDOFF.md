@@ -220,6 +220,10 @@ plus Claude Guide and Workbook QA in the repaired file.
 - No service worker yet: no offline use and no full install until Stage 8.
 - The calendar cell text is very small by design; long names are clamped to 2 lines.
 - The user must still check Stage 5 on the phone.
+- Fixed in 5b: if an older open copy of the app (another tab or window) blocks the IndexedDB upgrade,
+  the app used to stay on "Loading...". store.js now gives up after 4 s, shows a warning on Home and
+  Progress, and closes its own connection when a newer version needs to upgrade. Scripts and CSS in
+  index.html carry ?v=5b so phones fetch fresh copies; bump it when files change.
 - Projects tab is still a placeholder (Stage 6); Progress links to it.
 - Group named "Learning" (16 entries) is a catch-all in the workbook; shown as is.
 - Group "GTU exams" has 2 real learning entries, shown as a topic.
