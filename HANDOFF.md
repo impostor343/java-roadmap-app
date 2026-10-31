@@ -276,3 +276,8 @@ GTU_Java_Internship_Roadmap_REPAIRED.xlsx and any repo files you need. Current
 step: Stage 4 is built and awaiting my phone test; after I confirm it, start Stage 5.
 Give one small stage at a time, complete replacement files, and a test checklist."
 (Repo files can also be read at https://github.com/impostor343/java-roadmap-app)
+
+## Android APK (Capacitor)
+- Built by .github/workflows/build-apk.yml (manual run). Files: package.json, capacitor.config.json, android-build/{prepare-web.js,make_icons.py,debug.keystore}. APK is published under Releases.
+- js/native.js shares files via Capacitor Filesystem+Share (blob downloads/PDF do not work in the WebView). Service worker is skipped inside the app.
+- debug.keystore is committed on purpose so every build has the same signature (updates install over the old app). Keep the app private.
