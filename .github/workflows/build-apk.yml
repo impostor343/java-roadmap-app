@@ -33,6 +33,9 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Add home-screen widgets and the Back-button/widget bridge
+        run: python3 android-build/add_widgets.py
+
       - name: Set version number and app icon
         run: |
           sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
@@ -64,4 +67,3 @@ jobs:
           gh release create "apk-${{ github.run_number }}" CSE-Roadmap.apk \
             --title "CSE Roadmap APK #${{ github.run_number }}" \
             --notes "Android app build ${{ github.run_number }}. Download CSE-Roadmap.apk and install it."
-            
