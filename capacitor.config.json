@@ -1,7 +1,11 @@
 {
   "appId": "io.github.impostor343.cseroadmap",
-  "appName": "CSE Roadmap",
+  "appName": "Bytewise",
   "webDir": "www",
-  "server": { "androidScheme": "https" },
-  "android": { "allowMixedContent": false }
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
 }

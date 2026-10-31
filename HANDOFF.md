@@ -9,6 +9,14 @@
 - Service worker cache is `cse-roadmap-v12`; bump it and the `?v=` numbers together.
 - Not verified: the native build itself (no Android SDK in the authoring environment). Check the first Actions run and a real phone.
 
+## Update (Bytewise branding + interactive widget)
+- App/PWA identity renamed Bytewise; launcher and web icons are generated from the owner's graduation-cap/code logo reference.
+- Native Next Session widget redesigned as a Bytewise card with a determinate blue circular progress ring, live day/title/module/time, and Previous / Done / Next controls. Button taps open the app; Done marks the selected curriculum day complete in the existing IndexedDB-backed state.
+- Widget percentage is completed sessions / total sessions; skipped sessions remain separately counted in the Progress widget.
+- Added semantic icons and individual accent treatments for all 25 projects in list and detail views.
+- `js/widgets.js`, `android-build/add_widgets.py`, `js/projects.js`, `js/icons.js`, `css/progress.css`, `index.html`, `manifest.webmanifest`, `capacitor.config.json`, and `icons/` were updated.
+- Android build still requires GitHub Actions; no Android SDK is available in this authoring environment. Native widget rendering and taps must be tested on a real Android launcher.
+
 ## Update (latest)
 - Added js/theme.js (palette, font, light/dark, text size; was referenced but missing) and Settings > Appearance + Offline card.
 - Added missing State functions used by Progress: pendingCount, inProgressCount, conceptStats, conceptStatus, conceptsDone (dashboard crashed without them).

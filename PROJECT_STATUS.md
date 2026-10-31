@@ -1,5 +1,12 @@
 # Project Status
 
+## Bytewise UI update (2026-10-31)
+- Bytewise branding applied to the PWA/Android app name and launcher/PWA icons.
+- Native Next Session widget redesigned with live curriculum data, progress percentage/ring, and Previous / Done / Next actions.
+- Each of the 25 projects now has a semantic icon in the Projects tab and Progress dashboard.
+- JavaScript syntax checks pass. Android native widget build and real-device interaction remain unverified; build through the GitHub Actions workflow and test on the phone.
+
+
 Version 2 (CSE Learning System, Day 1–1,029) built and tested in headless Chromium; awaiting phone test. See HANDOFF.md and MIGRATION_REPORT.md. Stage 8 (offline) and final cleanup remain.
 
 ---

@@ -1,11 +1,10 @@
-# Design Specification: Java Roadmap (personal PWA)
+# Design Specification: Bytewise (personal CSE roadmap app)
 
 Approved by the user. Source data: GTU_Java_Internship_Roadmap_REPAIRED.xlsx
 (replaces the earlier workbook). Changes need the user's agreement.
 
 ## Look and feel
-- Clean and minimal. White base with green as the main accent; blue, purple
-  and pink as supporting colours. (Changed from cream by the user after seeing
+- Clean and minimal. White base with blue and violet as the Bytewise brand accents; the user's Bytewise icon is used for the app/PWA identity. (Changed from cream by the user after seeing
   Stage 1.)
 - Light and dark both supported; follows the phone setting.
 - Soft rounded buttons, generous spacing, large readable text.
@@ -94,3 +93,12 @@ Concurrency is an optional Banking extension.
   rewrites the schedule.
 - Never invent problems, links, resources or roadmap entries.
 - Semester 3 finals and all Semester 4 dates are provisional, not official.
+
+
+## Bytewise identity and Android home-screen widget (2026-10)
+- Launcher/PWA icon uses the graduation-cap + code-mark image supplied by the owner.
+- The native Next Session widget follows the supplied white, blue and violet card reference.
+- Widget data is live from the app's IndexedDB-backed State: curriculum day, title, module, time, completed count and completion percentage. Never hardcode the sample 294 days or 87%.
+- Widget controls: Previous opens the prior curriculum day; Done records completion for the displayed day; Next opens the following curriculum day. They open the app to carry out state-changing actions safely.
+- The separate Progress widget remains available.
+- Projects list and detail pages show a unique semantic icon for each of the 25 project records.
