@@ -1,5 +1,14 @@
 # HANDOFF: CSE Roadmap app (read this first)
 
+## Update (Android integration)
+- **First-launch Home fix:** `U.route` now treats an empty hash as Home. Before, opening the app at `https://localhost/` (no `#`) left Home on "Loading…".
+- **Back button (Android app):** `js/native.js` > `NativeNav`. Order: close open dialog, go up one level (`parentHash`), then Home, then minimise the app. Needs `@capacitor/app` (added to package.json).
+- **Swipes:** `js/gestures.js`. Home card: swipe left = following day, right = previous day (never changes completion). Info sheet: drag down to dismiss (only from the top of the content or the handle).
+- **Widgets (native):** `android-build/add_widgets.py` writes Java + XML into the generated Capacitor project (MainActivity registers `WidgetBridge`; providers `NextSessionWidget`, `ProgressWidget`; patches AndroidManifest). The workflow runs it after `cap sync`.
+- **Widget data flow:** the real progress lives in the WebView's IndexedDB, so `js/widgets.js` sends a snapshot (done, total, skipped, next day, title, module, time) via `Capacitor.Plugins.WidgetBridge.update` on launch, on every `cur-changed`, and when the app is hidden. Native stores it in SharedPreferences and redraws both widgets. Widget tap passes a route (`#today/N` or `#progress`); only those exact patterns are accepted by JS.
+- Service worker cache is `cse-roadmap-v12`; bump it and the `?v=` numbers together.
+- Not verified: the native build itself (no Android SDK in the authoring environment). Check the first Actions run and a real phone.
+
 ## Update (latest)
 - Added js/theme.js (palette, font, light/dark, text size; was referenced but missing) and Settings > Appearance + Offline card.
 - Added missing State functions used by Progress: pendingCount, inProgressCount, conceptStats, conceptStatus, conceptsDone (dashboard crashed without them).
