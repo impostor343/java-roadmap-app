@@ -278,18 +278,26 @@ LAYOUT_NEXT = '''<?xml version="1.0" encoding="utf-8"?>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center">
-        <Button android:id="@+id/widget_previous" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_weight="1" android:minHeight="0dp"
-            android:minWidth="0dp" android:text="‹  Previous" android:textAllCaps="false"
-            android:textSize="12sp" />
-        <Button android:id="@+id/widget_done" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_marginStart="6dp" android:layout_weight="1.15"
-            android:minHeight="0dp" android:minWidth="0dp" android:text="✓  Done"
-            android:textAllCaps="false" android:textSize="12sp" />
-        <Button android:id="@+id/widget_next" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_marginStart="6dp" android:layout_weight="1"
-            android:minHeight="0dp" android:minWidth="0dp" android:text="Next  ›"
-            android:textAllCaps="false" android:textSize="12sp" />
+        <TextView android:id="@+id/widget_previous" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_weight="1"
+            android:gravity="center" android:background="@drawable/widget_action_bg"
+            android:paddingStart="4dp" android:paddingEnd="4dp"
+            android:text="‹  Previous" android:textColor="@color/widget_ink"
+            android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:id="@+id/widget_done" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_marginStart="6dp"
+            android:layout_weight="1.15" android:gravity="center"
+            android:background="@drawable/widget_action_primary_bg"
+            android:paddingStart="4dp" android:paddingEnd="4dp"
+            android:text="✓  Done" android:textColor="#FFFFFF"
+            android:textSize="12sp" android:textStyle="bold" />
+        <TextView android:id="@+id/widget_next" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_marginStart="6dp"
+            android:layout_weight="1" android:gravity="center"
+            android:background="@drawable/widget_action_bg"
+            android:paddingStart="4dp" android:paddingEnd="4dp"
+            android:text="Next  ›" android:textColor="@color/widget_ink"
+            android:textSize="12sp" android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
 '''
@@ -398,6 +406,16 @@ write(os.path.join(res, 'layout', 'widget_progress.xml'), LAYOUT_PROGRESS)
 write(os.path.join(res, 'xml', 'widget_next_info.xml'), provider('widget_next', 300, 190))
 write(os.path.join(res, 'xml', 'widget_progress_info.xml'), provider('widget_progress', 250, 110))
 write(os.path.join(res, 'drawable', 'widget_bg.xml'), BG)
+write(os.path.join(res, 'drawable', 'widget_action_bg.xml'), '''<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_track" />
+    <corners android:radius="10dp" />
+</shape>''')
+write(os.path.join(res, 'drawable', 'widget_action_primary_bg.xml'), '''<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_accent" />
+    <corners android:radius="10dp" />
+</shape>''')
 write(os.path.join(res, 'drawable', 'widget_ring.xml'), '''<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <solid android:color="#EEF2FF" />
