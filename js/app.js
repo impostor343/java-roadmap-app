@@ -12,6 +12,7 @@
       if (tabLinks[j].getAttribute('href') === '#' + id) { tabLinks[j].setAttribute('aria-current', 'page'); } else { tabLinks[j].removeAttribute('aria-current'); }
     }
     var title = document.getElementById('screen-' + id).getAttribute('data-title');
+    document.body.setAttribute('data-screen', id);
     titleEl.textContent = title; document.title = title + ' | CSE Roadmap';
     window.scrollTo(0, 0); mainEl.focus({ preventScroll: true });
   }

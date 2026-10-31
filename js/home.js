@@ -73,7 +73,7 @@
     inner.appendChild(h('p', { class: 'home-info-meta' }, 'Day ' + d + ' of ' + U.num(C.total) + '  ·  ' + (s.time || 'Time not specified')));
     if (s.outcome) { inner.appendChild(infoSection('▤', 'Overview', [['Learning objective', s.outcome], ['Overall day', d + ' of ' + U.num(C.total)], ['Topic day', s.moduleDay + ' of ' + s.moduleTotal], ['Topic group', s.module], ['Phase', s.phase], ['Semester', s.semester], ['Domain', s.domain], ['Time', s.time]])); }
     if (s.practice || s.task) { inner.appendChild(infoSection('▣', 'Task', [['What to do', s.task], ['Practice', s.practice], ['Practice type', s.practiceType], ['Platform guidance', s.platform]])); }
-    inner.appendChild(infoSection('▣', 'Learning', [['Topics', s.module], ['Learning objective', s.outcome], ['Exit check', s.mastery], ['Revision', s.revision]]));
+    inner.appendChild(infoSection('▣', 'Learning', [['Module', s.module], ['Topic', s.topic], ['Learning objective', s.outcome], ['Exit check', s.mastery], ['Revision', s.revision]]));
     var resources = [];
     if (s.resource) { resources.push(['Resource', s.resource]); }
     if (s.resourceLinks && s.resourceLinks.length) {
@@ -85,6 +85,12 @@
       resources.push(['Links', links]);
     }
     if (resources.length) { inner.appendChild(infoSection('↗', 'Resource', resources)); }
+    var qrows = (s.questionIds || []).map(function (id) { var q = C.question(id); return q ? [id, q.title] : null; }).filter(Boolean);
+    if (qrows.length || (s.problemLinks && s.problemLinks.length)) {
+      var plinks = h('div', { class: 'home-info-links' });
+      (s.problemLinks || []).forEach(function (url) { plinks.appendChild(h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url })); });
+      inner.appendChild(infoSection('▣', 'Practice questions', qrows.concat(plinks.childNodes.length ? [['Problem links', plinks]] : [])));
+    }
     var project = s.projectId ? C.project(s.projectId) : null;
     var projectRows = [];
     if (project) { projectRows.push(['Project', project.name]); }
@@ -140,11 +146,23 @@
     done.disabled = A.status(d) === 'completed';
     done.addEventListener('click', function () {
       done.disabled = true;
-      A.markDone(d).then(function () { render(); }, function (e) {
+      // Stay on this session after Done so the Undo button stays within reach (use Next to continue).
+      A.markDone(d).then(function () { U.go('#today/' + d); V.refresh(); }, function (e) {
         done.disabled = false; alert('Could not save: ' + ((e && e.message) || e));
       });
     });
     actions.appendChild(done);
+    if (A.status(d) === 'completed') {   // undo "Done": reopens the session (the old completion record is kept, marked reopened)
+      actions.classList.add('two');
+      var undo = h('button', { class: 'home-btn undo', type: 'button', text: '↺  Undo done' });
+      undo.addEventListener('click', function () {
+        undo.disabled = true;
+        A.reopen(d).then(function () { render(); V.refresh(); }, function (e) {
+          undo.disabled = false; alert('Could not undo: ' + ((e && e.message) || e));
+        });
+      });
+      actions.appendChild(undo);
+    }
     page.appendChild(actions);
 
     var nav = h('div', { class: 'home-nav-row' });
