@@ -3,7 +3,7 @@
   'use strict';
   var C = window.Curriculum, A = window.State, V = window.SessionView, h = U.h;
   var root = document.getElementById('today-card');
-  var selectedDay = null;
+  var selectedDay = null, enterDir = null;   // enterDir: which side the next card slides in from
 
   function currentDay() {
     var r = U.route('today');
@@ -63,6 +63,7 @@
     var s = C.session(d), mod = C.module(s.moduleId);
     var dialog = h('dialog', { class: 'home-info-dialog', 'aria-label': 'Session information' });
     var inner = h('div', { class: 'home-info-inner' });
+    inner.appendChild(h('div', { class: 'sheet-handle', 'aria-hidden': 'true' }));
     var top = h('div', { class: 'home-info-top' });
     top.appendChild(h('span', { class: 'home-module-pill' }, '‹/› ', s.module));
     var close = h('button', { class: 'home-close', type: 'button', 'aria-label': 'Close information', text: '×' });
@@ -106,6 +107,7 @@
     });
     document.body.appendChild(dialog);
     dialog.addEventListener('close', function () { dialog.remove(); });
+    Gestures.dragDismiss(dialog, inner, function () { dialog.close(); });   // swipe down to dismiss
     return dialog;
   }
 
@@ -139,6 +141,14 @@
     card.appendChild(h('p', { class: 'home-day-count' }, 'Day ' + d + ' of ' + U.num(C.total)));
     card.appendChild(h('p', { class: 'home-day-time' }, '◷  ', s.time || 'Time not specified'));
     card.appendChild(h('span', { class: 'home-status' }, statusLabel(d)));
+    if (enterDir) { card.classList.add('enter-' + enterDir); enterDir = null; }
+    // Swipe the card: left = following session, right = previous session (never changes completion status)
+    Gestures.swipeX(card, {
+      enabled: function () { return !document.querySelector('dialog[open]'); },
+      onLeft: function () { if (d < C.total) { enterDir = 'right'; U.go('#today/' + (d + 1)); } },
+      onRight: function () { if (d > 1) { enterDir = 'left'; U.go('#today/' + (d - 1)); } }
+    });
+    card.appendChild(h('p', { class: 'home-swipe-hint', 'aria-hidden': 'true' }, '‹  swipe for previous / next  ›'));
     page.appendChild(card);
 
     var actions = h('div', { class: 'home-action-row' });
@@ -168,12 +178,12 @@
     var nav = h('div', { class: 'home-nav-row' });
     var prev = h('button', { class: 'home-btn secondary', type: 'button', text: '‹  Previous' });
     prev.disabled = d === 1;
-    prev.addEventListener('click', function () { if (d > 1) { U.go('#today/' + (d - 1)); } });
+    prev.addEventListener('click', function () { if (d > 1) { enterDir = 'left'; U.go('#today/' + (d - 1)); } });
     var info = h('button', { class: 'home-btn info', type: 'button', text: 'ⓘ  Info' });
     info.addEventListener('click', function () { var dlg = infoDialog(d); dlg.showModal(); });
     var next = h('button', { class: 'home-btn secondary', type: 'button', text: 'Next  ›' });
     next.disabled = d === C.total;
-    next.addEventListener('click', function () { if (d < C.total) { U.go('#today/' + (d + 1)); } });
+    next.addEventListener('click', function () { if (d < C.total) { enterDir = 'right'; U.go('#today/' + (d + 1)); } });
     nav.appendChild(prev); nav.appendChild(info); nav.appendChild(next);
     page.appendChild(nav);
     page.appendChild(notesSection(d));

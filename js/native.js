@@ -14,4 +14,31 @@
       .then(function (r) { return SH.share({ title: title || name, url: r.uri, dialogTitle: title || name }); });
   }
   window.NativeFiles = { isNative: native, shareFile: shareFile };
+
+  // ---- Android Back button (app only; in a browser the normal browser Back already works)
+  // Order: close an open sheet/dialog, then go up one level, then Home, and on Home leave the app (it stays in Recents).
+  var KEYWORDS = ['day', 'topic', 'module', 'concept', 'project', 'question'];
+  function parentHash(hash) {
+    var parts = String(hash || '').replace('#', '').split('/').filter(Boolean);
+    if (!parts.length || (parts[0] === 'today' && parts.length === 1)) { return null; }   // already at Home
+    if (parts[0] === 'today') { return '#today'; }
+    if (parts.length === 1) { return '#today'; }
+    if (parts[0] === 'calendar' && parts[1] === 'day' && window.Curriculum && Curriculum.total) {
+      var n = parseInt(parts[2], 10); if (n >= 1) { return '#calendar/' + Curriculum.groupOf(n); }
+    }
+    parts.pop();
+    if (parts.length > 1 && KEYWORDS.indexOf(parts[parts.length - 1]) !== -1) { parts.pop(); }
+    return '#' + parts.join('/');
+  }
+  function onBack() {
+    var dlg = document.querySelector('dialog[open]');
+    if (dlg) { dlg.close(); return 'dialog'; }
+    var up = parentHash(location.hash);
+    if (up) { location.replace(up); return up; }
+    var App = plugin('App');
+    if (App && App.minimizeApp) { App.minimizeApp(); } else if (App && App.exitApp) { App.exitApp(); }
+    return 'exit';
+  }
+  window.NativeNav = { parentHash: parentHash, back: onBack };
+  if (native() && plugin('App') && plugin('App').addListener) { plugin('App').addListener('backButton', onBack); }
 })();

@@ -28,7 +28,8 @@
     time: function (iso) { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); },
     stamp: function (iso) { return U.longDate(U.key(iso)) + ', ' + U.time(iso); },
     go: function (hash) { if (location.hash === hash) { window.dispatchEvent(new Event('hashchange')); } else { location.hash = hash; } },
-    route: function (screen) { var p = location.hash.replace('#', '').split('/'); return p[0] === screen ? p.slice(1) : null; },
+    // An empty hash (first launch, or the Android app opening at https://localhost/) means Home, so Home must match it.
+    route: function (screen) { var p = location.hash.replace('#', '').split('/'); if (!p[0]) { p = ['today']; } return p[0] === screen ? p.slice(1) : null; },
     bar: function (pct) { return U.h('div', { class: 'cbar', role: 'progressbar', 'aria-valuenow': pct, 'aria-valuemin': 0, 'aria-valuemax': 100 }, U.h('span', { style: 'width:' + pct + '%' })); },
     STATUS: { 'not-started': 'Not Started', 'in-progress': 'In Progress', 'completed': 'Completed', 'skipped': 'Skipped', 'needs-revision': 'Needs Revision',
       'planning': 'Planning', 'development': 'In Development', 'testing': 'Testing', 'needs-improvement': 'Needs Improvement', 'published': 'Published', 'solved': 'Solved' }
