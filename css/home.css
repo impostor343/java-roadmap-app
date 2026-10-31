@@ -66,3 +66,16 @@
   .home-btn { padding-left: 7px; padding-right: 7px; font-size: .86rem; }
   .home-info-row { grid-template-columns: 1fr; gap: 3px; }
 }
+
+/* Swipe gestures */
+.home-day-card { touch-action: pan-y; }
+.home-swipe-hint { margin: 12px 0 0; color: var(--soft-ink); font-size: .74rem; opacity: .7; }
+@keyframes home-enter-right { from { opacity: 0; transform: translateX(34px); } to { opacity: 1; transform: none; } }
+@keyframes home-enter-left { from { opacity: 0; transform: translateX(-34px); } to { opacity: 1; transform: none; } }
+.home-day-card.enter-right { animation: home-enter-right .2s ease-out; }
+.home-day-card.enter-left { animation: home-enter-left .2s ease-out; }
+.home-info-dialog { overscroll-behavior: contain; }
+.home-info-inner { overscroll-behavior: contain; }
+.sheet-handle { width: 44px; height: 5px; margin: -6px auto 10px; border-radius: 99px; background: var(--line); }
+.home-info-top { touch-action: none; }
+@media (prefers-reduced-motion: reduce) { .home-day-card.enter-right, .home-day-card.enter-left { animation: none; } }

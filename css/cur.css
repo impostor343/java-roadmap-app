@@ -135,3 +135,14 @@ html[data-mode="dark"] .cur .gcell.st-in-progress .gchipx { background: #4A3A14;
 .cur .agenda .agenda-day { font-weight: 700; color: var(--accent-strong); }
 .cur .agenda h3.agenda-title { margin: 2px 0 6px; font-size: 1.1rem; color: var(--ink); font-family: var(--font-display); line-height: 1.3; }
 .cur .agenda h3.agenda-title a { color: inherit; text-decoration: none; }
+
+/* Questions: module > topic groups */
+.cur .qmod { padding: 6px 10px; }
+.cur .qhead { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 8px 4px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.cur .qhead .qtitle { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.cur .qhead .qcount { flex: none; font-size: .82rem; color: var(--accent-strong); font-weight: 600; }
+.cur .qhead .qcaret { flex: none; width: 1.1em; color: var(--muted); }
+.cur .qh-top { padding-left: 14px; border-top: 1px solid var(--line); font-size: .95rem; }
+.cur .qtop { margin: 0; }
+.cur .qtop > .card, .cur .qtop > .btn { margin-left: 8px; margin-right: 0; }
+.cur .qhead:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
