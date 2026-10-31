@@ -1,77 +1,17 @@
-// Shared data loader. Loads the roadmap once; Today and Calendar both use it.
-
+// Loads the curriculum (generated from the workbook by tools/build_data.py). Day numbers are permanent IDs, not dates.
 (function () {
   'use strict';
-
-  var MONTHS3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var DAYS3 = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  function two(n) { return n < 10 ? '0' + n : String(n); }
-
-  function toDate(iso) {
-    var p = iso.split('-');
-    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-  }
-
-  function load(path) {
-    return fetch(path).then(function (r) {
-      if (!r.ok) { throw new Error(path + ' (' + r.status + ')'); }
-      return r.json();
-    });
-  }
-
-  var D = {
-    entries: [],
-    titles: {},
-    two: two,
-    toDate: toDate,
-    projectNames: {
-      'guessing-game': 'Guessing Game', 'banking': 'Banking', 'smart-library': 'Smart Library',
-      'inventory': 'Inventory', 'task-api': 'Task API', 'semester-planner': 'Semester Planner'
-    },
-    formatDate: function (iso) {
-      var d = toDate(iso);
-      return DAYS3[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS3[d.getMonth()] + ' ' + d.getFullYear();
-    },
-    titleOf: function (e) {
-      var o = D.titles[e.day];
-      if (!o) { return e.title; }
-      return o.showNumber ? o.title + ' ' + two(e.topicDay) : o.title;
-    },
-    plainTitle: function (e) {
-      var o = D.titles[e.day];
-      return o ? o.title : e.title.replace(/\s+\d+$/, '');
-    },
-    indexOfDate: function (iso) {
-      for (var i = 0; i < D.entries.length; i++) {
-        if (D.entries[i].date === iso) { return i; }
-      }
-      return -1;
-    },
-    shiftIso: function (iso, offset) {
-      var d = toDate(iso);
-      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset);
-      return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
-    },
-    shortDate: function (iso) {
-      var d = toDate(iso);
-      return DAYS3[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS3[d.getMonth()];
-    },
-    todayIso: function () {
-      var n = new Date();
-      return n.getFullYear() + '-' + two(n.getMonth() + 1) + '-' + two(n.getDate());
-    }
+  var C = { ready: null, total: 0, sessions: [], modules: [], projects: [], practice: [], extras: {} };
+  C.session = function (d) { return C.sessions[d - 1] || null; };
+  C.module = function (id) { return C.modules.filter(function (m) { return m.id === id; })[0] || null; };
+  C.project = function (id) { return C.projects.filter(function (p) { return p.id === id; })[0] || null; };
+  C.groups = function () {   // blocks of 30, computed from the total
+    var g = [], n = C.meta.groupSize;
+    for (var s = 1; s <= C.total; s += n) { g.push({ index: g.length, from: s, to: Math.min(s + n - 1, C.total) }); }
+    return g;
   };
-
-  D.questions = [];
-  D.ready = Promise.all([load('data/roadmap.json'), load('data/display-titles.json'), load('data/questions.json')])
-    .then(function (res) {
-      D.entries = res[0].entries;
-      D.entries.forEach(function (e, i) { e.seq = i + 1; });   // position in the schedule; e.day stays the fixed id
-      D.titles = res[1];
-      D.questions = res[2].questions;
-      return D;
-    });
-
-  window.RoadmapData = D;
+  C.groupOf = function (day) { return Math.floor((day - 1) / C.meta.groupSize); };
+  C.ready = fetch('data/curriculum.json').then(function (r) { if (!r.ok) { throw new Error('curriculum.json (' + r.status + ')'); } return r.json(); })
+    .then(function (j) { C.meta = j.meta; C.sessions = j.sessions; C.modules = j.modules; C.projects = j.projects; C.practice = j.practice; C.extras = j.extras; C.total = j.sessions.length; return C; });
+  window.Curriculum = C;
 })();
