@@ -13,12 +13,15 @@
   <script>/* apply saved palette/font before first paint (same rules as js/theme.js) */
   (function(){try{var s=JSON.parse(localStorage.getItem('cse-roadmap-appearance'))||{},r=document.documentElement;
   if(/^(ocean|violet|sunset|rose|teal|slate)$/.test(s.palette)){r.setAttribute('data-palette',s.palette);}
-  if(/^(inter|poppins|lora|classic|mono)$/.test(s.font)){r.setAttribute('data-font',s.font);}}catch(e){}})();</script>
-  <link rel="stylesheet" href="css/styles.css?v=6">
-  <link rel="stylesheet" href="css/theme.css?v=1">
-  <link rel="stylesheet" href="css/cur.css?v=9">
+  if(/^(inter|poppins|lora|classic|mono)$/.test(s.font)){r.setAttribute('data-font',s.font);}
+  if(/^(light|dark)$/.test(s.mode)){r.setAttribute('data-mode',s.mode);}
+  if(/^(small|large|xlarge)$/.test(s.size)){r.setAttribute('data-size',s.size);}}catch(e){}})();</script>
+  <link rel="stylesheet" href="css/styles.css?v=7">
+  <link rel="stylesheet" href="css/theme.css?v=2">
+  <link rel="stylesheet" href="css/cur.css?v=10">
   <link rel="stylesheet" href="css/home.css?v=2">
-  <link rel="stylesheet" href="css/progress.css?v=1">
+  <link rel="stylesheet" href="css/progress.css?v=2">
+  <link rel="stylesheet" href="css/resources.css?v=2">
 </head>
 <body>
   <header class="topbar">
@@ -53,6 +56,10 @@
       <div id="progress-root" class="cur"><p class="empty">Loading…</p></div>
     </section>
 
+    <section class="screen" id="screen-resources" data-title="Resources" hidden>
+      <div id="resources-root" class="cur"><p class="empty">Loading…</p></div>
+    </section>
+
     <section class="screen" id="screen-settings" data-title="Settings" hidden>
       <div id="settings-root" class="cur"></div>
     </section>
@@ -80,23 +87,28 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
       <span>Progress</span>
     </a>
+    <a href="#resources">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span>Resources</span>
+    </a>
   </nav>
 
 
-  <script src="js/theme.js?v=1"></script>
+  <script src="js/theme.js?v=2"></script>
   <script src="js/util.js?v=8"></script>
   <script src="js/icons.js?v=2"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/app.js?v=9"></script>
   <script src="js/data.js?v=9"></script>
-  <script src="js/store.js?v=7"></script>
-  <script src="js/state.js?v=8"></script>
+  <script src="js/store.js?v=8"></script>
+  <script src="js/state.js?v=9"></script>
   <script src="js/sessionview.js?v=8"></script>
   <script src="js/history.js?v=7"></script>
   <script src="js/home.js?v=9"></script>
   <script src="js/navigator.js?v=8"></script>
   <script src="js/progress.js?v=8"></script>
   <script src="js/projects.js?v=8"></script>
-  <script src="js/questions.js?v=9"></script>
-  <script src="js/settings.js?v=8"></script>
+  <script src="js/questions.js?v=10"></script>
+  <script src="js/resources.js?v=1"></script>
+  <script src="js/settings.js?v=9"></script>
 </body>
 </html>

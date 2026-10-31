@@ -1,5 +1,13 @@
 # HANDOFF: CSE Roadmap app (read this first)
 
+## Update (latest)
+- Added js/theme.js (palette, font, light/dark, text size; was referenced but missing) and Settings > Appearance + Offline card.
+- Added missing State functions used by Progress: pendingCount, inProgressCount, conceptStats, conceptStatus, conceptsDone (dashboard crashed without them).
+- Added Resources tab (js/resources.js, css/resources.css, data/free-resources.json, 41 links). Offline PDFs: attach on phone (IndexedDB 'resourceFiles', DB v6, not in JSON backup) or set "pdf" path in the JSON (files go in pdfs/).
+- Added sw.js (offline cache). Bump CACHE in sw.js and the ?v= numbers in index.html whenever files change.
+- Dark mode can now be forced: every prefers-color-scheme dark block has a data-mode twin.
+
+
 **Version 2 (this update) replaced the 253-day dated Java schedule with a 1,029-session day-numbered CSE learning system.**
 Sections below the divider describe the OLD version and are kept only for history; `MIGRATION_REPORT.md` is current.
 

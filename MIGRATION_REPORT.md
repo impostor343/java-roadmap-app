@@ -46,3 +46,8 @@ Not verified: real phone, restore-from-file flow, offline use (no service worker
 - **Export limit:** the supplied text export stops at 1,000 rows per sheet. Daily Roadmap has Days 1–999 (Days 1,000–1,029 keep the earlier data, `dataSource: carried-over`). Practice Bank has 999 of 2,089 questions (968 added, 31 updated); sessions from about Day 485 name question IDs whose details are not in the file. Re-run the build with the full .xlsx to fill them.
 - UI: Progress rebuilt from the reference image; Curriculum calendar is a Google-style grid (still curriculum days, not dates); Settings > Appearance (7 palettes, 6 fonts; stored in localStorage); Home keeps the session after Done and shows Undo done.
 - Fonts bundled in `fonts/` are Inter, Poppins and Lora (SIL Open Font License).
+
+---
+# Update: full workbook import
+- Rebuilt from the complete .xlsx: all 1,029 sessions are `workbook-v7` (no carried-over rows); all 2,089 workbook questions imported (bank total 2,397 with earlier curated/LeetCode entries). Every linked question ID now resolves. Saved progress IDs are unchanged.
+- Questions tab now shows 50 at a time ("Show more").
