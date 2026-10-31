@@ -126,20 +126,14 @@ import java.util.Locale;
 
 public final class WidgetRenderer {
     static final String PREFS = "cse_widget";
-
-    private WidgetRenderer() {
-    }
+    private WidgetRenderer() {}
 
     public static void updateAll(Context ctx) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);
-        int[] nextIds = mgr.getAppWidgetIds(new ComponentName(ctx, NextSessionWidget.class));
-        for (int id : nextIds) {
-            mgr.updateAppWidget(id, buildNext(ctx));
-        }
-        int[] progIds = mgr.getAppWidgetIds(new ComponentName(ctx, ProgressWidget.class));
-        for (int id : progIds) {
-            mgr.updateAppWidget(id, buildProgress(ctx));
-        }
+        int[] ids = mgr.getAppWidgetIds(new ComponentName(ctx, NextSessionWidget.class));
+        for (int id : ids) mgr.updateAppWidget(id, buildNext(ctx));
+        int[] progressIds = mgr.getAppWidgetIds(new ComponentName(ctx, ProgressWidget.class));
+        for (int id : progressIds) mgr.updateAppWidget(id, buildProgress(ctx));
     }
 
     private static PendingIntent open(Context ctx, String route, int code) {
@@ -148,42 +142,42 @@ public final class WidgetRenderer {
         i.putExtra("route", route);
         return PendingIntent.getActivity(ctx, code, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
-
-    private static String n(int v) {
-        return String.format(Locale.US, "%,d", v);
-    }
+    private static String n(int v) { return String.format(Locale.US, "%,d", v); }
 
     public static RemoteViews buildNext(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         RemoteViews rv = new RemoteViews(ctx.getPackageName(), R.layout.widget_next);
         boolean synced = sp.getBoolean("synced", false);
-        int total = sp.getInt("total", 0);
-        int day = sp.getInt("nextDay", 0);
-        String route = "#today";
+        int total = sp.getInt("total", 0), day = sp.getInt("nextDay", 0);
+        int done = sp.getInt("done", 0);
+        int pct = total > 0 ? (int)Math.floor(done * 100.0 / total) : 0;
+        rv.setTextViewText(R.id.widget_brand, "Bytewise  ·  Learn • Build • Progress");
+        rv.setTextViewText(R.id.widget_percent, synced ? pct + "%" : "—");
+        rv.setInt(R.id.widget_ring, "setImageLevel", pct * 100);
         if (!synced) {
-            rv.setTextViewText(R.id.widget_label, "NEXT SESSION");
             rv.setTextViewText(R.id.widget_day, "Open the app once");
-            rv.setTextViewText(R.id.widget_title, "Your next session appears here after the app has opened.");
-            rv.setTextViewText(R.id.widget_meta, "");
+            rv.setTextViewText(R.id.widget_title, "Your next learning session will appear here.");
+            rv.setTextViewText(R.id.widget_meta, "Live progress syncs from your app");
+            day = 1;
         } else if (day <= 0) {
-            rv.setTextViewText(R.id.widget_label, "NEXT SESSION");
-            rv.setTextViewText(R.id.widget_day, "Nothing pending");
-            rv.setTextViewText(R.id.widget_title, "Every session is completed or skipped.");
-            rv.setTextViewText(R.id.widget_meta, "");
+            rv.setTextViewText(R.id.widget_day, "Roadmap complete");
+            rv.setTextViewText(R.id.widget_title, "All sessions are completed or skipped.");
+            rv.setTextViewText(R.id.widget_meta, n(done) + " completed · " + pct + "% complete");
+            day = total;
         } else {
-            rv.setTextViewText(R.id.widget_label, "NEXT SESSION");
             rv.setTextViewText(R.id.widget_day, "Day " + n(day) + " / " + n(total));
             rv.setTextViewText(R.id.widget_title, sp.getString("title", ""));
             String module = sp.getString("module", "");
             String time = sp.getString("time", "");
             String meta = module;
-            if (time != null && !time.isEmpty()) {
-                meta = (module == null || module.isEmpty()) ? time : module + "  \\u00b7  " + time;
-            }
+            if (time != null && !time.isEmpty()) meta = (meta == null || meta.isEmpty()) ? time : meta + "  ·  " + time;
             rv.setTextViewText(R.id.widget_meta, meta);
-            route = "#today/" + day;
         }
-        rv.setOnClickPendingIntent(R.id.widget_root, open(ctx, route, 1));
+        int prev = Math.max(1, day - 1), next = Math.min(Math.max(1, total), day + 1);
+        rv.setOnClickPendingIntent(R.id.widget_root, open(ctx, "#today/" + day, 101));
+        rv.setOnClickPendingIntent(R.id.widget_previous, open(ctx, "#today/" + prev, 102));
+        rv.setOnClickPendingIntent(R.id.widget_done, open(ctx, "#widget-done/" + day, 103));
+        rv.setOnClickPendingIntent(R.id.widget_next, open(ctx, "#today/" + next, 104));
         return rv;
     }
 
@@ -191,21 +185,17 @@ public final class WidgetRenderer {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         RemoteViews rv = new RemoteViews(ctx.getPackageName(), R.layout.widget_progress);
         boolean synced = sp.getBoolean("synced", false);
-        int total = sp.getInt("total", 0);
-        int done = sp.getInt("done", 0);
-        int skipped = sp.getInt("skipped", 0);
-        rv.setTextViewText(R.id.widget_label, "CURRICULUM PROGRESS");
+        int total = sp.getInt("total", 0), done = sp.getInt("done", 0), skipped = sp.getInt("skipped", 0);
+        rv.setTextViewText(R.id.widget_label, "BYTEWISE PROGRESS");
         if (!synced || total <= 0) {
             rv.setTextViewText(R.id.widget_big, "Open the app once");
             rv.setTextViewText(R.id.widget_sub, "Progress appears here after the app has opened.");
             rv.setProgressBar(R.id.widget_bar, 100, 0, false);
         } else {
-            int pct = (int) Math.floor(done * 100.0 / total);
+            int pct = (int)Math.floor(done * 100.0 / total);
             rv.setTextViewText(R.id.widget_big, n(done) + " / " + n(total));
-            String sub = n(total - done) + " remaining  \\u00b7  " + pct + "% complete";
-            if (skipped > 0) {
-                sub = sub + "  \\u00b7  " + skipped + " skipped";
-            }
+            String sub = n(total - done) + " remaining  ·  " + pct + "% complete";
+            if (skipped > 0) sub += "  ·  " + skipped + " skipped";
             rv.setTextViewText(R.id.widget_sub, sub);
             rv.setProgressBar(R.id.widget_bar, 100, pct, false);
         }
@@ -257,45 +247,50 @@ LAYOUT_NEXT = '''<?xml version="1.0" encoding="utf-8"?>
     android:orientation="vertical"
     android:padding="14dp">
 
-    <TextView
-        android:id="@+id/widget_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:text="NEXT SESSION"
-        android:textColor="@color/widget_accent"
-        android:textSize="11sp"
-        android:textStyle="bold" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:id="@+id/widget_brand" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1"
+            android:text="Bytewise  ·  Learn • Build • Progress" android:textColor="@color/widget_accent"
+            android:textSize="12sp" android:textStyle="bold" />
+        <FrameLayout android:layout_width="58dp" android:layout_height="58dp">
+            <ImageView android:id="@+id/widget_ring" android:layout_width="match_parent"
+                android:layout_height="match_parent" android:src="@drawable/widget_progress_ring"
+                android:contentDescription="Completion progress" />
+            <TextView android:id="@+id/widget_percent" android:layout_width="match_parent"
+                android:layout_height="match_parent" android:gravity="center" android:text="0%"
+                android:textColor="@color/widget_ink" android:textSize="17sp" android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_day"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:maxLines="1"
-        android:textColor="@color/widget_ink"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/widget_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLines="3"
-        android:textColor="@color/widget_ink"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/widget_meta"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textColor="@color/widget_muted"
+    <TextView android:id="@+id/widget_day" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:text="Day 1 / 1,029" android:textColor="@color/widget_ink"
+        android:textSize="18sp" android:textStyle="bold" />
+    <TextView android:id="@+id/widget_title" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="3dp"
+        android:ellipsize="end" android:maxLines="2" android:textColor="@color/widget_ink"
+        android:textSize="15sp" android:textStyle="bold" />
+    <TextView android:id="@+id/widget_meta" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+        android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted"
         android:textSize="12sp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center">
+        <Button android:id="@+id/widget_previous" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_weight="1" android:minHeight="0dp"
+            android:minWidth="0dp" android:text="‹  Previous" android:textAllCaps="false"
+            android:textSize="12sp" />
+        <Button android:id="@+id/widget_done" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_marginStart="6dp" android:layout_weight="1.15"
+            android:minHeight="0dp" android:minWidth="0dp" android:text="✓  Done"
+            android:textAllCaps="false" android:textSize="12sp" />
+        <Button android:id="@+id/widget_next" android:layout_width="0dp"
+            android:layout_height="42dp" android:layout_marginStart="6dp" android:layout_weight="1"
+            android:minHeight="0dp" android:minWidth="0dp" android:text="Next  ›"
+            android:textAllCaps="false" android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>
 '''
 
@@ -382,13 +377,13 @@ def colors(bg, ink, muted, accent, track):
 ''' % (bg, ink, muted, accent, track)
 
 RECEIVERS = '''
-        <receiver android:name="PKG.NextSessionWidget" android:exported="true" android:label="CSE next session">
+        <receiver android:name="PKG.NextSessionWidget" android:exported="true" android:label="Bytewise learning card">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_next_info" />
         </receiver>
-        <receiver android:name="PKG.ProgressWidget" android:exported="true" android:label="CSE progress">
+        <receiver android:name="PKG.ProgressWidget" android:exported="true" android:label="Bytewise progress">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -400,11 +395,47 @@ for name, src in JAVA.items():
     write(os.path.join(java_dir, name), src.replace('PKG', PKG))
 write(os.path.join(res, 'layout', 'widget_next.xml'), LAYOUT_NEXT)
 write(os.path.join(res, 'layout', 'widget_progress.xml'), LAYOUT_PROGRESS)
-write(os.path.join(res, 'xml', 'widget_next_info.xml'), provider('widget_next', 250, 110))
+write(os.path.join(res, 'xml', 'widget_next_info.xml'), provider('widget_next', 300, 190))
 write(os.path.join(res, 'xml', 'widget_progress_info.xml'), provider('widget_progress', 250, 110))
 write(os.path.join(res, 'drawable', 'widget_bg.xml'), BG)
-write(os.path.join(res, 'values', 'widget_colors.xml'), colors('#FFFFFF', '#14211B', '#5B6B63', '#1F7A4D', '#D7E5DD'))
-write(os.path.join(res, 'values-night', 'widget_colors.xml'), colors('#1B2420', '#EAF2EE', '#A9B9B0', '#5FC79A', '#34443C'))
+write(os.path.join(res, 'drawable', 'widget_ring.xml'), '''<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#EEF2FF" />
+    <stroke android:width="4dp" android:color="#5A45E8" />
+</shape>''')
+
+# Determinate circular ring for the native home-screen widget (11 visual steps).
+level_items = []
+for step in range(11):
+    lo = step * 1000
+    hi = 10000 if step == 10 else (step + 1) * 1000 - 1
+    level_items.append('    <item android:minLevel="%d" android:maxLevel="%d" android:drawable="@drawable/widget_ring_%d" />' % (lo, hi, step))
+write(os.path.join(res, 'drawable', 'widget_progress_ring.xml'),
+    '<?xml version="1.0" encoding="utf-8"?>\n<level-list xmlns:android="http://schemas.android.com/apk/res/android">\n' + '\n'.join(level_items) + '\n</level-list>')
+for step in range(11):
+    pct = step / 10.0
+    if step == 0:
+        arc = ''
+    elif step == 10:
+        arc = 'M24,4 A20,20 0 1 1 23.99,4'
+    else:
+        import math
+        angle = -90 + 360 * pct
+        x = 24 + 20 * math.cos(math.radians(angle))
+        y = 24 + 20 * math.sin(math.radians(angle))
+        large = 1 if pct > 0.5 else 0
+        arc = 'M24,4 A20,20 0 %d 1 %.2f,%.2f' % (large, x, y)
+    vector = '''<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="58dp" android:height="58dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:pathData="M24,4 A20,20 0 1 1 23.99,4" android:strokeColor="#DCE5FF"
+        android:strokeWidth="3.5" android:fillColor="@android:color/transparent" />
+    <path android:pathData="%s" android:strokeColor="#315CF5" android:strokeWidth="3.5"
+        android:strokeLineCap="round" android:fillColor="@android:color/transparent" />
+</vector>''' % arc
+    write(os.path.join(res, 'drawable', 'widget_ring_%d.xml' % step), vector)
+write(os.path.join(res, 'values', 'widget_colors.xml'), colors('#F8FAFF', '#111A35', '#58668F', '#315CF5', '#D7E2FF'))
+write(os.path.join(res, 'values-night', 'widget_colors.xml'), colors('#171B2D', '#F1F3FF', '#B4BBDD', '#7A4DFF', '#343B61'))
 
 manifest = os.path.join(app, 'AndroidManifest.xml')
 text = open(manifest, encoding='utf-8').read()
