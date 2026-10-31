@@ -37,3 +37,12 @@ Imported by `tools/build_data.py` into `data/curriculum.json`. Every Daily Roadm
 ## 6. Verified (headless Chromium, 390 px wide) and not verified
 Verified: upgrade from a seeded v4 DB keeps old records; Mark Done twice quickly = one record; out-of-order completion; reopen invalidates and re-done records a new timestamp; history shows same-day multiples; 35 blocks, last = Days 1021–1029 (9); 25 projects; 31 topics; 31 questions; version completion logs history and raises project %; backup dump includes old and new stores.
 Not verified: real phone, restore-from-file flow, offline use (no service worker yet, as before), data-check.html with new data.
+
+---
+# Update: workbook v7 import + UI changes
+- Source: `CSE_Engineering_Master_Roadmap_v7_Actionable_Daily_Practice_and_GitHub` (text export). Rebuild with `python3 tools/build_data.py <workbook.xlsx or export.txt>`.
+- Imported: 31 modules, **294 topics** (TOP0001–TOP0294), 25 projects with proposed metadata, 216 project-topic links, 92 version milestones with mapped days, **882 topic project options** (`data/topic-projects.json`), Folder Guidance, mapping review queue, new session fields (topic, linked questions, problem links, project actions, folders).
+- Stable app IDs kept (M01…, PR01…, P001…) so saved progress still matches. Nothing in IndexedDB or backup/restore was changed.
+- **Export limit:** the supplied text export stops at 1,000 rows per sheet. Daily Roadmap has Days 1–999 (Days 1,000–1,029 keep the earlier data, `dataSource: carried-over`). Practice Bank has 999 of 2,089 questions (968 added, 31 updated); sessions from about Day 485 name question IDs whose details are not in the file. Re-run the build with the full .xlsx to fill them.
+- UI: Progress rebuilt from the reference image; Curriculum calendar is a Google-style grid (still curriculum days, not dates); Settings > Appearance (7 palettes, 6 fonts; stored in localStorage); Home keeps the session after Done and shows Undo done.
+- Fonts bundled in `fonts/` are Inter, Poppins and Lora (SIL Open Font License).

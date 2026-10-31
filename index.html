@@ -10,13 +10,22 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <script>/* apply saved palette/font before first paint (same rules as js/theme.js) */
+  (function(){try{var s=JSON.parse(localStorage.getItem('cse-roadmap-appearance'))||{},r=document.documentElement;
+  if(/^(ocean|violet|sunset|rose|teal|slate)$/.test(s.palette)){r.setAttribute('data-palette',s.palette);}
+  if(/^(inter|poppins|lora|classic|mono)$/.test(s.font)){r.setAttribute('data-font',s.font);}}catch(e){}})();</script>
   <link rel="stylesheet" href="css/styles.css?v=6">
-  <link rel="stylesheet" href="css/cur.css?v=7">
-  <link rel="stylesheet" href="css/home.css?v=1">
+  <link rel="stylesheet" href="css/theme.css?v=1">
+  <link rel="stylesheet" href="css/cur.css?v=9">
+  <link rel="stylesheet" href="css/home.css?v=2">
+  <link rel="stylesheet" href="css/progress.css?v=1">
 </head>
 <body>
   <header class="topbar">
-    <h1 id="screen-title">Home</h1>
+    <div class="tb-title">
+      <span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6M3 22h18"/></svg></span>
+      <div><h1 id="screen-title">Home</h1><p class="tb-sub" id="screen-sub">Track your learning journey</p></div>
+    </div>
     <a class="icon-btn" id="settings-link" href="#settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
     </a>
@@ -74,18 +83,20 @@
   </nav>
 
 
-  <script src="js/util.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
-  <script src="js/data.js?v=7"></script>
+  <script src="js/theme.js?v=1"></script>
+  <script src="js/util.js?v=8"></script>
+  <script src="js/icons.js?v=2"></script>
+  <script src="js/app.js?v=8"></script>
+  <script src="js/data.js?v=9"></script>
   <script src="js/store.js?v=7"></script>
-  <script src="js/state.js?v=7"></script>
-  <script src="js/sessionview.js?v=7"></script>
+  <script src="js/state.js?v=8"></script>
+  <script src="js/sessionview.js?v=8"></script>
   <script src="js/history.js?v=7"></script>
-  <script src="js/home.js?v=8"></script>
-  <script src="js/navigator.js?v=7"></script>
-  <script src="js/progress.js?v=7"></script>
-  <script src="js/projects.js?v=7"></script>
-  <script src="js/questions.js?v=7"></script>
-  <script src="js/settings.js?v=7"></script>
+  <script src="js/home.js?v=9"></script>
+  <script src="js/navigator.js?v=8"></script>
+  <script src="js/progress.js?v=8"></script>
+  <script src="js/projects.js?v=8"></script>
+  <script src="js/questions.js?v=9"></script>
+  <script src="js/settings.js?v=8"></script>
 </body>
 </html>

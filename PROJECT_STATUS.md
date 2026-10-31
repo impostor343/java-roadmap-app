@@ -70,3 +70,10 @@ java-roadmap-app/
 ## Next step
 User tests Stage 1 on the phone. Then Stage 2: convert the workbook
 data into data/roadmap.json and review it with the user.
+
+
+## Practice bank expansion (2026-10)
+- Added a separate curriculum-aligned `data/question-bank.json` loaded by the app.
+- Added 252 module-specific curated tasks (at least 8 per each of 31 modules), plus existing workbook exercises and 56 LeetCode catalogue problems.
+- Questions include multiple practice formats, difficulty, prompts, acceptance criteria, hints, time estimates and module mapping.
+- Questions UI now supports module, difficulty, type, text search and personal-status filters.
