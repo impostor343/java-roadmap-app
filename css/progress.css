@@ -88,3 +88,57 @@ html[data-mode="dark"] .pg-tile.prog { --tb: #241E38; --tl: #44386A; }
 body[data-screen="progress"] .topbar .tb-ic, body[data-screen="progress"] .topbar .tb-sub { display: block; }
 .pg-tile-label { white-space: nowrap; }
 .pg-ring { width: 92px; height: 92px; }
+
+/* Project identity icons: distinct symbols, shared visual treatment. */
+.project-item { display:flex; align-items:center; gap:12px; }
+.project-item-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:6px; }
+.project-item-main > strong { overflow:hidden; text-overflow:ellipsis; }
+.project-icon, .project-detail-icon { display:grid; place-items:center; flex:none; color:#fff; background:linear-gradient(145deg,#1769f5,#6428e8); border-radius:15px; }
+.project-icon { width:44px; height:44px; }
+.project-icon .ic { width:23px; height:23px; stroke-width:2; }
+.project-item-arrow { color:var(--muted); font-size:1.6rem; line-height:1; }
+.project-detail-heading { display:flex; align-items:center; gap:14px; margin:12px 0 16px; }
+.project-detail-icon { width:58px; height:58px; border-radius:18px; }
+.project-detail-icon .ic { width:30px; height:30px; }
+.project-detail-heading h2 { margin:0; }
+.project-detail-heading .eyebrow { margin:0 0 4px; }
+.project-icon-pr01 { background:linear-gradient(145deg,#2879f7,#2143b9); }
+.project-icon-pr02 { background:linear-gradient(145deg,#087fce,#1644a6); }
+.project-icon-pr03 { background:linear-gradient(145deg,#8b5cf6,#5426c8); }
+.project-icon-pr04 { background:linear-gradient(145deg,#0e9f9a,#08726e); }
+.project-icon-pr05, .project-icon-pr16 { background:linear-gradient(145deg,#16a36a,#087747); }
+.project-icon-pr06 { background:linear-gradient(145deg,#168b55,#075b3c); }
+.project-icon-pr07 { background:linear-gradient(145deg,#8754e8,#5124ad); }
+.project-icon-pr08 { background:linear-gradient(145deg,#ed8a2e,#bd5518); }
+.project-icon-pr09, .project-icon-pr25 { background:linear-gradient(145deg,#1b91d1,#2455aa); }
+.project-icon-pr10, .project-icon-pr20 { background:linear-gradient(145deg,#c84c8b,#8d2861); }
+.project-icon-pr11 { background:linear-gradient(145deg,#5268b9,#273b80); }
+.project-icon-pr12, .project-icon-pr13 { background:linear-gradient(145deg,#d08b32,#98601a); }
+.project-icon-pr14 { background:linear-gradient(145deg,#178caa,#075a76); }
+.project-icon-pr15 { background:linear-gradient(145deg,#13a7a0,#08716f); }
+.project-icon-pr17, .project-icon-pr18 { background:linear-gradient(145deg,#e45b7e,#a72f5b); }
+.project-icon-pr19 { background:linear-gradient(145deg,#247bd8,#20449d); }
+.project-icon-pr21 { background:linear-gradient(145deg,#d65e98,#91396e); }
+.project-icon-pr22 { background:linear-gradient(145deg,#278b82,#175a62); }
+.project-icon-pr23, .project-icon-pr24 { background:linear-gradient(145deg,#616f85,#344257); }
+
+/* Module identity icons mirror the visual language used for project icons. */
+.module-item { display:flex; align-items:center; gap:12px; }
+.module-item-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:6px; }
+.module-item-main > strong { overflow:hidden; text-overflow:ellipsis; }
+.module-icon, .module-detail-icon { display:grid; place-items:center; flex:none; color:#fff; background:linear-gradient(145deg,#1769f5,#6428e8); border-radius:15px; }
+.module-icon { width:44px; height:44px; }
+.module-icon .ic { width:23px; height:23px; stroke-width:2; }
+.module-detail-heading { display:flex; align-items:center; gap:14px; margin:12px 0 16px; }
+.module-detail-icon { width:58px; height:58px; border-radius:18px; }
+.module-detail-icon .ic { width:30px; height:30px; }
+.module-detail-heading h2 { margin:0; }
+.module-icon-m01,.module-icon-m07,.module-icon-m15 { background:linear-gradient(145deg,#2879f7,#2143b9); }
+.module-icon-m02,.module-icon-m03,.module-icon-m04,.module-icon-m05,.module-icon-m16 { background:linear-gradient(145deg,#8754e8,#5124ad); }
+.module-icon-m06,.module-icon-m12 { background:linear-gradient(145deg,#13a7a0,#08716f); }
+.module-icon-m08,.module-icon-m09 { background:linear-gradient(145deg,#168b55,#075b3c); }
+.module-icon-m10,.module-icon-m11,.module-icon-m19 { background:linear-gradient(145deg,#178caa,#075a76); }
+.module-icon-m13 { background:linear-gradient(145deg,#5268b9,#273b80); }
+.module-icon-m14 { background:linear-gradient(145deg,#c84c8b,#8d2861); }
+.module-icon-m17,.module-icon-m20 { background:linear-gradient(145deg,#616f85,#344257); }
+.module-icon-m18 { background:linear-gradient(145deg,#ed8a2e,#bd5518); }
