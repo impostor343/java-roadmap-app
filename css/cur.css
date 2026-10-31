@@ -31,7 +31,14 @@
 .cur .chip.st-completed { background: var(--tint); color: var(--accent-strong); font-weight: 700; }
 .cur .chip.st-in-progress { background: #FFF1D6; color: #8A5300; }
 .cur .chip.st-skipped { background: #F3E3EA; color: #8B2D5A; }
-@media (prefers-color-scheme: dark) { .cur .chip.st-in-progress { background: #4A3A14; color: #F5D28A; } .cur .chip.st-skipped { background: #4A2638; color: #F2B8D2; } }
+@media (prefers-color-scheme: dark) {
+  html:not([data-mode="light"]) .cur .chip.st-in-progress { background: #4A3A14; color: #F5D28A; }
+  html:not([data-mode="light"]) .cur .chip.st-skipped { background: #4A2638; color: #F2B8D2; }
+}
+/* forced dark */
+html[data-mode="dark"] .cur .chip.st-in-progress { background: #4A3A14; color: #F5D28A; }
+html[data-mode="dark"] .cur .chip.st-skipped { background: #4A2638; color: #F2B8D2; }
+
 .cur .item { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); }
 .cur .item:first-of-type { border-top: 0; }
 .cur .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -114,7 +121,14 @@
 .cur .gcell.st-skipped .gchipx { background: #F3E3EA; color: #8B2D5A; }
 .cur .gcell.st-in-progress .gchipx { background: #FFF1D6; color: #8A5300; }
 .cur .gcell.ms::after { content: ""; position: absolute; left: 3px; right: 3px; bottom: 2px; height: 3px; border-radius: 2px; background: var(--purple); }
-@media (prefers-color-scheme: dark) { .cur .gcell.st-skipped .gchipx { background: #4A2638; color: #F2B8D2; } .cur .gcell.st-in-progress .gchipx { background: #4A3A14; color: #F5D28A; } }
+@media (prefers-color-scheme: dark) {
+  html:not([data-mode="light"]) .cur .gcell.st-skipped .gchipx { background: #4A2638; color: #F2B8D2; }
+  html:not([data-mode="light"]) .cur .gcell.st-in-progress .gchipx { background: #4A3A14; color: #F5D28A; }
+}
+/* forced dark */
+html[data-mode="dark"] .cur .gcell.st-skipped .gchipx { background: #4A2638; color: #F2B8D2; }
+html[data-mode="dark"] .cur .gcell.st-in-progress .gchipx { background: #4A3A14; color: #F5D28A; }
+
 .cur .glegend { margin: 8px 2px 12px; line-height: 1.8; }
 .cur .glegend .lg { font-weight: 700; } .cur .glegend .lg.next { color: var(--accent-strong); } .cur .glegend .lg.done { color: var(--accent-strong); } .cur .glegend .lg.skip { color: #8B2D5A; } .cur .glegend .lg.prog { color: #8A5300; } .cur .glegend .lg.ms { color: var(--purple); }
 .cur .agenda .agenda-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }

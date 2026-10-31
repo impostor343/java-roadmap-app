@@ -68,8 +68,17 @@
 .cur details.ver[open] summary { margin-bottom: 6px; }
 
 @media (prefers-color-scheme: dark) {
-  .pg-tile { --tb: #1A2B22; --tl: #2B4A38; } .pg-tile.skip { --tb: #2E2616; --tl: #5A4723; } .pg-tile.pend { --tb: #18243A; --tl: #2B4268; } .pg-tile.prog { --tb: #241E38; --tl: #44386A; }
+  html:not([data-mode="light"]) .pg-tile { --tb: #1A2B22; --tl: #2B4A38; }
+  html:not([data-mode="light"]) .pg-tile.skip { --tb: #2E2616; --tl: #5A4723; }
+  html:not([data-mode="light"]) .pg-tile.pend { --tb: #18243A; --tl: #2B4268; }
+  html:not([data-mode="light"]) .pg-tile.prog { --tb: #241E38; --tl: #44386A; }
 }
+/* forced dark */
+html[data-mode="dark"] .pg-tile { --tb: #1A2B22; --tl: #2B4A38; }
+html[data-mode="dark"] .pg-tile.skip { --tb: #2E2616; --tl: #5A4723; }
+html[data-mode="dark"] .pg-tile.pend { --tb: #18243A; --tl: #2B4268; }
+html[data-mode="dark"] .pg-tile.prog { --tb: #241E38; --tl: #44386A; }
+
 
 /* Top bar: icon + subtitle (shown on Progress only, as in the reference) */
 .topbar .tb-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
