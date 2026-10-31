@@ -153,7 +153,6 @@ public final class WidgetRenderer {
         int pct = total > 0 ? (int)Math.floor(done * 100.0 / total) : 0;
         rv.setTextViewText(R.id.widget_brand, "Bytewise  ·  Learn • Build • Progress");
         rv.setTextViewText(R.id.widget_percent, synced ? pct + "%" : "—");
-        rv.setInt(R.id.widget_ring, "setImageLevel", pct * 100);
         if (!synced) {
             rv.setTextViewText(R.id.widget_day, "Open the app once");
             rv.setTextViewText(R.id.widget_title, "Your next learning session will appear here.");
@@ -253,14 +252,11 @@ LAYOUT_NEXT = '''<?xml version="1.0" encoding="utf-8"?>
             android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1"
             android:text="Bytewise  ·  Learn • Build • Progress" android:textColor="@color/widget_accent"
             android:textSize="12sp" android:textStyle="bold" />
-        <FrameLayout android:layout_width="58dp" android:layout_height="58dp">
-            <ImageView android:id="@+id/widget_ring" android:layout_width="match_parent"
-                android:layout_height="match_parent" android:src="@drawable/widget_progress_ring"
-                android:contentDescription="Completion progress" />
-            <TextView android:id="@+id/widget_percent" android:layout_width="match_parent"
-                android:layout_height="match_parent" android:gravity="center" android:text="0%"
-                android:textColor="@color/widget_ink" android:textSize="17sp" android:textStyle="bold" />
-        </FrameLayout>
+        <TextView android:id="@+id/widget_percent" android:layout_width="58dp"
+            android:layout_height="40dp" android:gravity="center"
+            android:background="@drawable/widget_action_primary_bg"
+            android:text="0%" android:textColor="#FFFFFF"
+            android:textSize="16sp" android:textStyle="bold" />
     </LinearLayout>
 
     <TextView android:id="@+id/widget_day" android:layout_width="match_parent"
@@ -416,42 +412,6 @@ write(os.path.join(res, 'drawable', 'widget_action_primary_bg.xml'), '''<?xml ve
     <solid android:color="@color/widget_accent" />
     <corners android:radius="10dp" />
 </shape>''')
-write(os.path.join(res, 'drawable', 'widget_ring.xml'), '''<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <solid android:color="#EEF2FF" />
-    <stroke android:width="4dp" android:color="#5A45E8" />
-</shape>''')
-
-# Determinate circular ring for the native home-screen widget (11 visual steps).
-level_items = []
-for step in range(11):
-    lo = step * 1000
-    hi = 10000 if step == 10 else (step + 1) * 1000 - 1
-    level_items.append('    <item android:minLevel="%d" android:maxLevel="%d" android:drawable="@drawable/widget_ring_%d" />' % (lo, hi, step))
-write(os.path.join(res, 'drawable', 'widget_progress_ring.xml'),
-    '<?xml version="1.0" encoding="utf-8"?>\n<level-list xmlns:android="http://schemas.android.com/apk/res/android">\n' + '\n'.join(level_items) + '\n</level-list>')
-for step in range(11):
-    pct = step / 10.0
-    if step == 0:
-        arc = ''
-    elif step == 10:
-        arc = 'M24,4 A20,20 0 1 1 23.99,4'
-    else:
-        import math
-        angle = -90 + 360 * pct
-        x = 24 + 20 * math.cos(math.radians(angle))
-        y = 24 + 20 * math.sin(math.radians(angle))
-        large = 1 if pct > 0.5 else 0
-        arc = 'M24,4 A20,20 0 %d 1 %.2f,%.2f' % (large, x, y)
-    vector = '''<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="58dp" android:height="58dp" android:viewportWidth="48" android:viewportHeight="48">
-    <path android:pathData="M24,4 A20,20 0 1 1 23.99,4" android:strokeColor="#DCE5FF"
-        android:strokeWidth="3.5" android:fillColor="@android:color/transparent" />
-    <path android:pathData="%s" android:strokeColor="#315CF5" android:strokeWidth="3.5"
-        android:strokeLineCap="round" android:fillColor="@android:color/transparent" />
-</vector>''' % arc
-    write(os.path.join(res, 'drawable', 'widget_ring_%d.xml' % step), vector)
 write(os.path.join(res, 'values', 'widget_colors.xml'), colors('#F8FAFF', '#111A35', '#58668F', '#315CF5', '#D7E2FF'))
 write(os.path.join(res, 'values-night', 'widget_colors.xml'), colors('#171B2D', '#F1F3FF', '#B4BBDD', '#7A4DFF', '#343B61'))
 
