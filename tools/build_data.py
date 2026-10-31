@@ -182,7 +182,7 @@ for r in rows('Practice Bank'):
         base.update({'title': first if len(first) <= 150 else first[:147].rstrip() + '…', 'type': 'Day practice', 'prompt': text, 'acceptanceCriteria': None, 'hint': None, 'estimatedMinutes': 30, 'tags': []})
         qmap[qid] = base; bank['questions'].append(base); added += 1
 bank['meta'].update({'total': len(bank['questions']), 'workbookQuestionsImported': sum(1 for q in bank['questions'] if q['id'].startswith('P')), 'workbookQuestionsInWorkbook': 2089,
-    'note': 'Workbook v7 lists 2,089 questions. Only those present in the supplied export are included; the rest are added when the full workbook is imported.'})
+    'note': 'All workbook v7 questions are included, plus the earlier curated and LeetCode catalogue entries.'})
 
 # ---------- topic project ladder (separate file, loaded only when needed)
 ladder = [{'id': r['Project ID'], 'topicId': r['Topic ID'], 'moduleId': mid(r['Module ID']), 'size': r['Size'], 'title': r['Project title'], 'purpose': r['Problem / purpose'], 'scope': r['Core scope and deliverables'],
