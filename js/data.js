@@ -2,12 +2,14 @@
 // Hierarchy: Phase > Module (31) > Topic (294) > Session (Day 1-1,029). Practice questions and projects link to topics and days.
 (function () {
   'use strict';
-  var C = { ready: null, total: 0, sessions: [], modules: [], topics: [], projects: [], projectTopics: [], practice: [], extras: {}, ladder: null };
+  var C = { ready: null, total: 0, sessions: [], modules: [], topics: [], projects: [], projectTopics: [], practice: [], extras: {}, ladder: null, iconMap: { moduleIcons: {}, topicIcons: {}, fallbackIcon: 'book' } };
   var idx = {};
   function get(url) { return fetch(url).then(function (r) { if (!r.ok) { throw new Error(url + ' (' + r.status + ')'); } return r.json(); }); }
   C.session = function (d) { return C.sessions[d - 1] || null; };
   C.module = function (id) { return idx.mod[id] || null; };
   C.topic = function (id) { return idx.top[id] || null; };
+  C.moduleIcon = function (id) { var x = C.iconMap.moduleIcons[id]; return x && x.icon || C.iconMap.fallbackIcon || 'book'; };
+  C.topicIcon = function (id) { var x = C.iconMap.topicIcons[id]; return x && x.icon || C.iconMap.fallbackIcon || 'book'; };
   C.project = function (id) { return idx.proj[id] || null; };
   C.question = function (id) { return idx.q[id] || null; };
   C.topicsOf = function (moduleId) { return C.topics.filter(function (t) { return t.moduleId === moduleId; }); };
@@ -22,8 +24,9 @@
   C.groupOf = function (day) { return Math.floor((day - 1) / C.meta.groupSize); };
   // Topic-end project options (Small / Medium / Major per topic). Large file, loaded only when a topic page needs it.
   C.loadLadder = function () { if (!C.ladder) { C.ladder = get('data/topic-projects.json').then(function (j) { return j.items || []; }).catch(function () { return []; }); } return C.ladder; };
-  C.ready = Promise.all([get('data/curriculum.json'), get('data/question-bank.json')]).then(function (all) {
-    var j = all[0], bank = all[1];
+  C.ready = Promise.all([get('data/curriculum.json'), get('data/question-bank.json'), get('data/topic-module-icons.json').catch(function () { return null; })]).then(function (all) {
+    var j = all[0], bank = all[1], iconMap = all[2];
+    if (iconMap && iconMap.schemaVersion === 1) { C.iconMap = iconMap; }
     C.meta = j.meta; C.sessions = j.sessions; C.modules = j.modules; C.topics = j.topics || []; C.projects = j.projects; C.projectTopics = j.projectTopics || [];
     C.practice = (bank.questions && bank.questions.length ? bank.questions : (j.practice || [])); C.questionBankMeta = bank.meta || {}; C.extras = j.extras || {}; C.total = j.sessions.length;
     idx = { mod: {}, top: {}, proj: {}, q: {} };

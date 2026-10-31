@@ -19,6 +19,8 @@
     [/operating system|\bos\b|linux|kernel|concurren|thread/i, 'cpu'], [/\bweb\b|javascript|typescript|browser/i, 'globe'], [/\bcloud|devops|deploy|docker|kubernetes/i, 'cloud'], [/android|mobile|\bapp\b/i, 'phone'], [/inventory|\bstore\b|\bshop|\bstock/i, 'box'],
     [/\bchat|message|\bqueue/i, 'message'], [/machine learning|\bai\b|\bml\b|analytic|data science|data and ai/i, 'chart'], [/\boop\b|object|software design|architect|system design/i, 'layers'], [/capstone|portfolio|interview/i, 'flag'], [/\btask|todo|planner|schedule/i, 'task']];
   function iconFor(name) { for (var i = 0; i < ICON_RULES.length; i++) { if (ICON_RULES[i][0].test(name)) { return ICON_RULES[i][1]; } } return 'code'; }
+  function moduleIcon(m) { return C.moduleIcon ? C.moduleIcon(m.id) : iconFor((m.name || '') + ' ' + (m.domain || '')); }
+  function topicIcon(tp) { return C.topicIcon ? C.topicIcon(tp.id) : iconFor(tp.name || ''); }
 
   function ring(pct) {
     var NS = 'http://www.w3.org/2000/svg', r = 52, c = 2 * Math.PI * r, svg = document.createElementNS(NS, 'svg');
@@ -71,7 +73,7 @@
     // Modules (starting at the module of the next session)
     var cur = nx ? C.modules.indexOf(C.module(C.session(nx).moduleId)) : 0, start = Math.max(0, Math.min(cur, C.modules.length - 6)), mods = C.modules.slice(start, start + 6);
     w.appendChild(sectionHead('book', 'Modules', 'View all modules', '#progress/topics'));
-    w.appendChild(h('div', { class: 'pg-list' }, mods.map(function (m, i) { var st = A.topicStats(m); return prow('#progress/module/' + m.id, i, iconFor(m.name), m.name, st.done, st.total, st.percent); })));
+    w.appendChild(h('div', { class: 'pg-list' }, mods.map(function (m, i) { var st = A.topicStats(m); return prow('#progress/module/' + m.id, i, moduleIcon(m), m.name, st.done, st.total, st.percent); })));
     // Everything else that used to be on this page
     var pq = A.practiceStats(), ml = A.milestoneTotals();
     w.appendChild(h('section', { class: 'pg-more' },
@@ -89,7 +91,7 @@
     C.modules.forEach(function (m) {
       if (m.phase !== phase) { phase = m.phase; w.appendChild(h('h3', { class: 'ph', text: phase })); }
       var t = A.topicStats(m), st = A.topicStatus(m);
-      var mic = h('span', { class: 'module-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mic.appendChild(ic(iconFor((m.name || '') + ' ' + (m.domain || ''))));
+      var mic = h('span', { class: 'module-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mic.appendChild(ic(moduleIcon(m)));
       w.appendChild(h('a', { class: 'item module-item', href: '#progress/module/' + m.id }, mic, h('span', { class: 'module-item-main' }, h('strong', { text: m.name }), h('span', { class: 'muted small', text: U.STATUS[st] + ' · ' + t.done + ' / ' + t.total + ' sessions · ' + (m.topicIds ? m.topicIds.length : 0) + ' topics · Days ' + m.startDay + '–' + m.endDay }), U.bar(t.percent)), h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })));
     });
     return w;
@@ -121,20 +123,21 @@
     var w = h('div'), t = A.topicStats(m), ts = A.topicState(id);
     w.appendChild(back('#progress/topics', '← Modules'));
     w.appendChild(h('p', { class: 'eyebrow', text: m.catalogId + ' · ' + m.phase }));
-    var mdic = h('span', { class: 'module-detail-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mdic.appendChild(ic(iconFor((m.name || '') + ' ' + (m.domain || ''))));
+    var mdic = h('span', { class: 'module-detail-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mdic.appendChild(ic(moduleIcon(m)));
     w.appendChild(h('div', { class: 'module-detail-heading' }, mdic, h('h2', { text: m.name })));
     w.appendChild(card('Status', statusSelect(A.topicStatus(m), TOPIC_STATUSES, function (v) { A.saveTopic(id, { status: v }).then(V.refresh); }, 'Module status'),
       h('p', { class: 'muted small', text: 'Your status is separate from session completion. Changing it never completes or reopens sessions.' }), ts.completedAt ? row('Marked completed', U.stamp(ts.completedAt)) : null));
     w.appendChild(card('Learning progress', h('p', { class: 'bigday', text: t.done + ' / ' + t.total + ' sessions completed' }), U.bar(t.percent), h('p', { class: 'muted', text: t.remaining + ' remaining' + (t.skipped ? ' · ' + t.skipped + ' skipped' : '') })));
     w.appendChild(card('About', row('Domain', m.domain), row('Semester target', m.semester), row('Sessions', 'Days ' + m.startDay + '–' + m.endDay + ' (' + m.days + ')'), row('Expected outcome', m.outcome), row('Extension rule', m.extensionRule)));
     var tl = h('div'); C.topicsOf(id).forEach(function (tp) { var st = A.conceptStats(tp);
-      tl.appendChild(h('a', { class: 'item', href: '#progress/topic/' + tp.id }, h('strong', { text: tp.name }), h('span', { class: 'muted small', text: U.STATUS[A.conceptStatus(tp)] + ' · ' + st.done + ' / ' + st.total + ' sessions · Day' + (tp.days.length > 1 ? 's ' + tp.firstDay + '–' + tp.lastDay : ' ' + tp.firstDay) }), U.bar(st.percent))); });
+      var tic = h('span', { class: 'topic-icon', 'aria-hidden': 'true' }); tic.appendChild(ic(topicIcon(tp)));
+      tl.appendChild(h('a', { class: 'item topic-item', href: '#progress/topic/' + tp.id }, tic, h('span', { class: 'topic-item-main' }, h('strong', { text: tp.name }), h('span', { class: 'muted small', text: U.STATUS[A.conceptStatus(tp)] + ' · ' + st.done + ' / ' + st.total + ' sessions · Day' + (tp.days.length > 1 ? 's ' + tp.firstDay + '–' + tp.lastDay : ' ' + tp.firstDay) }), U.bar(st.percent)))); });
     w.appendChild(card('Topics in this module (' + (m.topicIds || []).length + ')', tl));
     var prev = C.modules[C.modules.indexOf(m) - 1];
     w.appendChild(card('Prerequisites', h('p', { text: prev ? 'Follows: ' + prev.name + ' (Days ' + prev.startDay + '–' + prev.endDay + '). The workbook states no other module-level prerequisites.' : 'First module in the curriculum.' })));
     w.appendChild(card('Resources', row('Free resource', m.resource), m.resourceLinks.length ? h('div', { class: 'links' }, m.resourceLinks.map(function (u) { return h('a', { href: u, target: '_blank', rel: 'noopener', text: u }); })) : null));
     var projs = C.projects.filter(function (p) { return (p.moduleIds || []).indexOf(id) !== -1 || p.relatedDays.some(function (d) { return d >= m.startDay && d <= m.endDay; }); });
-    w.appendChild(card('Related projects', projs.length ? projs.map(function (p) { var pic = h('span', { class: 'project-icon project-icon-' + p.id.toLowerCase(), 'aria-hidden': 'true' }); pic.appendChild(ic(iconFor(p.name))); return h('a', { class: 'item project-item', href: '#projects/' + p.id }, pic, h('span', { class: 'project-item-main' }, h('strong', { text: p.name }), h('span', { class: 'muted small', text: p.category + ' · ' + p.coreSkills })), h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })); }) : h('p', { class: 'muted', text: 'No projects are linked to this module.' })));
+    w.appendChild(card('Related projects', projs.length ? projs.map(function (p) { var pic = h('span', { class: 'project-icon project-icon-' + p.id.toLowerCase(), 'aria-hidden': 'true' }); pic.appendChild(ic(PROJECT_ICONS[p.id] || iconFor(p.name))); return h('a', { class: 'item project-item', href: '#projects/' + p.id }, pic, h('span', { class: 'project-item-main' }, h('strong', { text: p.name }), h('span', { class: 'muted small', text: p.category + ' · ' + p.coreSkills })), h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })); }) : h('p', { class: 'muted', text: 'No projects are linked to this module.' })));
     var days = []; for (var d = m.startDay; d <= m.endDay; d++) { days.push(d); }
     w.appendChild(card('Sessions', sessionList(days)));
     w.appendChild(notesBox(id));
@@ -146,7 +149,8 @@
     var m = C.module(tp.moduleId), w = h('div'), st = A.conceptStats(tp), ts = A.topicState(id);
     w.appendChild(back('#progress/module/' + tp.moduleId, '← ' + (m ? m.name : 'Module')));
     w.appendChild(h('p', { class: 'eyebrow', text: tp.id + (m ? ' · ' + m.catalogId : '') }));
-    w.appendChild(h('h2', { text: tp.name }));
+    var thic = h('span', { class: 'topic-detail-icon', 'aria-hidden': 'true' }); thic.appendChild(ic(topicIcon(tp)));
+    w.appendChild(h('div', { class: 'topic-detail-heading' }, thic, h('h2', { text: tp.name })));
     w.appendChild(card('Status', statusSelect(A.conceptStatus(tp), TOPIC_STATUSES, function (v) { A.saveTopic(id, { status: v }).then(V.refresh); }, 'Topic status'),
       h('p', { class: 'muted small', text: 'Your topic status is separate from session completion. Completing one session never marks a topic complete.' }), ts.completedAt ? row('Marked completed', U.stamp(ts.completedAt)) : null));
     w.appendChild(card('Learning progress', h('p', { class: 'bigday', text: st.done + ' / ' + st.total + ' sessions completed' }), U.bar(st.percent), h('p', { class: 'muted', text: st.remaining + ' remaining' + (st.skipped ? ' · ' + st.skipped + ' skipped' : '') })));
