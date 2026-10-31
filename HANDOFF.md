@@ -1,4 +1,19 @@
-# HANDOFF: Java Roadmap app (read this first)
+# HANDOFF: CSE Roadmap app (read this first)
+
+**Version 2 (this update) replaced the 253-day dated Java schedule with a 1,029-session day-numbered CSE learning system.**
+Sections below the divider describe the OLD version and are kept only for history; `MIGRATION_REPORT.md` is current.
+
+## Current design
+- Plain HTML/CSS/vanilla JS PWA, no build step. Source of truth = workbook `CSE_Engineering_Master_Roadmap_Sem3_to_Sem8_v3_Full_Detail_Verified.xlsx`, converted by `python3 tools/build_data.py <xlsx>` into `data/curriculum.json`.
+- Two separate time systems: curriculum Day 1–1,029 (permanent IDs; no dates; next session = first not completed/not skipped) and actual completion history (real timestamps in `completions`).
+- Files: js/util.js, store.js (IndexedDB v5, additive), data.js, state.js (all progress logic), sessionview.js, home.js, navigator.js (curriculum blocks of 30), history.js, progress.js (+topics), projects.js, questions.js, settings.js (backup/restore + earlier records). css/cur.css. Old scripts in legacy/.
+- Stores: completions (one active record per day; reopen sets reopenedAt), sessionState, topicState, projectState, milestoneState, events, practiceState, meta. Old stores progress/dateNotes/questionState are never modified.
+- Tabs unchanged: Home, Calendar (Curriculum | Completion history), Questions, Projects, Progress. Settings via top icon.
+- Rules from the owner still apply: never invent roadmap data; don't claim untested things; plain-English, small steps; no frameworks.
+- Open: Stage 8 (service worker/offline), final cleanup (data-check.html still exists), phone test, topic prerequisites/exercises not in workbook (see report).
+
+---
+# OLD VERSION (history only)
 
 This file lets any AI assistant continue the project without the earlier chat.
 Last updated after Stage 6a: UI refresh of Home and the Info sheet (from the user's reference image) and the Question Bank; awaiting the user's phone test.
