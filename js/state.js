@@ -75,6 +75,16 @@
   };
   // Stored status wins. With none stored, "In Progress" is shown once a linked session is completed; Completed/Needs Revision are only ever set by you.
   A.topicStatus = function (m) { var s = st.ts[m.id]; if (s && s.status) { return s.status; } return A.topicStats(m).done > 0 ? 'in-progress' : 'not-started'; };
+  // Counts used by the Progress dashboard.
+  A.pendingCount = function () { var n = 0; for (var d = 1; d <= C.total; d++) { var s = A.status(d); if (s !== 'completed' && s !== 'skipped') { n++; } } return n; };
+  A.inProgressCount = function () { return A.inProgressDays().length; };
+  // Topics (the 294 smaller units inside modules). Progress comes from their own sessions; status is yours, like modules.
+  A.conceptStats = function (tp) {
+    var done = 0, skipped = 0; tp.days.forEach(function (d) { var s = A.status(d); if (s === 'completed') { done++; } else if (s === 'skipped') { skipped++; } });
+    var total = tp.days.length; return { total: total, done: done, skipped: skipped, remaining: total - done, percent: U.pct(done, total) };
+  };
+  A.conceptStatus = function (tp) { var s = st.ts[tp.id]; if (s && s.status) { return s.status; } return A.conceptStats(tp).done > 0 ? 'in-progress' : 'not-started'; };
+  A.conceptsDone = function () { return C.topics.filter(function (t) { return A.conceptStatus(t) === 'completed'; }).length; };
   A.saveTopic = function (id, patch) {
     var cur = A.topicState(id), rec = { id: id, status: cur.status, notes: cur.notes || '', completedAt: cur.completedAt || null, updatedAt: now() };
     Object.keys(patch).forEach(function (k) { rec[k] = patch[k]; });

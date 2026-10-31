@@ -1,7 +1,7 @@
-// Router shell: the five tabs (Home, Calendar, Questions, Projects, Progress) plus Settings, chosen by the URL hash.
+// Router shell: the six tabs (Home, Calendar, Questions, Projects, Progress, Resources) plus Settings, chosen by the URL hash.
 (function () {
   'use strict';
-  var SCREENS = ['today', 'calendar', 'questions', 'projects', 'progress', 'settings'];
+  var SCREENS = ['today', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
   function showScreen() {
     var id = location.hash.replace('#', '').split('/')[0];
@@ -18,3 +18,6 @@
   }
   window.addEventListener('hashchange', showScreen); showScreen();
 })();
+
+// Offline support: the service worker caches the app and data after the first visit.
+if ('serviceWorker' in navigator && location.protocol !== 'file:') { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }

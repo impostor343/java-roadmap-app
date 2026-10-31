@@ -1,11 +1,11 @@
-// Local storage (IndexedDB 'java-roadmap', version 5). Nothing leaves the phone.
-// Version 5 ONLY ADDS stores. The old stores (progress, dateNotes, questionState, dayNotes) are never modified or deleted by the app;
+// Local storage (IndexedDB 'java-roadmap', version 6). Nothing leaves the phone.
+// Versions 5 and 6 ONLY ADD stores. The old stores (progress, dateNotes, questionState, dayNotes) are never modified or deleted by the app;
 // they hold your records from the earlier date-based version and are shown under Settings > Earlier records.
 (function () {
   'use strict';
-  var DB_NAME = 'java-roadmap', VERSION = 5, dbPromise = null;
+  var DB_NAME = 'java-roadmap', VERSION = 6, dbPromise = null;
   var LEGACY = ['dayNotes', 'dateNotes', 'questionState', 'progress'];
-  var NEW = ['completions', 'sessionState', 'topicState', 'projectState', 'milestoneState', 'events', 'practiceState', 'meta'];
+  var NEW = ['completions', 'sessionState', 'topicState', 'projectState', 'milestoneState', 'events', 'practiceState', 'meta', 'resourceState'];
   var BUSY = 'Saved data is busy. Close other tabs or windows of this app, then reload. Nothing is lost.';
 
   function open() {
@@ -26,6 +26,8 @@
         if (!db.objectStoreNames.contains('sessionState')) { db.createObjectStore('sessionState', { keyPath: 'day' }); }
         ['topicState', 'projectState', 'milestoneState', 'practiceState'].forEach(function (n) { if (!db.objectStoreNames.contains(n)) { db.createObjectStore(n, { keyPath: 'id' }); } });
         if (!db.objectStoreNames.contains('events')) { db.createObjectStore('events', { keyPath: 'id', autoIncrement: true }); }
+        if (!db.objectStoreNames.contains('resourceState')) { db.createObjectStore('resourceState', { keyPath: 'id' }); }
+        if (!db.objectStoreNames.contains('resourceFiles')) { db.createObjectStore('resourceFiles', { keyPath: 'id' }); }
         if (!db.objectStoreNames.contains('meta')) { db.createObjectStore('meta', { keyPath: 'key' }); }
       };
       req.onsuccess = function () { clearTimeout(timer); var db = req.result; db.onversionchange = function () { db.close(); dbPromise = null; }; resolve(db); };
@@ -43,6 +45,7 @@
   var Store = {
     LEGACY: LEGACY, NEW: NEW,
     all: function (n) { return run(n, 'readonly', function (s) { return s.getAll(); }).then(function (r) { return r || []; }); },
+    one: function (n, key) { return run(n, 'readonly', function (s) { return s.get(key); }); },
     put: function (n, rec) { return run(n, 'readwrite', function (s) { return s.put(rec); }); },
     del: function (n, key) { return run(n, 'readwrite', function (s) { return s.delete(key); }); },
     add: function (n, rec) { return run(n, 'readwrite', function (s) { return s.add(rec); }).then(function (id) { rec.id = id; return rec; }); },

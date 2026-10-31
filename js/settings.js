@@ -40,11 +40,40 @@
     }).catch(function (e) { info.textContent = 'Could not read earlier records: ' + e.message; });
     return box;
   }
+
+  // ---- Appearance: palette, font, colour mode and text size (applied instantly, saved on this device) ----
+  function appearance() {
+    var T = window.Theme, box = card('Appearance'); if (!T) { box.appendChild(h('p', { class: 'muted', text: 'Appearance settings could not load.' })); return box; }
+    function group(label, list, key, mk) {
+      var wrap = h('div', { role: 'group', 'aria-label': label }); wrap.appendChild(h('p', { class: 'set-label', text: label }));
+      var inner = h('div', { class: key === 'palette' ? 'swatches' : (key === 'font' ? 'fontlist' : 'segrow') });
+      function paint() { var cur = T.get()[key]; [].slice.call(inner.children).forEach(function (b, i) { b.setAttribute('aria-pressed', list[i].id === cur ? 'true' : 'false'); }); }
+      list.forEach(function (o) { var b = mk(o); b.addEventListener('click', function () { var p = {}; p[key] = o.id; T.set(p); paint(); }); inner.appendChild(b); });
+      paint(); wrap.appendChild(inner); return wrap;
+    }
+    box.appendChild(h('p', { class: 'muted small', text: 'Changes apply instantly and are remembered on this device.' }));
+    box.appendChild(group('Colour palette', T.PALETTES, 'palette', function (o) { return h('button', { type: 'button', class: 'swatch' }, h('span', { class: 'dot', style: 'background:' + o.color }), o.name); }));
+    box.appendChild(group('Font', T.FONTS, 'font', function (o) { var st = o.id === 'default' ? '' : 'font-family:' + ({ inter: '"Inter",sans-serif', poppins: '"Poppins",sans-serif', lora: '"Lora",serif', classic: 'Georgia,serif', mono: 'ui-monospace,Menlo,Consolas,monospace' }[o.id]);
+      return h('button', { type: 'button', class: 'fontopt' }, h('span', {}, h('strong', { text: o.name }), h('span', { class: 'muted small fo-note', text: o.note })), h('span', { class: 'sample', style: st, text: 'Aa 123' })); }));
+    box.appendChild(group('Light or dark', T.MODES, 'mode', function (o) { return h('button', { type: 'button', class: 'segbtn', text: o.name }); }));
+    box.appendChild(group('Text size', T.SIZES, 'size', function (o) { return h('button', { type: 'button', class: 'segbtn', text: o.name }); }));
+    box.appendChild(h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn ghost', text: 'Reset appearance', onclick: function () { T.reset(); render(); } })));
+    return box;
+  }
+  function about() {
+    var box = card('Offline and install');
+    var st = h('p', { class: 'muted small', text: 'Checking offline support…' }); box.appendChild(st);
+    if (!('serviceWorker' in navigator)) { st.textContent = 'This browser does not support offline install.'; return box; }
+    navigator.serviceWorker.getRegistration().then(function (r) { st.textContent = r && r.active ? 'Offline ready: the app and all roadmap data are saved on this device after your first visit. Use the browser menu > Install app / Add to Home screen.' : 'Offline copy is being prepared. Reload once while online, then check again.'; });
+    return box;
+  }
   function render() {
     root.textContent = '';
+    root.appendChild(appearance());
     root.appendChild(card('Backup and restore', h('p', { class: 'muted small', text: 'Your data lives only on this device. Clearing browser data deletes it, so export a backup regularly.' }),
       h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn primary', onclick: exportBackup, text: 'Export backup' }),
         h('label', { class: 'btn ghost' }, 'Restore backup', h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: function () { if (this.files[0]) { restore(this.files[0]); } this.value = ''; } }))), msg));
+    root.appendChild(about());
     root.appendChild(legacy());
     S.all('meta').then(function (m) { var b = m.filter(function (x) { return x.key === 'lastBackupAt'; })[0]; root.appendChild(h('p', { class: 'muted small', text: b ? 'Last backup exported: ' + U.stamp(b.value) : 'No backup exported yet from this version.' })); }).catch(function () {});
   }
