@@ -38,9 +38,11 @@
   A.upcoming = function (n) { var out = [], d = A.nextIncomplete(); while (d && out.length < n) { out.push(d); d = A.nextIncomplete(d); } return out; };
   A.inProgressDays = function () { var o = []; for (var d = 1; d <= C.total; d++) { if (A.status(d) === 'in-progress') { o.push(d); } } return o; };
   A.saveSession = function (d, patch) {
-    var cur = A.sessionState(d), rec = { day: d, status: cur.status, notes: cur.notes || '', startedAt: cur.startedAt || null, updatedAt: now() };
+    var cur = A.sessionState(d), rec = { day: d, status: cur.status, notes: cur.notes || '', whatDid: cur.whatDid || '', review: cur.review || '', remarks: cur.remarks || '', startedAt: cur.startedAt || null, updatedAt: now() };
     Object.keys(patch).forEach(function (k) { rec[k] = patch[k]; });
-    if (rec.status === 'not-started' && !rec.notes) { delete st.ss[d]; return S.del('sessionState', d); }
+    if (rec.status === 'not-started' && !rec.notes && !rec.whatDid && !rec.review && !rec.remarks) {
+      delete st.ss[d]; return S.del('sessionState', d);
+    }
     st.ss[d] = rec; return S.put('sessionState', rec);
   };
   A.start = function (d) { if (A.isDone(d)) { return Promise.resolve(); } var cur = A.sessionState(d); return A.saveSession(d, { status: 'in-progress', startedAt: cur.startedAt || now() }); };

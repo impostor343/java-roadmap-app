@@ -1,86 +1,174 @@
-// Home: curriculum dashboard. Never reads today's date to decide what to learn.
+// Home: one focused learning-session card, with full details behind Info.
 (function () {
   'use strict';
-  var C = window.Curriculum, A = window.State, V = window.SessionView, h = U.h, root = document.getElementById('today-card');
+  var C = window.Curriculum, A = window.State, V = window.SessionView, h = U.h;
+  var root = document.getElementById('today-card');
+  var selectedDay = null;
 
-  function card(title) { return h('section', { class: 'card' }, h('h3', { text: title }), [].slice.call(arguments, 1)); }
-  function line(a, b) { return h('div', { class: 'row' }, h('span', { class: 'lab', text: a }), h('span', { class: 'val', text: b })); }
-
-  function nextCard() {
-    var d = A.nextIncomplete();
-    if (!d) { return card('Next learning session', h('p', { text: A.skippedCount() ? 'Every remaining session is skipped. Open the Calendar to return to one.' : 'All ' + U.num(C.total) + ' sessions are completed.' })); }
-    var s = C.session(d), c = h('section', { class: 'card hero' });
-    c.appendChild(h('p', { class: 'eyebrow', text: 'NEXT LEARNING SESSION' }));
-    c.appendChild(h('p', { class: 'bigday', text: U.dayLabel(d, C.total) }));
-    c.appendChild(h('h2', { text: s.title })); c.appendChild(h('p', { class: 'muted' }, V.chip(d), ' ', s.module));
-    var row = h('div', { class: 'btnrow' });
-    function go(fn, hash) { return function () { fn().then(function () { if (hash) { U.go(hash); } else { render(); } }); }; }
-    row.appendChild(V.btn('Start Learning', 'ghost', go(function () { return A.start(d); }, '#calendar/day/' + d)));
-    row.appendChild(V.btn('Mark Done', 'primary', go(function () { return A.markDone(d); })));
-    row.appendChild(h('a', { class: 'btn ghost', href: '#calendar/day/' + d, text: 'View Details' }));
-    c.appendChild(row);
-    c.appendChild(line('Objective', s.outcome)); c.appendChild(line('Session', s.task));
-    c.appendChild(line('Exercise', s.practice)); if (s.resource) { c.appendChild(line('Resource', s.resource)); }
-    if (s.projectId) { c.appendChild(line('Project', C.project(s.projectId).name + ' — ' + s.checkpoint)); }
-    c.appendChild(line('Estimated time', s.time)); c.appendChild(line('Phase', s.phase));
-    var up = A.upcoming(3).slice(1);
-    if (up.length) { c.appendChild(h('p', { class: 'muted small', text: 'Following sessions: ' + up.map(function (x) { return 'Day ' + x + ' ' + C.session(x).title; }).join(' · ') })); }
-    return c;
+  function currentDay() {
+    var r = U.route('today');
+    var requested = r && r[0] ? parseInt(r[0], 10) : NaN;
+    if (requested >= 1 && requested <= C.total) { return requested; }
+    return A.nextIncomplete() || C.total || 1;
   }
 
-  function progressCard() {
-    var n = A.doneCount(), sk = A.skippedCount(), d = A.nextIncomplete(), s = d ? C.session(d) : null, ps = A.inProgressDays();
-    var c = card('Curriculum progress', h('p', { class: 'bigday', text: n + ' / ' + U.num(C.total) + ' sessions completed' }), U.bar(U.pct(n, C.total)),
-      h('p', { class: 'muted', text: U.num(C.total - n) + ' remaining · ' + (C.total ? (n / C.total * 100).toFixed(1) : '0') + '% complete' + (sk ? ' · ' + sk + ' skipped' : '') }));
-    if (s) { c.appendChild(line('Current phase', s.phase)); c.appendChild(line('Current module', s.module)); c.appendChild(line('Current curriculum day', U.dayLabel(d, C.total))); }
-    return c;
+  function statusLabel(d) {
+    var s = A.status(d);
+    if (s === 'completed') { return '✓ Completed'; }
+    if (s === 'skipped') { return '↪ Skipped'; }
+    if (s === 'in-progress') { return '◷ In progress'; }
+    return '○ Pending';
   }
 
-  function categories() {
-    var ts = A.topicsDone(), pj = A.projectsDone(), pq = A.practiceStats(), ml = A.milestoneTotals(), n = A.doneCount();
-    function cell(l, a, b) { return h('div', { class: 'cell' }, h('strong', { text: a + ' / ' + b }), h('span', { text: l }), U.bar(U.pct(a, b))); }
-    return h('section', { class: 'card' }, h('h3', { text: 'Separate progress' }),
-      h('div', { class: 'grid2' }, cell('Sessions', n, C.total), cell('Topics completed', ts, C.modules.length), cell('Projects finished', pj, C.projects.length),
-        cell('Practice solved', pq.solved, pq.total), cell('Project versions', ml.done, ml.total)));
-  }
-
-  function running() {
-    var c = card('Currently running'), any = false;
-    var learning = C.modules.filter(function (m) { return A.topicStatus(m) === 'in-progress'; });
-    learning.forEach(function (m) { any = true; var t = A.topicStats(m);
-      c.appendChild(h('a', { class: 'item', href: '#progress/topic/' + m.id }, h('strong', { text: 'Learning: ' + m.name }), h('span', { class: 'muted small', text: t.done + ' / ' + t.total + ' sessions (' + t.percent + '%)' }), U.bar(t.percent))); });
-    A.inProgressDays().forEach(function (d) { any = true; c.appendChild(h('a', { class: 'item', href: '#calendar/day/' + d }, h('strong', { text: U.dayLabel(d, C.total) + ': ' + C.session(d).title }), h('span', { class: 'muted small', text: 'Session in progress' }))); });
-    A.projectsStarted().forEach(function (p) { var ps = A.projectState(p.id); if (ps.status === 'completed' || ps.status === 'published') { return; } any = true;
-      var s = A.projectStats(p), cur = p.versions.filter(function (v) { return A.milestone(v.id).status === 'in-progress'; })[0] || p.versions.filter(function (v) { return A.milestone(v.id).status !== 'completed'; })[0];
-      c.appendChild(h('a', { class: 'item', href: '#projects/' + p.id }, h('strong', { text: 'Building: ' + p.name }),
-        h('span', { class: 'muted small', text: U.STATUS[ps.status] + ' · ' + s.done + ' / ' + s.total + ' versions' + (cur ? ' · next: ' + cur.name : '') }), U.bar(s.percent))); });
-    if (!any) { c.appendChild(h('p', { class: 'muted', text: 'Nothing is in progress yet. Start a session, topic or project and it will appear here.' })); }
-    return c;
-  }
-
-  function recent() {
-    var c = card('Recent activity'), items = A.recent(8);
-    if (!items.length) { c.appendChild(h('p', { class: 'muted', text: 'No activity recorded yet.' })); return c; }
-    items.forEach(function (it) {
-      var label = it.kind === 'session' ? U.dayLabel(it.day, C.total) + ': ' + it.text : it.text;
-      var href = it.kind === 'session' ? '#calendar/day/' + it.day : it.projectId ? '#projects/' + it.projectId : null;
-      c.appendChild(h(href ? 'a' : 'div', { class: 'item', href: href }, h('strong', { text: label }), h('span', { class: 'muted small', text: (it.kind === 'session' ? 'Completed' : it.kind === 'topic' ? 'Topic' : it.kind === 'practice' ? 'Practice' : 'Project') + ' · ' + U.stamp(it.at) })));
+  function saveNotes(d, fields, status) {
+    var patch = {};
+    Object.keys(fields).forEach(function (k) { patch[k] = fields[k].value; });
+    A.saveSession(d, patch).then(function () {
+      status.textContent = 'Saved on this device';
+    }).catch(function (e) {
+      status.textContent = 'Could not save: ' + ((e && e.message) || e);
     });
-    return c;
   }
 
-  function banner() {
-    var b = h('div', { class: 'card note-card' }); var st = A.error();
-    if (st) { b.appendChild(h('p', { text: st })); return b; }
-    return null;
+  function notesSection(d) {
+    var saved = A.sessionState(d);
+    var section = h('section', { class: 'home-notes' });
+    section.appendChild(h('h3', { class: 'home-section-title' }, '▤ ', 'My notes'));
+    var fields = {};
+    [
+      ['whatDid', 'What I did today', 'Write your notes here…'],
+      ['review', 'Review: what I learned, what was hard', 'What did you learn? What needs another look?'],
+      ['remarks', 'Remarks or blockers', 'Anything that blocked or delayed you?']
+    ].forEach(function (item) {
+      var label = h('label', { class: 'home-note-label' }, item[1]);
+      var area = h('textarea', { class: 'home-note-input', rows: 3, placeholder: item[2], 'aria-label': item[1] });
+      area.value = saved[item[0]] || (item[0] === 'whatDid' ? (saved.notes || '') : '');
+      label.appendChild(area);
+      section.appendChild(label);
+      fields[item[0]] = area;
+    });
+    var state = h('p', { class: 'home-note-status', 'aria-live': 'polite' });
+    var save = h('button', { class: 'home-btn primary home-save', type: 'button', text: '▣  Save notes' });
+    save.addEventListener('click', function () { saveNotes(d, fields, state); });
+    // Save automatically after the user leaves a field, with an explicit Save button as backup.
+    Object.keys(fields).forEach(function (k) {
+      fields[k].addEventListener('change', function () { saveNotes(d, fields, state); });
+    });
+    section.appendChild(save);
+    section.appendChild(state);
+    return section;
+  }
+
+  function infoDialog(d) {
+    var s = C.session(d), mod = C.module(s.moduleId);
+    var dialog = h('dialog', { class: 'home-info-dialog', 'aria-label': 'Session information' });
+    var inner = h('div', { class: 'home-info-inner' });
+    var top = h('div', { class: 'home-info-top' });
+    top.appendChild(h('span', { class: 'home-module-pill' }, '‹/› ', s.module));
+    var close = h('button', { class: 'home-close', type: 'button', 'aria-label': 'Close information', text: '×' });
+    close.addEventListener('click', function () { dialog.close(); });
+    top.appendChild(close);
+    inner.appendChild(top);
+    inner.appendChild(h('h2', { class: 'home-info-title' }, s.title));
+    inner.appendChild(h('p', { class: 'home-info-meta' }, 'Day ' + d + ' of ' + U.num(C.total) + '  ·  ' + (s.time || 'Time not specified')));
+    if (s.outcome) { inner.appendChild(infoSection('▤', 'Overview', [['Learning objective', s.outcome], ['Overall day', d + ' of ' + U.num(C.total)], ['Topic day', s.moduleDay + ' of ' + s.moduleTotal], ['Topic group', s.module], ['Phase', s.phase], ['Semester', s.semester], ['Domain', s.domain], ['Time', s.time]])); }
+    if (s.practice || s.task) { inner.appendChild(infoSection('▣', 'Task', [['What to do', s.task], ['Practice', s.practice], ['Practice type', s.practiceType], ['Platform guidance', s.platform]])); }
+    inner.appendChild(infoSection('▣', 'Learning', [['Topics', s.module], ['Learning objective', s.outcome], ['Exit check', s.mastery], ['Revision', s.revision]]));
+    var resources = [];
+    if (s.resource) { resources.push(['Resource', s.resource]); }
+    if (s.resourceLinks && s.resourceLinks.length) {
+      var links = h('div', { class: 'home-info-links' });
+      s.resourceLinks.forEach(function (url) {
+        var a = h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url });
+        links.appendChild(a);
+      });
+      resources.push(['Links', links]);
+    }
+    if (resources.length) { inner.appendChild(infoSection('↗', 'Resource', resources)); }
+    var project = s.projectId ? C.project(s.projectId) : null;
+    var projectRows = [];
+    if (project) { projectRows.push(['Project', project.name]); }
+    projectRows.push(['Checkpoint', s.checkpoint], ['Project action', s.projectAction], ['Folder / file', s.folder], ['GitHub action', s.github]);
+    inner.appendChild(infoSection('▰', project ? 'Project' : 'Practice and workflow', projectRows));
+    inner.appendChild(infoSection('▱', 'Revision and mastery', [['Revision instruction', s.revision], ['Mastery check', s.mastery]]));
+    if (s.workbookStatus || s.workbookRemarks) {
+      inner.appendChild(infoSection('ⓘ', 'Workbook notes', [['Workbook status', s.workbookStatus], ['Workbook remarks', s.workbookRemarks]]));
+    }
+    dialog.appendChild(inner);
+    dialog.addEventListener('click', function (ev) {
+      if (ev.target === dialog) { dialog.close(); }
+    });
+    document.body.appendChild(dialog);
+    dialog.addEventListener('close', function () { dialog.remove(); });
+    return dialog;
+  }
+
+  function infoSection(icon, title, rows) {
+    var section = h('section', { class: 'home-info-section' });
+    section.appendChild(h('h3', { class: 'home-info-heading' }, h('span', { class: 'home-info-icon' }, icon), title));
+    rows.forEach(function (pair) {
+      var value = pair[1];
+      if (value === null || value === undefined || value === '') { return; }
+      var row = h('div', { class: 'home-info-row' });
+      row.appendChild(h('span', { class: 'home-info-label' }, pair[0]));
+      row.appendChild(h('div', { class: 'home-info-value' }, value));
+      section.appendChild(row);
+    });
+    return section;
   }
 
   function render() {
-    if (U.route('today') === null && location.hash.replace('#', '') !== '') { return; }
+    if (U.route('today') === null) { return; }
     root.textContent = '';
-    [banner(), nextCard(), progressCard(), categories(), running(), recent()].forEach(function (n) { if (n) { root.appendChild(n); } });
+    var d = currentDay(), s = C.session(d);
+    if (!s) { root.appendChild(h('p', { class: 'empty' }, 'No session data found.')); return; }
+    selectedDay = d;
+
+    var page = h('div', { class: 'home-page' });
+    var card = h('section', { class: 'home-day-card' });
+    card.appendChild(h('p', { class: 'home-date-label' }, s.phase));
+    card.appendChild(h('div', { class: 'home-module-pill' }, '‹/› ', s.module));
+    card.appendChild(h('div', { class: 'home-symbol' }, '✦'));
+    card.appendChild(h('h2', { class: 'home-day-title' }, s.title));
+    card.appendChild(h('p', { class: 'home-day-count' }, 'Day ' + d + ' of ' + U.num(C.total)));
+    card.appendChild(h('p', { class: 'home-day-time' }, '◷  ', s.time || 'Time not specified'));
+    card.appendChild(h('span', { class: 'home-status' }, statusLabel(d)));
+    page.appendChild(card);
+
+    var actions = h('div', { class: 'home-action-row' });
+    var done = h('button', { class: 'home-btn primary', type: 'button', text: A.status(d) === 'completed' ? '✓  Completed' : '✓  Done' });
+    done.disabled = A.status(d) === 'completed';
+    done.addEventListener('click', function () {
+      done.disabled = true;
+      A.markDone(d).then(function () { render(); }, function (e) {
+        done.disabled = false; alert('Could not save: ' + ((e && e.message) || e));
+      });
+    });
+    actions.appendChild(done);
+    page.appendChild(actions);
+
+    var nav = h('div', { class: 'home-nav-row' });
+    var prev = h('button', { class: 'home-btn secondary', type: 'button', text: '‹  Previous' });
+    prev.disabled = d === 1;
+    prev.addEventListener('click', function () { if (d > 1) { U.go('#today/' + (d - 1)); } });
+    var info = h('button', { class: 'home-btn info', type: 'button', text: 'ⓘ  Info' });
+    info.addEventListener('click', function () { var dlg = infoDialog(d); dlg.showModal(); });
+    var next = h('button', { class: 'home-btn secondary', type: 'button', text: 'Next  ›' });
+    next.disabled = d === C.total;
+    next.addEventListener('click', function () { if (d < C.total) { U.go('#today/' + (d + 1)); } });
+    nav.appendChild(prev); nav.appendChild(info); nav.appendChild(next);
+    page.appendChild(nav);
+    page.appendChild(notesSection(d));
+    root.appendChild(page);
   }
-  Promise.all([C.ready, A.ready]).then(render).catch(function (e) { root.textContent = 'Could not load: ' + e.message; });
-  window.addEventListener('hashchange', function () { if (U.route('today') !== null) { Promise.all([C.ready, A.ready]).then(render); } });
-  window.addEventListener('cur-changed', function () { if (U.route('today') !== null) { render(); } });
+
+  Promise.all([C.ready, A.ready]).then(render).catch(function (e) {
+    root.textContent = 'Could not load: ' + e.message;
+  });
+  window.addEventListener('hashchange', function () {
+    if (U.route('today') !== null) { Promise.all([C.ready, A.ready]).then(render); }
+  });
+  window.addEventListener('cur-changed', function () {
+    if (U.route('today') !== null) { render(); }
+  });
 })();
