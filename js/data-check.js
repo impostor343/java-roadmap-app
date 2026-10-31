@@ -22,14 +22,16 @@
   Promise.all([
     load('data/roadmap.json'), load('data/questions.json'),
     load('data/projects.json'), load('data/resources.json'),
-    load('data/title-overrides.json')
+    load('data/display-titles.json')
   ]).then(function (res) {
     var entries = res[0].entries;
     var questions = res[1].questions;
     var projects = res[2].projects;
     var resources = res[3].resources;
-    var edits = {};
-    res[4].overrides.forEach(function (o) { edits[o.day] = o.displayTitle; });
+    // display-titles.json is keyed by roadmap day, with { title, showNumber } values.
+    // Keep the original roadmap title when no shortened display title is defined.
+    var edits = res[4] || {};
+    var editCount = Object.keys(edits).length;
 
     var assigned = questions.filter(function (q) { return q.status === 'Assigned (suggested)'; }).length;
     var versions = projects.reduce(function (n, p) { return n + p.versions.length; }, 0);
@@ -40,7 +42,7 @@
       'Questions: ' + questions.length + ' (' + assigned + ' assigned, ' + (questions.length - assigned) + ' not assigned)',
       'Projects: ' + projects.length + ' with ' + versions + ' versions',
       'Resources: ' + resources.length,
-      'Shortened titles: ' + res[4].overrides.length + ' (marked "edited" below)'
+      'Shortened titles: ' + editCount + ' (marked "edited" below)'
     ].forEach(function (t) {
       var p = document.createElement('p'); p.textContent = t; counts.appendChild(p);
     });
@@ -71,7 +73,8 @@
       var shown = 0;
       entries.forEach(function (e, idx) {
         if (month && e.date.slice(0, 7) !== month) { return; }
-        var shownTitle = edits[e.day] || e.title;
+        var titleEdit = edits[e.day];
+        var shownTitle = titleEdit && titleEdit.title ? titleEdit.title : e.title;
         if (term && (shownTitle + ' ' + e.topics + ' ' + e.group).toLowerCase().indexOf(term) === -1) { return; }
         shown++;
         var row = document.createElement('div'); row.className = 'row';
