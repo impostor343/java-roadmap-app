@@ -20,4 +20,4 @@
 })();
 
 // Offline support: the service worker caches the app and data after the first visit.
-if ('serviceWorker' in navigator && location.protocol !== 'file:') { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+if ('serviceWorker' in navigator && location.protocol !== 'file:' && !(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }

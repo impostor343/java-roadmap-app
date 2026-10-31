@@ -8,7 +8,9 @@
   function exportBackup() {
     S.dump().then(function (data) {
       var blob = new Blob([JSON.stringify({ format: FORMAT, version: 5, exportedAt: new Date().toISOString(), stores: data }, null, 1)], { type: 'application/json' });
-      var a = h('a', { href: URL.createObjectURL(blob), download: 'cse-roadmap-backup-' + U.todayKey() + '.json' }); document.body.appendChild(a); a.click(); a.remove();
+      var fname = 'cse-roadmap-backup-' + U.todayKey() + '.json';
+      if (window.NativeFiles && NativeFiles.isNative()) { return NativeFiles.shareFile(fname, blob, 'CSE Roadmap backup').then(function () { return S.put('meta', { key: 'lastBackupAt', value: new Date().toISOString() }); }).then(function () { say('Backup ready. Choose where to save it (Drive, Files, or send it to yourself).'); }); }
+      var a = h('a', { href: URL.createObjectURL(blob), download: fname }); document.body.appendChild(a); a.click(); a.remove();
       return S.put('meta', { key: 'lastBackupAt', value: new Date().toISOString() }).then(function () { say('Backup saved to your downloads. It contains every record, including earlier-version records.'); });
     }).catch(function (e) { say('Backup failed: ' + e.message, true); });
   }
@@ -63,6 +65,7 @@
   function about() {
     var box = card('Offline and install');
     var st = h('p', { class: 'muted small', text: 'Checking offline support…' }); box.appendChild(st);
+    if (window.NativeFiles && NativeFiles.isNative()) { st.textContent = 'You are using the Android app. Everything is stored inside the app and works offline. Use Export backup before uninstalling.'; return box; }
     if (!('serviceWorker' in navigator)) { st.textContent = 'This browser does not support offline install.'; return box; }
     navigator.serviceWorker.getRegistration().then(function (r) { st.textContent = r && r.active ? 'Offline ready: the app and all roadmap data are saved on this device after your first visit. Use the browser menu > Install app / Add to Home screen.' : 'Offline copy is being prepared. Reload once while online, then check again.'; });
     return box;

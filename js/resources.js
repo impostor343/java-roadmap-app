@@ -23,6 +23,7 @@
   function openFile(it) {
     S.one('resourceFiles', it.id).then(function (r) {
       if (!r || !r.blob) { say('No PDF found for this resource.'); return; }
+      if (window.NativeFiles && NativeFiles.isNative()) { NativeFiles.shareFile((it.id + '.pdf'), r.blob, it.name).catch(function (e) { if (!/cancel/i.test(String(e && e.message))) { say('Could not open the PDF: ' + (e && e.message || e)); } }); return; }
       if (blobUrl) { URL.revokeObjectURL(blobUrl); } blobUrl = URL.createObjectURL(r.blob);
       var w = window.open(blobUrl, '_blank'); if (!w) { location.href = blobUrl; }
     }).catch(function (e) { say('Could not open the PDF: ' + (e && e.message || e)); });
