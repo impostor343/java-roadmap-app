@@ -15,7 +15,22 @@
   function soon() { clearTimeout(timer); timer = setTimeout(push, 300); }
 
   // widget tap: open the right screen (only these exact routes are accepted)
-  function route(r) { if (/^#(today(\/\d{1,4})?|progress|calendar)$/.test(r || '')) { location.hash = r; } }
+  function route(r) {
+    var doneMatch = /^#widget-done\/(\d{1,4})$/.exec(r || '');
+    if (doneMatch) {
+      var day = parseInt(doneMatch[1], 10);
+      if (day >= 1 && day <= C.total) {
+        A.markDone(day).then(function () {
+          push();
+          var next = A.nextIncomplete() || day;
+          location.hash = '#today/' + next;
+          window.dispatchEvent(new Event('cur-changed'));
+        }).catch(function () { location.hash = '#today/' + day; });
+      }
+      return;
+    }
+    if (/^#(today(\/\d{1,4})?|progress|calendar)$/.test(r || '')) { location.hash = r; }
+  }
   function pullRoute() { var b = bridge(); if (b && b.getLaunchRoute) { Promise.resolve(b.getLaunchRoute()).then(function (x) { route(x && x.route); }, function () {}); } }
 
   Promise.all([C.ready, A.ready]).then(function () { push(); pullRoute(); }).catch(function () {});

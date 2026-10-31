@@ -6,6 +6,7 @@
   var TOPIC_STATUSES = ['not-started', 'in-progress', 'completed', 'needs-revision'];
   var LADDER_STATUSES = ['not-started', 'planning', 'development', 'testing', 'completed'];
   var COLORS = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6'], PAGE = 60;
+  var PROJECT_ICONS = { PR01:'game', PR02:'calculator', PR03:'quiz', PR04:'contacts', PR05:'wallet', PR06:'bank', PR07:'book', PR08:'box', PR09:'chart', PR10:'users', PR11:'monitor', PR12:'folder', PR13:'file', PR14:'link', PR15:'task', PR16:'wallet', PR17:'cart', PR18:'calendar', PR19:'message', PR20:'briefcase', PR21:'phone', PR22:'network', PR23:'search', PR24:'server', PR25:'chart' };
 
   function card(t) { return h('section', { class: 'card' }, h('h3', { text: t }), [].slice.call(arguments, 1)); }
   function row(a, b) { return b ? h('div', { class: 'row' }, h('span', { class: 'lab', text: a }), h('span', { class: 'val', text: String(b) })) : null; }
@@ -66,7 +67,7 @@
       return (typeof a.firstMilestoneDay === 'number' ? a.firstMilestoneDay : 9999) - (typeof b.firstMilestoneDay === 'number' ? b.firstMilestoneDay : 9999);
     }).slice(0, 5);
     w.appendChild(sectionHead('layers', 'Projects', 'View all projects', '#projects'));
-    w.appendChild(h('div', { class: 'pg-list' }, plist.map(function (p, i) { var st = A.projectStats(p); return prow('#projects/' + p.id, i, iconFor(p.name), p.name, st.done, st.total, st.percent); })));
+    w.appendChild(h('div', { class: 'pg-list' }, plist.map(function (p, i) { var st = A.projectStats(p); return prow('#projects/' + p.id, i, PROJECT_ICONS[p.id] || iconFor(p.name), p.name, st.done, st.total, st.percent); })));
     // Modules (starting at the module of the next session)
     var cur = nx ? C.modules.indexOf(C.module(C.session(nx).moduleId)) : 0, start = Math.max(0, Math.min(cur, C.modules.length - 6)), mods = C.modules.slice(start, start + 6);
     w.appendChild(sectionHead('book', 'Modules', 'View all modules', '#progress/topics'));
@@ -88,7 +89,8 @@
     C.modules.forEach(function (m) {
       if (m.phase !== phase) { phase = m.phase; w.appendChild(h('h3', { class: 'ph', text: phase })); }
       var t = A.topicStats(m), st = A.topicStatus(m);
-      w.appendChild(h('a', { class: 'item', href: '#progress/module/' + m.id }, h('strong', { text: m.name }), h('span', { class: 'muted small', text: U.STATUS[st] + ' · ' + t.done + ' / ' + t.total + ' sessions · ' + (m.topicIds ? m.topicIds.length : 0) + ' topics · Days ' + m.startDay + '–' + m.endDay }), U.bar(t.percent)));
+      var mic = h('span', { class: 'module-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mic.appendChild(ic(iconFor((m.name || '') + ' ' + (m.domain || ''))));
+      w.appendChild(h('a', { class: 'item module-item', href: '#progress/module/' + m.id }, mic, h('span', { class: 'module-item-main' }, h('strong', { text: m.name }), h('span', { class: 'muted small', text: U.STATUS[st] + ' · ' + t.done + ' / ' + t.total + ' sessions · ' + (m.topicIds ? m.topicIds.length : 0) + ' topics · Days ' + m.startDay + '–' + m.endDay }), U.bar(t.percent)), h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })));
     });
     return w;
   }
@@ -119,7 +121,8 @@
     var w = h('div'), t = A.topicStats(m), ts = A.topicState(id);
     w.appendChild(back('#progress/topics', '← Modules'));
     w.appendChild(h('p', { class: 'eyebrow', text: m.catalogId + ' · ' + m.phase }));
-    w.appendChild(h('h2', { text: m.name }));
+    var mdic = h('span', { class: 'module-detail-icon module-icon-' + m.id.toLowerCase(), 'aria-hidden': 'true' }); mdic.appendChild(ic(iconFor((m.name || '') + ' ' + (m.domain || ''))));
+    w.appendChild(h('div', { class: 'module-detail-heading' }, mdic, h('h2', { text: m.name })));
     w.appendChild(card('Status', statusSelect(A.topicStatus(m), TOPIC_STATUSES, function (v) { A.saveTopic(id, { status: v }).then(V.refresh); }, 'Module status'),
       h('p', { class: 'muted small', text: 'Your status is separate from session completion. Changing it never completes or reopens sessions.' }), ts.completedAt ? row('Marked completed', U.stamp(ts.completedAt)) : null));
     w.appendChild(card('Learning progress', h('p', { class: 'bigday', text: t.done + ' / ' + t.total + ' sessions completed' }), U.bar(t.percent), h('p', { class: 'muted', text: t.remaining + ' remaining' + (t.skipped ? ' · ' + t.skipped + ' skipped' : '') })));
@@ -131,7 +134,7 @@
     w.appendChild(card('Prerequisites', h('p', { text: prev ? 'Follows: ' + prev.name + ' (Days ' + prev.startDay + '–' + prev.endDay + '). The workbook states no other module-level prerequisites.' : 'First module in the curriculum.' })));
     w.appendChild(card('Resources', row('Free resource', m.resource), m.resourceLinks.length ? h('div', { class: 'links' }, m.resourceLinks.map(function (u) { return h('a', { href: u, target: '_blank', rel: 'noopener', text: u }); })) : null));
     var projs = C.projects.filter(function (p) { return (p.moduleIds || []).indexOf(id) !== -1 || p.relatedDays.some(function (d) { return d >= m.startDay && d <= m.endDay; }); });
-    w.appendChild(card('Related projects', projs.length ? projs.map(function (p) { return h('a', { class: 'item', href: '#projects/' + p.id }, h('strong', { text: p.name }), h('span', { class: 'muted small', text: p.category + ' · ' + p.coreSkills })); }) : h('p', { class: 'muted', text: 'No projects are linked to this module.' })));
+    w.appendChild(card('Related projects', projs.length ? projs.map(function (p) { var pic = h('span', { class: 'project-icon project-icon-' + p.id.toLowerCase(), 'aria-hidden': 'true' }); pic.appendChild(ic(iconFor(p.name))); return h('a', { class: 'item project-item', href: '#projects/' + p.id }, pic, h('span', { class: 'project-item-main' }, h('strong', { text: p.name }), h('span', { class: 'muted small', text: p.category + ' · ' + p.coreSkills })), h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })); }) : h('p', { class: 'muted', text: 'No projects are linked to this module.' })));
     var days = []; for (var d = m.startDay; d <= m.endDay; d++) { days.push(d); }
     w.appendChild(card('Sessions', sessionList(days)));
     w.appendChild(notesBox(id));

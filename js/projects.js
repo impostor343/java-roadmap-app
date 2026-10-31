@@ -2,7 +2,14 @@
 // Progress % = completed versions / versions (the workbook's own milestones). Target days are planning references, never proof of completion.
 (function () {
   'use strict';
-  var C = window.Curriculum, A = window.State, V = window.SessionView, h = U.h, root = document.getElementById('projects-root');
+  var C = window.Curriculum, A = window.State, V = window.SessionView, I = window.Icons, h = U.h, root = document.getElementById('projects-root');
+  var PROJECT_ICONS = {
+    PR01: 'game', PR02: 'calculator', PR03: 'quiz', PR04: 'contacts', PR05: 'wallet',
+    PR06: 'bank', PR07: 'book', PR08: 'box', PR09: 'chart', PR10: 'users',
+    PR11: 'monitor', PR12: 'folder', PR13: 'file', PR14: 'link', PR15: 'task',
+    PR16: 'wallet', PR17: 'cart', PR18: 'calendar', PR19: 'message', PR20: 'briefcase',
+    PR21: 'phone', PR22: 'network', PR23: 'search', PR24: 'server', PR25: 'chart'
+  };
   var PSTAT = ['not-started', 'planning', 'development', 'testing', 'completed', 'needs-improvement', 'published'];
   var MSTAT = ['not-started', 'in-progress', 'completed'];
   var EVENTS = [['note', 'Note'], ['started', 'Project started'], ['folders', 'Folder structure created'], ['feature', 'Feature implemented'], ['bug-found', 'Bug discovered'], ['bug-fixed', 'Bug fixed'],
@@ -16,7 +23,17 @@
     var groups = {}; C.projects.forEach(function (p) { (groups[p.category] = groups[p.category] || []).push(p); });
     Object.keys(groups).sort(function (a, b) { return (order.indexOf(a) + 99) % 99 - (order.indexOf(b) + 99) % 99; }).forEach(function (k) {
       w.appendChild(h('h3', { class: 'ph', text: k })); groups[k].forEach(function (p) { var s = A.projectStats(p), ps = A.projectState(p.id);
-        w.appendChild(h('a', { class: 'item', href: '#projects/' + p.id }, h('strong', { text: p.name }), h('span', { class: 'muted small', text: U.STATUS[ps.status] + ' · ' + s.done + ' / ' + s.total + ' versions · ' + p.coreSkills }), U.bar(s.percent))); }); });
+        var ic = h('span', { class: 'project-icon project-icon-' + p.id.toLowerCase(), 'aria-hidden': 'true' });
+        ic.appendChild(I.make(PROJECT_ICONS[p.id] || 'code'));
+        w.appendChild(h('a', { class: 'item project-item', href: '#projects/' + p.id },
+          ic,
+          h('span', { class: 'project-item-main' },
+            h('strong', { text: p.name }),
+            h('span', { class: 'muted small', text: U.STATUS[ps.status] + ' · ' + s.done + ' / ' + s.total + ' versions · ' + p.coreSkills }),
+            U.bar(s.percent)
+          ),
+          h('span', { class: 'project-item-arrow', text: '›', 'aria-hidden': 'true' })
+        )); }); });
     return w;
   }
 
@@ -24,8 +41,11 @@
     var p = C.project(id); if (!p) { return h('p', { text: 'Project not found.' }); }
     var w = h('div'), ps = A.projectState(id), s = A.projectStats(p);
     w.appendChild(h('a', { class: 'btn ghost back', href: '#projects', text: '← Projects' }));
-    w.appendChild(h('p', { class: 'eyebrow', text: p.id + ' · ' + p.category }));
-    w.appendChild(h('h2', { text: p.name }));
+    var heroIcon = h('div', { class: 'project-detail-icon project-icon-' + p.id.toLowerCase(), 'aria-hidden': 'true' });
+    heroIcon.appendChild(I.make(PROJECT_ICONS[p.id] || 'code'));
+    w.appendChild(h('div', { class: 'project-detail-heading' }, heroIcon,
+      h('div', {}, h('p', { class: 'eyebrow', text: p.id + ' · ' + p.category }), h('h2', { text: p.name }))));
+
     w.appendChild(card('Status and progress', select(PSTAT, ps.status, function (v) { A.saveProject(id, { status: v }).then(V.refresh); }, 'Project status'),
       h('p', { class: 'bigday', text: s.percent + '% · ' + s.done + ' / ' + s.total + ' versions completed' }), U.bar(s.percent),
       h('p', { class: 'muted small', text: 'Status is yours to set. Learning sessions never complete a project or a version automatically.' })));
