@@ -142,3 +142,15 @@ body[data-screen="progress"] .topbar .tb-ic, body[data-screen="progress"] .topba
 .module-icon-m14 { background:linear-gradient(145deg,#c84c8b,#8d2861); }
 .module-icon-m17,.module-icon-m20 { background:linear-gradient(145deg,#616f85,#344257); }
 .module-icon-m18 { background:linear-gradient(145deg,#ed8a2e,#bd5518); }
+
+/* Curriculum topic icon treatment */
+.topic-item { display:flex; align-items:center; gap:12px; }
+.topic-item-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:6px; }
+.topic-item-main > strong { overflow-wrap:anywhere; }
+.topic-icon, .topic-detail-icon { display:grid; place-items:center; flex:none; color:#fff; background:linear-gradient(145deg,#2879f7,#6428e8); border-radius:13px; }
+.topic-icon { width:40px; height:40px; }
+.topic-icon .ic { width:21px; height:21px; stroke-width:2; }
+.topic-detail-heading { display:flex; align-items:center; gap:14px; margin:12px 0 16px; }
+.topic-detail-heading h2 { margin:0; }
+.topic-detail-icon { width:56px; height:56px; border-radius:17px; }
+.topic-detail-icon .ic { width:29px; height:29px; }
