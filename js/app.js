@@ -4,7 +4,11 @@
   var SCREENS = ['today', 'modules', 'manual', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
   function showScreen() {
-    var id = location.hash.replace('#', '').split('/')[0];
+    var route = location.hash.replace('#', '').split('/');
+    var id = route[0];
+    // The three learning areas live inside the Home screen, not separate screens.
+    // Keep their hash routes for deep links while rendering the Home shell.
+    if (id === 'modules' || id === 'manual' || id === 'projects') { id = 'today'; }
     if (SCREENS.indexOf(id) === -1) { id = 'today'; }
     var sections = document.querySelectorAll('.screen');
     for (var i = 0; i < sections.length; i++) { sections[i].hidden = (sections[i].id !== 'screen-' + id); }
