@@ -13,20 +13,21 @@
   ];
   var MODES = [{ id: 'auto', name: 'Match phone' }, { id: 'light', name: 'Light' }, { id: 'dark', name: 'Dark' }];
   var SIZES = [{ id: 'small', name: 'Small' }, { id: 'normal', name: 'Normal' }, { id: 'large', name: 'Large' }, { id: 'xlarge', name: 'Extra large' }];
-  var DEFAULTS = { palette: 'default', font: 'default', mode: 'auto', size: 'normal' };
+  var DEFAULTS = { palette: 'default', font: 'default', mode: 'dark', size: 'normal', primary: '#C8F36B', secondary: '#BDA7FF' };
   function ids(list) { return list.map(function (x) { return x.id; }); }
-  function load() { var s = {}; try { s = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {} return { palette: ids(PALETTES).indexOf(s.palette) !== -1 ? s.palette : DEFAULTS.palette, font: ids(FONTS).indexOf(s.font) !== -1 ? s.font : DEFAULTS.font, mode: ids(MODES).indexOf(s.mode) !== -1 ? s.mode : DEFAULTS.mode, size: ids(SIZES).indexOf(s.size) !== -1 ? s.size : DEFAULTS.size }; }
+  function load() { var s = {}; try { s = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {} return { palette: ids(PALETTES).indexOf(s.palette) !== -1 ? s.palette : DEFAULTS.palette, font: ids(FONTS).indexOf(s.font) !== -1 ? s.font : DEFAULTS.font, mode: ids(MODES).indexOf(s.mode) !== -1 ? s.mode : DEFAULTS.mode, size: ids(SIZES).indexOf(s.size) !== -1 ? s.size : DEFAULTS.size, primary: /^#[0-9a-fA-F]{6}$/.test(s.primary || '') ? s.primary : DEFAULTS.primary, secondary: /^#[0-9a-fA-F]{6}$/.test(s.secondary || '') ? s.secondary : DEFAULTS.secondary }; }
   function apply(s) {
     var r = document.documentElement;
     function set(a, v, d) { if (v === d) { r.removeAttribute(a); } else { r.setAttribute(a, v); } }
     set('data-palette', s.palette, 'default'); set('data-font', s.font, 'default'); set('data-mode', s.mode, 'auto'); set('data-size', s.size, 'normal');
+    r.style.setProperty('--accent', s.primary); r.style.setProperty('--accent-strong', s.primary); r.style.setProperty('--deep', s.primary); r.style.setProperty('--secondary', s.secondary);
     var m = document.querySelector('meta[name="theme-color"]:not([media])') || document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'theme-color' }));
     var cs = getComputedStyle(r).getPropertyValue('--bg').trim(); if (cs) { m.setAttribute('content', cs); }
   }
   var cur = load();
   window.Theme = {
     PALETTES: PALETTES, FONTS: FONTS, MODES: MODES, SIZES: SIZES, DEFAULTS: DEFAULTS,
-    get: function () { return { palette: cur.palette, font: cur.font, mode: cur.mode, size: cur.size }; },
+    get: function () { return { palette: cur.palette, font: cur.font, mode: cur.mode, size: cur.size, primary: cur.primary, secondary: cur.secondary }; },
     set: function (patch) { Object.keys(patch).forEach(function (k) { cur[k] = patch[k]; }); try { localStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) {} apply(cur); },
     reset: function () { cur = { palette: 'default', font: 'default', mode: 'auto', size: 'normal' }; try { localStorage.removeItem(KEY); } catch (e) {} apply(cur); }
   };

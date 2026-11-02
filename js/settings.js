@@ -54,6 +54,14 @@
       paint(); wrap.appendChild(inner); return wrap;
     }
     box.appendChild(h('p', { class: 'muted small', text: 'Changes apply instantly and are remembered on this device.' }));
+    var colors = h('div', { class: 'custom-colors' });
+    [['Primary colour','primary'],['Secondary colour','secondary']].forEach(function (item) {
+      var label = h('label', { class: 'custom-color-field' }, h('span', { text: item[0] }));
+      var input = h('input', { type: 'color', value: T.get()[item[1]], 'aria-label': item[0] });
+      input.addEventListener('input', function () { var patch = {}; patch[item[1]] = input.value; T.set(patch); });
+      label.appendChild(input); colors.appendChild(label);
+    });
+    box.appendChild(colors);
     box.appendChild(group('Colour palette', T.PALETTES, 'palette', function (o) { return h('button', { type: 'button', class: 'swatch' }, h('span', { class: 'dot', style: 'background:' + o.color }), o.name); }));
     box.appendChild(group('Font', T.FONTS, 'font', function (o) { var st = o.id === 'default' ? '' : 'font-family:' + ({ inter: '"Inter",sans-serif', poppins: '"Poppins",sans-serif', lora: '"Lora",serif', classic: 'Georgia,serif', mono: 'ui-monospace,Menlo,Consolas,monospace' }[o.id]);
       return h('button', { type: 'button', class: 'fontopt' }, h('span', {}, h('strong', { text: o.name }), h('span', { class: 'muted small fo-note', text: o.note })), h('span', { class: 'sample', style: st, text: 'Aa 123' })); }));

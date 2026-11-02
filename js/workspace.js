@@ -29,7 +29,12 @@
     details.appendChild(tools);
     details.appendChild(h('p',{class:'muted small',text:'Module day '+(day-m.startDay+1)+' / '+st.total+' · Overall roadmap Day '+day}));
     if(session){
-      details.appendChild(h('div',{class:'workspace-session'},h('span',{class:'eyebrow',text:session.topic||session.module}),h('strong',{text:session.title}),h('span',{class:'muted small',text:(session.module||m.name)+' · '+(session.time||'Time not specified')})));
+      details.appendChild(h('div',{class:'workspace-session'},
+        h('span',{class:'eyebrow',text:session.topic||session.module}),
+        h('strong',{text:session.title}),
+        h('span',{class:'workspace-session-count',text:'Day '+(day-m.startDay+1)+' of '+st.total}),
+        h('span',{class:'muted small',text:(session.module||m.name)+' · '+(session.time||'Time not specified')}),
+        h('span',{class:'workspace-session-status',text:U.STATUS[A.status(day)]})));
       var nav=h('div',{class:'workspace-actions'});
       var prev=h('a',{class:'btn ghost',href:day>m.startDay?'#today/'+(day-1):'#',text:'← Previous'}); if(day<=m.startDay){prev.setAttribute('aria-disabled','true');prev.addEventListener('click',function(e){e.preventDefault();});}
       nav.appendChild(prev);
@@ -68,6 +73,6 @@
     w.appendChild(h('p',{class:'muted small',text:'Choose any topic and study it independently. Starting a topic does not force you to follow its module order or roadmap dates.'}));
     w.appendChild(list); fill(); manualRoot.replaceChildren(w);
   }
-  function refresh(){ if(U.route('modules')!==null) renderModules(); if(U.route('manual')!==null) manual(); }
+  function refresh(){ if(U.route('modules')!==null || U.route('manual')!==null) { renderModules(); manual(); } }
   Promise.all([C.ready,A.ready]).then(function(){renderModules();manual();window.addEventListener('hashchange',refresh);window.addEventListener('cur-changed',refresh);}).catch(function(e){root.textContent='Could not load: '+e.message;manualRoot.textContent='Could not load: '+e.message;});
 })();

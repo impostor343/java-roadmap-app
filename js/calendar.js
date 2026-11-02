@@ -76,6 +76,10 @@
     head.appendChild(arrows);
     root.appendChild(head);
 
+    // Learning-plan header: a compact week strip and a real progress summary.
+    root.appendChild(makeWeekStrip(selected));
+    root.appendChild(makeProgressBanner());
+
     var week = el('div', 'cal-week');
     WEEK.forEach(function (w) {
       var s = el('span', '', w[0]);
@@ -117,6 +121,68 @@
     root.appendChild(makeLegend());
   }
 
+
+  function makeWeekStrip(activeDate) {
+    var wrap = el('section', 'plan-week-wrap');
+    var d = new Date(activeDate + 'T12:00:00');
+    var start = new Date(d);
+    start.setDate(d.getDate() - d.getDay());
+    var end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    var monthLabel = MONTHS[start.getMonth()] + (start.getMonth() === end.getMonth() ? '' : ' – ' + MONTHS[end.getMonth()]);
+    wrap.appendChild(el('div', 'plan-week-heading', monthLabel + ' ' + start.getFullYear()));
+    var row = el('div', 'plan-week-strip');
+    var names = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for (var i = 0; i < 7; i++) {
+      var day = new Date(start);
+      day.setDate(start.getDate() + i);
+      var iso = day.getFullYear() + '-' + D.two(day.getMonth()+1) + '-' + D.two(day.getDate());
+      var entry = byDate[iso];
+      var b = el('button', 'plan-date' + (iso === activeDate ? ' is-active' : '') + (iso === D.todayIso() ? ' is-today' : ''));
+      b.type = 'button';
+      b.setAttribute('aria-label', names[i] + ' ' + day.getDate() + (entry ? ', ' + D.titleOf(entry) : ', no scheduled session'));
+      b.appendChild(el('span', 'plan-date-name', names[i]));
+      b.appendChild(el('strong', 'plan-date-number', String(day.getDate())));
+      var dot = el('span', 'plan-date-dot');
+      if (entry && ST.isLearning(entry)) {
+        var state = ST.state(entry.day);
+        dot.className += state === 'done' ? ' is-done' : (state === 'skipped' ? ' is-skipped' : ' is-pending');
+      } else {
+        dot.className += ' is-empty';
+      }
+      b.appendChild(dot);
+      b.disabled = !entry;
+      b.addEventListener('click', (function(key) { return function() {
+        if (byDate[key]) { selected = key; viewKey = key.slice(0,7); draw(); }
+      }; })(iso));
+      row.appendChild(b);
+    }
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  function makeProgressBanner() {
+    var wrap = el('section', 'plan-progress-banner');
+    var total = 0, done = 0, skipped = 0;
+    D.entries.forEach(function(e) {
+      if (ST.isLearning(e)) {
+        total++;
+        var state = ST.state(e.day);
+        if (state === 'done') done++;
+        if (state === 'skipped') skipped++;
+      }
+    });
+    var pct = total ? Math.round(done * 100 / total) : 0;
+    var ring = el('div', 'plan-progress-ring', pct + '%');
+    ring.style.setProperty('--plan-progress', pct + '%');
+    var copy = el('div', 'plan-progress-copy');
+    copy.appendChild(el('strong', '', 'Your learning progress'));
+    copy.appendChild(el('span', '', done + ' completed · ' + Math.max(0,total-done-skipped) + ' remaining'));
+    wrap.appendChild(ring);
+    wrap.appendChild(copy);
+    return wrap;
+  }
+
   function makeCell(e, d, isToday, isSelected) {
     var b = el('button', 'cell' + (isSelected ? ' selected' : ''));
     b.type = 'button';
@@ -151,7 +217,7 @@
   }
 
   function makePreview(e, isToday) {
-    var box = el('section', 'preview');
+    var box = el('section', 'preview plan-selected-card');
     box.setAttribute('aria-label', 'Selected day');
     box.appendChild(el('p', 'card-meta', D.formatDate(e.date) + (isToday ? ' (today)' : '')));
     box.appendChild(el('h3', 'preview-title', e.symbol + ' ' + D.titleOf(e)));
