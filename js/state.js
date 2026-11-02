@@ -74,7 +74,7 @@
     var total = m.endDay - m.startDay + 1; return { total: total, done: done, skipped: skipped, remaining: total - done, percent: U.pct(done, total) };
   };
   // Stored status wins. With none stored, "In Progress" is shown once a linked session is completed; Completed/Needs Revision are only ever set by you.
-  A.topicStatus = function (m) { var s = st.ts[m.id]; if (s && s.status) { return s.status; } return A.topicStats(m).done > 0 ? 'in-progress' : 'not-started'; };
+  A.topicStatus = function (m) { var s = st.ts[m.id]; if (s && s.status) { return s.status; } var linked = false; for (var d = m.startDay; d <= m.endDay; d++) { if (A.status(d) === 'in-progress' || A.status(d) === 'completed') { linked = true; break; } } return linked ? 'in-progress' : 'not-started'; };
   // Counts used by the Progress dashboard.
   A.pendingCount = function () { var n = 0; for (var d = 1; d <= C.total; d++) { var s = A.status(d); if (s !== 'completed' && s !== 'skipped') { n++; } } return n; };
   A.inProgressCount = function () { return A.inProgressDays().length; };
@@ -83,7 +83,7 @@
     var done = 0, skipped = 0; tp.days.forEach(function (d) { var s = A.status(d); if (s === 'completed') { done++; } else if (s === 'skipped') { skipped++; } });
     var total = tp.days.length; return { total: total, done: done, skipped: skipped, remaining: total - done, percent: U.pct(done, total) };
   };
-  A.conceptStatus = function (tp) { var s = st.ts[tp.id]; if (s && s.status) { return s.status; } return A.conceptStats(tp).done > 0 ? 'in-progress' : 'not-started'; };
+  A.conceptStatus = function (tp) { var s = st.ts[tp.id]; if (s && s.status) { return s.status; } var linked = tp.days.some(function(d){ return A.status(d) === 'in-progress' || A.status(d) === 'completed'; }); return linked ? 'in-progress' : 'not-started'; };
   A.conceptsDone = function () { return C.topics.filter(function (t) { return A.conceptStatus(t) === 'completed'; }).length; };
   A.saveTopic = function (id, patch) {
     var cur = A.topicState(id), rec = { id: id, status: cur.status, notes: cur.notes || '', completedAt: cur.completedAt || null, updatedAt: now() };

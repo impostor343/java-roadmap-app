@@ -1,7 +1,7 @@
 // Router shell: the six tabs (Home, Calendar, Questions, Projects, Progress, Resources) plus Settings, chosen by the URL hash.
 (function () {
   'use strict';
-  var SCREENS = ['today', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
+  var SCREENS = ['today', 'modules', 'manual', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
   function showScreen() {
     var id = location.hash.replace('#', '').split('/')[0];
@@ -13,7 +13,7 @@
     }
     var title = document.getElementById('screen-' + id).getAttribute('data-title');
     document.body.setAttribute('data-screen', id);
-    titleEl.textContent = title; document.title = title + ' | CSE Roadmap';
+    titleEl.textContent = title; document.title = title + ' | Bytewise';
     window.scrollTo(0, 0); mainEl.focus({ preventScroll: true });
   }
   window.addEventListener('hashchange', showScreen); showScreen();
