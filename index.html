@@ -13,15 +13,19 @@
   <script>/* apply saved palette/font before first paint (same rules as js/theme.js) */
   (function(){try{var s=JSON.parse(localStorage.getItem('cse-roadmap-appearance'))||{},r=document.documentElement;
   if(/^(ocean|violet|sunset|rose|teal|slate)$/.test(s.palette)){r.setAttribute('data-palette',s.palette);}
+  if(/^#[0-9a-fA-F]{6}$/.test(s.primary||'')){r.style.setProperty('--accent',s.primary);r.style.setProperty('--accent-strong',s.primary);r.style.setProperty('--deep',s.primary);}
+  if(/^#[0-9a-fA-F]{6}$/.test(s.secondary||'')){r.style.setProperty('--secondary',s.secondary);}
   if(/^(inter|poppins|lora|classic|mono)$/.test(s.font)){r.setAttribute('data-font',s.font);}
-  if(/^(light|dark)$/.test(s.mode)){r.setAttribute('data-mode',s.mode);}
+  if(/^(light|dark)$/.test(s.mode)){r.setAttribute('data-mode',s.mode);}else if(!s.mode){r.setAttribute('data-mode','dark');}
   if(/^(small|large|xlarge)$/.test(s.size)){r.setAttribute('data-size',s.size);}}catch(e){}})();</script>
-  <link rel="stylesheet" href="css/styles.css?v=9">
-  <link rel="stylesheet" href="css/theme.css?v=3">
+  <link rel="stylesheet" href="css/styles.css?v=10">
+  <link rel="stylesheet" href="css/theme.css?v=4">
   <link rel="stylesheet" href="css/cur.css?v=12">
   <link rel="stylesheet" href="css/home.css?v=4">
   <link rel="stylesheet" href="css/progress.css?v=3">
   <link rel="stylesheet" href="css/resources.css?v=3">
+  <link rel="stylesheet" href="css/bytewise-ui.css?v=1">
+  <link rel="stylesheet" href="css/calendar-plan.css?v=1">
 </head>
 <body>
   <header class="topbar">
@@ -37,15 +41,21 @@
   <main id="main" tabindex="-1">
 
     <section class="screen" id="screen-today" data-title="Home">
-      <div id="today-card" class="cur"><p class="empty">Loading…</p></div>
-    </section>
-
-    <section class="screen" id="screen-modules" data-title="Modules" hidden>
-      <div id="modules-root" class="cur"><p class="empty">Loading…</p></div>
-    </section>
-
-    <section class="screen" id="screen-manual" data-title="Manual Study" hidden>
-      <div id="manual-root" class="cur"><p class="empty">Loading…</p></div>
+      <div class="home-workspace-tabs" role="tablist" aria-label="Home learning areas">
+        <button type="button" class="home-workspace-tab is-active" role="tab" aria-selected="true" data-home-tab="roadmap">Roadmap</button>
+        <button type="button" class="home-workspace-tab" role="tab" aria-selected="false" data-home-tab="modules">My Modules</button>
+        <button type="button" class="home-workspace-tab" role="tab" aria-selected="false" data-home-tab="projects">Projects</button>
+      </div>
+      <div class="home-workspace-panel" data-home-panel="roadmap">
+        <div id="today-card" class="cur"><p class="empty">Loading…</p></div>
+      </div>
+      <div class="home-workspace-panel" data-home-panel="modules" hidden>
+        <div id="modules-root" class="cur"><p class="empty">Loading…</p></div>
+        <div id="manual-root" class="cur"></div>
+      </div>
+      <div class="home-workspace-panel" data-home-panel="projects" hidden>
+        <div id="projects-root" class="cur"><p class="empty">Loading…</p></div>
+      </div>
     </section>
 
     <section class="screen" id="screen-calendar" data-title="Calendar" hidden>
@@ -54,10 +64,6 @@
 
     <section class="screen" id="screen-questions" data-title="Questions" hidden>
       <div id="questions-root" class="cur"><p class="empty">Loading…</p></div>
-    </section>
-
-    <section class="screen" id="screen-projects" data-title="Projects" hidden>
-      <div id="projects-root" class="cur"><p class="empty">Loading…</p></div>
     </section>
 
     <section class="screen" id="screen-progress" data-title="Progress" hidden>
@@ -79,8 +85,6 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10"/></svg>
       <span>Home</span>
     </a>
-    <a href="#modules"><span>▦</span><span>Modules</span></a>
-    <a href="#manual"><span>✎</span><span>Manual</span></a>
     <a href="#calendar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       <span>Calendar</span>
@@ -88,10 +92,6 @@
     <a href="#questions">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
       <span>Questions</span>
-    </a>
-    <a href="#projects">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      <span>Projects</span>
     </a>
     <a href="#progress">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -104,11 +104,11 @@
   </nav>
 
 
-  <script src="js/theme.js?v=3"></script>
+  <script src="js/theme.js?v=4"></script>
   <script src="js/native.js?v=3"></script>
   <script src="js/util.js?v=10"></script>
   <script src="js/icons.js?v=3"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/app.js?v=13"></script>
   <script src="js/data.js?v=11"></script>
   <script src="js/store.js?v=9"></script>
   <script src="js/state.js?v=11"></script>
@@ -121,8 +121,9 @@
   <script src="js/projects.js?v=10"></script>
   <script src="js/questions.js?v=12"></script>
   <script src="js/resources.js?v=3"></script>
-  <script src="js/settings.js?v=11"></script>
+  <script src="js/settings.js?v=12"></script>
   <script src="js/widgets.js?v=2"></script>
-  <script src="js/workspace.js?v=1"></script>
+  <script src="js/home-tabs.js?v=1"></script>
+  <script src="js/workspace.js?v=2"></script>
 </body>
 </html>
