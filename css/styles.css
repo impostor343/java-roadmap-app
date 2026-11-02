@@ -554,3 +554,18 @@ dialog.sheet { max-height: 92vh; overflow-y: auto; border-radius: 24px 24px 0 0;
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 4px 0 6px; }
 .seg-btn { min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 0.875rem; cursor: pointer; }
 .seg-btn[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); font-weight: 600; }
+
+/* Bytewise independent learning workspace: reuses existing card, item and button language. */
+.tabbar { overflow-x: auto; justify-content: flex-start; scrollbar-width: none; }
+.tabbar::-webkit-scrollbar { display:none; }
+.tabbar a { flex: 0 0 auto; min-width: 58px; }
+.workspace-module { margin-bottom: 12px; }
+.workspace-summary { display:flex; align-items:center; gap:12px; cursor:pointer; list-style:none; }
+.workspace-summary::-webkit-details-marker { display:none; }
+.workspace-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:4px; }
+.workspace-tools,.workspace-actions,.workspace-topic-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.workspace-session { display:flex; flex-direction:column; gap:5px; padding:12px; margin-top:10px; border-radius:12px; background:var(--surface-soft,rgba(100,120,160,.07)); }
+.workspace-topic-list { display:grid; gap:7px; }
+.workspace-topic { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.workspace-topic-actions { margin:0; }
+[aria-disabled="true"] { opacity:.4; pointer-events:none; }
