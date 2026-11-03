@@ -426,3 +426,10 @@ else:
     open(manifest, 'w', encoding='utf-8', newline='\n').write(text)
     print('patched', manifest)
 print('widgets added for package', PKG)
+
+# Notifications (Android 13+ needs this permission for the daily goal reminder)
+text = open(manifest, encoding='utf-8').read()
+if 'POST_NOTIFICATIONS' not in text and '<application' in text:
+    text = text.replace('<application', '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <application', 1)
+    open(manifest, 'w', encoding='utf-8', newline='\n').write(text)
+    print('added POST_NOTIFICATIONS permission')
