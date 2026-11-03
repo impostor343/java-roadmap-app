@@ -50,19 +50,19 @@
       var wrap = h('div', { role: 'group', 'aria-label': label }); wrap.appendChild(h('p', { class: 'set-label', text: label }));
       var inner = h('div', { class: key === 'palette' ? 'swatches' : (key === 'font' ? 'fontlist' : 'segrow') });
       function paint() { var cur = T.get()[key]; [].slice.call(inner.children).forEach(function (b, i) { b.setAttribute('aria-pressed', list[i].id === cur ? 'true' : 'false'); }); }
-      list.forEach(function (o) { var b = mk(o); b.addEventListener('click', function () { var p = {}; p[key] = o.id; T.set(p); paint(); }); inner.appendChild(b); });
+      list.forEach(function (o) { var b = mk(o); b.addEventListener('click', function () { var p = {}; p[key] = o.id; T.set(p); paint(); if (key === 'palette') { render(); } }); inner.appendChild(b); });
       paint(); wrap.appendChild(inner); return wrap;
     }
     box.appendChild(h('p', { class: 'muted small', text: 'Changes apply instantly and are remembered on this device.' }));
     var colors = h('div', { class: 'custom-colors' });
-    [['Primary colour','primary'],['Secondary colour','secondary']].forEach(function (item) {
+    [['Card colour 1','primary'],['Card colour 2','secondary'],['Card colour 3','tertiary']].forEach(function (item) {
       var label = h('label', { class: 'custom-color-field' }, h('span', { text: item[0] }));
       var input = h('input', { type: 'color', value: T.get()[item[1]], 'aria-label': item[0] });
       input.addEventListener('input', function () { var patch = {}; patch[item[1]] = input.value; T.set(patch); });
       label.appendChild(input); colors.appendChild(label);
     });
     box.appendChild(colors);
-    box.appendChild(group('Colour palette', T.PALETTES, 'palette', function (o) { return h('button', { type: 'button', class: 'swatch' }, h('span', { class: 'dot', style: 'background:' + o.color }), o.name); }));
+    box.appendChild(group('Colour palette', T.PALETTES, 'palette', function (o) { return h('button', { type: 'button', class: 'swatch' }, h('span', { class: 'dots3' }, o.colors.map(function (c) { return h('i', { style: 'background:' + c }); })), o.name); }));
     box.appendChild(group('Font', T.FONTS, 'font', function (o) { var st = o.id === 'default' ? '' : 'font-family:' + ({ inter: '"Inter",sans-serif', poppins: '"Poppins",sans-serif', lora: '"Lora",serif', classic: 'Georgia,serif', mono: 'ui-monospace,Menlo,Consolas,monospace' }[o.id]);
       return h('button', { type: 'button', class: 'fontopt' }, h('span', {}, h('strong', { text: o.name }), h('span', { class: 'muted small fo-note', text: o.note })), h('span', { class: 'sample', style: st, text: 'Aa 123' })); }));
     box.appendChild(group('Light or dark', T.MODES, 'mode', function (o) { return h('button', { type: 'button', class: 'segbtn', text: o.name }); }));

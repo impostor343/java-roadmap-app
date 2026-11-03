@@ -1,78 +1,162 @@
-// Independent learning workspace: module tracker + free topic browser.
-// Uses the existing Curriculum and IndexedDB-backed State; no parallel progress store.
+// Modules: a list of module cards, and inside a module a swipeable deck of its sessions.
+// Route: #modules (list) and #modules/<id> (one module). Next / Previous / swipe change the card in place; nothing jumps back to Home.
+// Search finds single sessions and shows nothing until you type. Uses the existing Curriculum and IndexedDB-backed State.
 (function () {
   'use strict';
-  var C = window.Curriculum, A = window.State, I = window.Icons, h = U.h, root = document.getElementById('modules-root'), manualRoot = document.getElementById('manual-root');
-  var moduleQuery = '', topicQuery = '';
-  function card(title) { return h('section', { class: 'card' }, h('h3', { text: title }), [].slice.call(arguments, 1)); }
+  var C = window.Curriculum, A = window.State, V = window.SessionView, I = window.Icons, h = U.h, root = document.getElementById('modules-root');
+  var legacy = document.getElementById('manual-root'); if (legacy) { legacy.remove(); }
+  var openKey = '', listY = 0, query = '', hay = null, pending = {}, memo = {}, sheet = null;
+  var SCRIBBLES = [
+    'M18 150 L78 34 L108 138 L176 20 L204 126 L278 8',
+    'M14 120 C70 20 96 170 150 70 S230 130 286 24',
+    'M20 160 L96 60 L60 56 L150 12 L128 100 L246 28 L226 120 L292 70'
+  ];
+  var TONES = ['a', 'b', 'c'];
+  function scribble(i) {
+    var s = h('span', { class: 'scribble', 'aria-hidden': 'true' });
+    s.innerHTML = '<svg viewBox="0 0 300 180" preserveAspectRatio="xMaxYMax meet"><path d="' + SCRIBBLES[i % SCRIBBLES.length] + '"/></svg>';
+    return s;
+  }
+  function arrowBtn(cls) { return h('span', { class: 'pc-go ' + (cls || ''), 'aria-hidden': 'true', text: '↗' }); }
+  function stats(m) { return A.topicStats(m); }
+  function currentIn(m) { for (var d = m.startDay; d <= m.endDay; d++) { var s = A.status(d); if (s !== 'completed' && s !== 'skipped') { return d; } } return m.endDay; }
   function statusSelect(current, onChange, label) {
     var s = h('select', { class: 'sel', 'aria-label': label });
-    [['not-started','Not Started'],['in-progress','Started'],['completed','Completed'],['needs-revision','Needs Revision']].forEach(function (x) { var o=h('option',{value:x[0],text:x[1]}); o.selected=x[0]===current; s.appendChild(o); });
+    [['not-started', 'Not started'], ['in-progress', 'In progress'], ['completed', 'Completed'], ['needs-revision', 'Needs revision']].forEach(function (x) { var o = h('option', { value: x[0], text: x[1] }); o.selected = x[0] === current; s.appendChild(o); });
     s.addEventListener('change', function () { onChange(s.value); }); return s;
   }
-  function stats(m) { return A.topicStats(m); }
-  function currentIn(m) {
-    for (var d=m.startDay; d<=m.endDay; d++) { if (A.status(d)!=='completed' && A.status(d)!=='skipped') return d; }
-    return m.endDay;
+
+  // ---------- list of modules ----------
+  function moduleCard(m, n) {
+    var st = stats(m), status = A.topicStatus(m), tone = TONES[n % 3];
+    var a = h('a', { class: 'pcard pc-' + tone, href: '#modules/' + m.id, 'aria-label': m.name + ', ' + st.percent + '% done' },
+      h('span', { class: 'pc-top' }, h('span', { class: 'pc-tag', text: U.STATUS[status] }), arrowBtn()),
+      h('span', { class: 'pc-meta' }, (function () { var i = h('span', { class: 'pc-ic', 'aria-hidden': 'true' }); i.appendChild(I.make(C.moduleIcon(m.id))); return i; })(), st.done + '/' + st.total + ' sessions'),
+      h('strong', { class: 'pc-title', text: m.name }),
+      h('span', { class: 'pc-bar', role: 'progressbar', 'aria-valuenow': st.percent, 'aria-valuemin': 0, 'aria-valuemax': 100 }, h('i', { style: 'width:' + st.percent + '%' })));
+    a.appendChild(scribble(n)); return a;
   }
-  function moduleCard(m) {
-    var st=stats(m), status=A.topicStatus(m), day=currentIn(m), session=C.session(day), details=h('details',{class:'card workspace-module'});
-    details.open = status === 'in-progress';
-    var summary=h('summary',{class:'workspace-summary'});
-    var icon=h('span',{class:'module-icon','aria-hidden':'true'}); icon.appendChild(I.make(C.moduleIcon(m.id)));
-    summary.appendChild(icon);
-    summary.appendChild(h('span',{class:'workspace-main'},h('strong',{text:m.name}),h('span',{class:'muted small',text:U.STATUS[status]+' · '+st.done+' / '+st.total+' sessions · '+st.percent+'%'}),U.bar(st.percent)));
-    summary.appendChild(h('span',{class:'project-item-arrow',text:'⌄','aria-hidden':'true'})); details.appendChild(summary);
-    var tools=h('div',{class:'workspace-tools'});
-    tools.appendChild(statusSelect(status,function(v){ A.saveTopic(m.id,{status:v}).then(refresh); },m.name+' status'));
-    if(status==='not-started') tools.appendChild(h('button',{class:'btn primary',type:'button',text:'Start module',onclick:function(ev){ev.preventDefault();A.saveTopic(m.id,{status:'in-progress'}).then(refresh);}}));
-    details.appendChild(tools);
-    details.appendChild(h('p',{class:'muted small',text:'Module day '+(day-m.startDay+1)+' / '+st.total+' · Overall roadmap Day '+day}));
-    if(session){
-      details.appendChild(h('div',{class:'workspace-session'},
-        h('span',{class:'eyebrow',text:session.topic||session.module}),
-        h('strong',{text:session.title}),
-        h('span',{class:'workspace-session-count',text:'Day '+(day-m.startDay+1)+' of '+st.total}),
-        h('span',{class:'muted small',text:(session.module||m.name)+' · '+(session.time||'Time not specified')}),
-        h('span',{class:'workspace-session-status',text:U.STATUS[A.status(day)]})));
-      var nav=h('div',{class:'workspace-actions'});
-      var prev=h('a',{class:'btn ghost',href:day>m.startDay?'#today/'+(day-1):'#',text:'← Previous'}); if(day<=m.startDay){prev.setAttribute('aria-disabled','true');prev.addEventListener('click',function(e){e.preventDefault();});}
-      nav.appendChild(prev);
-      nav.appendChild(h('button',{class:'btn primary',type:'button',text:A.isDone(day)?'Completed':'✓ Done',disabled:A.isDone(day),onclick:function(){A.markDone(day).then(function(){if(A.topicStatus(m)!=='completed'){A.saveTopic(m.id,{status:'in-progress'});}refresh();window.dispatchEvent(new Event('cur-changed'));});}}));
-      var next=h('a',{class:'btn ghost',href:day<m.endDay?'#today/'+(day+1):'#',text:'Next →'}); if(day>=m.endDay){next.setAttribute('aria-disabled','true');next.addEventListener('click',function(e){e.preventDefault();});} nav.appendChild(next); details.appendChild(nav);
-      details.appendChild(h('a',{class:'small',href:'#today/'+day,text:'Open full session details →'}));
+  function searchResults(q) {
+    if (!hay) { hay = C.sessions.map(function (s) { return (s.title + ' ' + s.topic + ' ' + s.module + ' ' + (s.domain || '')).toLowerCase(); }); }
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean), out = [], more = false;
+    for (var i = 0; i < hay.length; i++) {
+      var ok = true; for (var w = 0; w < words.length; w++) { if (hay[i].indexOf(words[w]) < 0) { ok = false; break; } }
+      if (ok) { if (out.length >= 30) { more = true; break; } out.push(C.sessions[i]); }
     }
-    var topicList=h('div',{class:'workspace-topic-list'});
-    C.topicsOf(m.id).forEach(function(tp){var ts=A.conceptStats(tp), row=h('a',{class:'item',href:'#progress/topic/'+tp.id},h('strong',{text:tp.name}),h('span',{class:'muted small',text:U.STATUS[A.conceptStatus(tp)]+' · '+ts.done+'/'+ts.total+' sessions'}));topicList.appendChild(row);});
-    details.appendChild(card('Topics in this module',topicList)); return details;
+    var box = h('div', { class: 'srch-results', role: 'list' });
+    out.forEach(function (s, n) {
+      box.appendChild(h('a', { class: 'srch-row', role: 'listitem', href: '#modules/' + s.moduleId, onclick: function () { pending[s.moduleId] = s.moduleDay - 1; } },
+        h('span', { class: 'srch-dot pc-' + TONES[n % 3] }),
+        h('span', { class: 'srch-main' }, h('strong', { text: s.title }), h('span', { class: 'muted small', text: s.module + ' · Day ' + s.moduleDay + ' of ' + s.moduleTotal })),
+        V.chip(s.day)));
+    });
+    if (!out.length) { box.appendChild(h('p', { class: 'muted srch-empty', text: 'No session matches “' + q + '”. Try a shorter word.' })); }
+    else if (more) { box.appendChild(h('p', { class: 'muted small srch-empty', text: 'Showing the first 30. Add another word to narrow it down.' })); }
+    return box;
   }
-  function modules() {
-    var w=h('div'), search=h('input',{class:'sel',type:'search',placeholder:'Search modules…','aria-label':'Search modules'}); search.value=moduleQuery;
-    search.addEventListener('input',function(){moduleQuery=search.value;renderModules();}); w.appendChild(search);
-    var started=C.modules.filter(function(m){return A.topicStatus(m)!=='not-started';});
-    var available=C.modules.filter(function(m){return A.topicStatus(m)==='not-started';});
-    w.appendChild(h('p',{class:'muted small',text:started.length+' started · '+available.length+' not started · '+C.modules.length+' total'}));
-    var q=moduleQuery.trim().toLowerCase();
-    var active=started.filter(function(m){return !q||m.name.toLowerCase().indexOf(q)>=0;});
-    var idle=available.filter(function(m){return !q||m.name.toLowerCase().indexOf(q)>=0;});
-    w.appendChild(h('h3',{class:'ph',text:'My modules'}));
-    if(active.length) active.forEach(function(m){w.appendChild(moduleCard(m));}); else w.appendChild(h('p',{class:'muted',text:'No modules started yet. Start one from All Modules or begin a scheduled session.'}));
-    w.appendChild(h('h3',{class:'ph',text:'All modules'})); idle.forEach(function(m){w.appendChild(moduleCard(m));});
-    root.replaceChildren(w);
-  }
-  function renderModules(){modules();}
-  function manual() {
-    var w=h('div'), search=h('input',{class:'sel',type:'search',placeholder:'Find any topic…','aria-label':'Search topics'}); search.value=topicQuery;
-    var list=h('div'); function fill(){list.textContent='';var q=topicQuery.trim().toLowerCase(), matches=C.topics.filter(function(t){var m=C.module(t.moduleId);return !q||t.name.toLowerCase().includes(q)||(m&&m.name.toLowerCase().includes(q));});
-      matches.forEach(function(tp){var m=C.module(tp.moduleId), st=A.conceptStats(tp), status=A.conceptStatus(tp), row=h('div',{class:'item workspace-topic'},h('span',{class:'workspace-main'},h('strong',{text:tp.name}),h('span',{class:'muted small',text:(m?m.name+' · ':'')+U.STATUS[status]+' · '+st.done+'/'+st.total+' sessions'})),h('span',{class:'workspace-topic-actions'}));
-        if(status==='not-started') row.lastChild.appendChild(h('button',{class:'btn primary',type:'button',text:'Start',onclick:function(){A.saveTopic(tp.id,{status:'in-progress'}).then(function(){fill();window.dispatchEvent(new Event('cur-changed'));});}}));
-        row.lastChild.appendChild(h('a',{class:'btn ghost',href:'#progress/topic/'+tp.id,text:'Open'})); list.appendChild(row);});
-      if(!matches.length) list.appendChild(h('p',{class:'muted',text:'No matching topics.'}));
+  function list() {
+    var w = h('div', { class: 'mod-list' });
+    w.appendChild(h('h2', { class: 'screen-h', text: 'Modules' }));
+    var input = h('input', { class: 'searchbar', type: 'search', placeholder: 'Search any session', 'aria-label': 'Search sessions', autocomplete: 'off', enterkeyhint: 'search' }); input.value = query;
+    var results = h('div'), cards = h('div');
+    function fill() {
+      var q = query.trim();
+      results.textContent = ''; cards.hidden = q.length >= 2;
+      if (q.length >= 2) { results.appendChild(searchResults(q)); }
+      else if (q.length === 1) { results.appendChild(h('p', { class: 'muted small srch-empty', text: 'Type at least 2 letters.' })); }
     }
-    search.addEventListener('input',function(){topicQuery=search.value;fill();}); w.appendChild(search);
-    w.appendChild(h('p',{class:'muted small',text:'Choose any topic and study it independently. Starting a topic does not force you to follow its module order or roadmap dates.'}));
-    w.appendChild(list); fill(); manualRoot.replaceChildren(w);
+    input.addEventListener('input', function () { query = input.value; fill(); });
+    w.appendChild(h('label', { class: 'searchwrap' }, (function () { var i = h('span', { class: 'sw-ic', 'aria-hidden': 'true' }); i.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'; return i; })(), input));
+    w.appendChild(results);
+    var started = C.modules.filter(function (m) { return A.topicStatus(m) !== 'not-started'; }), idle = C.modules.filter(function (m) { return A.topicStatus(m) === 'not-started'; }), n = 0;
+    if (started.length) { cards.appendChild(h('h3', { class: 'ph', text: 'My modules' })); started.forEach(function (m) { cards.appendChild(moduleCard(m, n++)); }); }
+    cards.appendChild(h('h3', { class: 'ph', text: started.length ? 'Not started yet' : 'All modules' }));
+    idle.forEach(function (m) { cards.appendChild(moduleCard(m, n++)); });
+    w.appendChild(cards); fill(); return w;
   }
-  function refresh(){ if(U.route('modules')!==null || U.route('manual')!==null) { renderModules(); manual(); } }
-  Promise.all([C.ready,A.ready]).then(function(){renderModules();manual();window.addEventListener('hashchange',refresh);window.addEventListener('cur-changed',refresh);}).catch(function(e){root.textContent='Could not load: '+e.message;manualRoot.textContent='Could not load: '+e.message;});
+
+  // ---------- one module: a deck of sessions ----------
+  function closeSheet() { if (sheet) { var s = sheet; sheet = null; if (s.open) { s.close(); } s.remove(); } }
+  function openSheet(day) {
+    closeSheet();
+    var d = h('dialog', { class: 'sheet', 'aria-label': 'Session details' }), inner = h('div', { class: 'sheet-inner' });
+    var body = h('div', { class: 'cur' });
+    function paint() { body.replaceChildren(V.detail(day)); }
+    inner.appendChild(h('div', { class: 'sheet-handle', 'aria-hidden': 'true' }));
+    inner.appendChild(h('button', { type: 'button', class: 'sheet-close', 'aria-label': 'Close', text: '✕', onclick: closeSheet }));
+    inner.appendChild(body); paint(); d.appendChild(inner);
+    d.addEventListener('click', function (e) { if (e.target === d) { closeSheet(); } });
+    var again = function () { if (sheet === d) { paint(); } }; window.addEventListener('cur-changed', again);
+    d.addEventListener('close', function () { window.removeEventListener('cur-changed', again); if (sheet === d) { sheet = null; } d.remove(); });
+    window.addEventListener('hashchange', closeSheet, { once: true });
+    document.body.appendChild(d); sheet = d; d.showModal();
+    if (window.Gestures) { Gestures.dragDismiss(d, inner, closeSheet); }
+  }
+  function sessionCard(m, day, k, total) {
+    var s = C.session(day), status = A.status(day), tone = TONES[k % 3];
+    var card = h('div', { class: 'pcard pc-' + tone + ' sess-card' + (status === 'completed' ? ' is-done' : '') },
+      h('span', { class: 'pc-top' }, h('span', { class: 'pc-pill', text: s.time || 'Time not set' }), h('span', { class: 'pc-tag', text: U.STATUS[status] })),
+      h('span', { class: 'pc-meta', text: s.topic || s.module }),
+      h('strong', { class: 'pc-title', text: s.title }),
+      h('span', { class: 'sess-foot', text: 'Session ' + (k + 1) + ' of ' + total + '  ·  Roadmap day ' + day }));
+    card.appendChild(scribble(k)); return card;
+  }
+  function moduleView(m) {
+    var st = stats(m), status = A.topicStatus(m), total = st.total, w = h('div', { class: 'mod-view' });
+    var k0 = memo[m.id] !== undefined ? memo[m.id] : (pending[m.id] !== undefined ? pending[m.id] : currentIn(m) - m.startDay);
+    delete pending[m.id]; k0 = Math.max(0, Math.min(total - 1, k0)); memo[m.id] = k0;
+    w.appendChild(h('div', { class: 'view-top' }, h('a', { class: 'circ-btn', href: '#modules', 'aria-label': 'Back to modules', text: '←' })));
+    w.appendChild(h('h2', { class: 'screen-h', text: m.name }));
+    var ring = h('div', { class: 'pc-a prog-card' }, h('span', { class: 'ring', style: '--p:' + st.percent }, h('b', { text: st.percent + '%' })),
+      h('span', { class: 'prog-text' }, h('strong', { text: st.done + ' of ' + total + ' sessions done' }), h('span', { text: U.STATUS[status] })));
+    w.appendChild(ring);
+    var tools = h('div', { class: 'mod-tools' }, statusSelect(status, function (v) { A.saveTopic(m.id, { status: v }).then(refresh); }, m.name + ' status'));
+    if (status === 'not-started') { tools.appendChild(h('button', { class: 'btn primary', type: 'button', text: 'Start module', onclick: function () { A.saveTopic(m.id, { status: 'in-progress' }).then(refresh); } })); }
+    w.appendChild(tools);
+
+    var slides = []; for (var d = m.startDay; d <= m.endDay; d++) { slides.push(sessionCard(m, d, d - m.startDay, total)); }
+    var counter = h('span', { class: 'deck-count' }), prev = h('button', { type: 'button', class: 'circ-btn', 'aria-label': 'Previous session', text: '←' }), next = h('button', { type: 'button', class: 'circ-btn', 'aria-label': 'Next session', text: '→' });
+    var done = h('button', { type: 'button', class: 'btn primary done-btn' }), more = h('button', { type: 'button', class: 'btn ghost', text: 'Details' });
+    var deck = Deck.create({ slides: slides, index: k0, onChange: function (i) { memo[m.id] = i; sync(); } });
+    function dayNow() { return m.startDay + deck.index(); }
+    function sync() {
+      var i = deck.index(), day = m.startDay + i;
+      counter.textContent = (i + 1) + ' / ' + total;
+      prev.disabled = i <= 0; next.disabled = i >= total - 1;
+      done.textContent = A.isDone(day) ? '✓ Done · tap to undo' : 'Mark done';
+      done.classList.toggle('is-on', A.isDone(day));
+    }
+    prev.addEventListener('click', function () { deck.go(deck.index() - 1); });
+    next.addEventListener('click', function () { deck.go(deck.index() + 1); });
+    more.addEventListener('click', function () { openSheet(dayNow()); });
+    done.addEventListener('click', function () {
+      var day = dayNow(), p = A.isDone(day) ? A.reopen(day) : A.markDone(day);
+      p.then(function () { if (A.isDone(day) && A.topicStatus(m) === 'not-started') { return A.saveTopic(m.id, { status: 'in-progress' }); } }).then(function () { window.dispatchEvent(new Event('cur-changed')); });
+    });
+    w.appendChild(h('div', { class: 'deck-head' }, h('strong', { text: 'Sessions' }), counter));
+    w.appendChild(deck.el);
+    w.appendChild(h('div', { class: 'deck-actions' }, prev, done, next));
+    w.appendChild(h('div', { class: 'deck-sub' }, more, h('span', { class: 'muted small', text: 'Swipe the card or use the arrows' })));
+    sync(); w._mount = deck.mount;
+
+    var topics = C.topicsOf(m.id);
+    if (topics.length) {
+      w.appendChild(h('h3', { class: 'ph', text: 'Topics in this module' }));
+      topics.forEach(function (tp, n) { var ts = A.conceptStats(tp);
+        w.appendChild(h('a', { class: 'mini-card pc-' + TONES[n % 3], href: '#progress/topic/' + tp.id }, h('strong', { text: tp.name }), h('span', { text: U.STATUS[A.conceptStatus(tp)] + ' · ' + ts.done + '/' + ts.total + ' sessions' }))); });
+    }
+    return w;
+  }
+
+  function render() {
+    var r = U.route('modules'); if (r === null) { return; }
+    var m = r[0] ? C.module(r[0]) : null, view = m ? moduleView(m) : list();
+    var key = m ? m.id : '', changed = key !== openKey; openKey = key;
+    root.replaceChildren(view); if (view._mount) { view._mount(); }
+    if (changed) { window.scrollTo(0, key ? 0 : listY); }
+  }
+  window.addEventListener('scroll', function () { if (openKey === '') { listY = window.scrollY; } }, { passive: true });
+  function refresh() { if (U.route('modules') !== null) { render(); } }
+  Promise.all([C.ready, A.ready]).then(function () { render(); window.addEventListener('hashchange', function () { closeSheet(); render(); }); window.addEventListener('cur-changed', refresh); })
+    .catch(function (e) { root.textContent = 'Could not load: ' + e.message; });
 })();
