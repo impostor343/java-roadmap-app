@@ -45,6 +45,17 @@
   }
   function sectionHead(icon, title, linkText, href) { return h('div', { class: 'pg-sec' }, h('h3', {}, ic(icon), title), h('a', { href: href }, linkText, ' ', ic('right'))); }
 
+  function weekCard() {
+    var by = A.completionsByDate(), days = [], total = 0, max = 1, now = new Date(), names = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i), k = d.getFullYear() + '-' + U.pad(d.getMonth() + 1) + '-' + U.pad(d.getDate()), n = (by[k] || []).length;
+      days.push({ n: n, name: names[d.getDay()], today: i === 0 }); total += n; if (n > max) { max = n; }
+    }
+    var streak = 0, j = days.length - 1; if (days[j].n === 0) { j--; } while (j >= 0 && days[j].n > 0) { streak++; j--; }
+    var bars = h('div', { class: 'pg-bars', role: 'img', 'aria-label': total + ' sessions completed in the last 7 days' });
+    days.forEach(function (x) { bars.appendChild(h('div', { class: 'pg-bar-col' + (x.n ? ' has' : '') + (x.today ? ' today' : '') }, x.n ? h('b', { text: String(x.n) }) : null, h('i', { style: 'height:' + (x.n ? 18 + Math.round(72 * x.n / max) : 6) + '%' }), h('em', { text: x.name }))); });
+    return h('section', { class: 'pg-week' }, h('div', { class: 'pg-week-top' }, h('strong', { text: 'This week' }), h('span', { text: total + ' done' + (streak > 1 ? ' · ' + streak + '-day streak' : '') })), bars);
+  }
   function dashboard() {
     var w = h('div', { class: 'pg' }), n = A.doneCount(), total = C.total, pct = U.pct(n, total);
     // Roadmap progress
@@ -52,6 +63,8 @@
       h('div', { class: 'pg-hero-text' }, h('h2', { text: 'Roadmap progress' }), h('p', { class: 'pg-hero-line', text: U.num(n) + ' of ' + U.num(total) + ' learning sessions completed' }), U.bar(pct),
         h('p', { class: 'pg-note', text: 'Skipped sessions are not counted as complete. Day numbers are permanent IDs, not calendar dates.' }))),
       h('p', { class: 'pg-info' }, ic('info'), ' Curriculum: ' + U.num(total) + ' sessions · ' + C.modules.length + ' modules · ' + C.topics.length + ' topics · ' + C.projects.length + ' projects')));
+    // This week: completions per day (last 7 days) from your own Done marks
+    w.appendChild(weekCard());
     // Status tiles
     w.appendChild(h('div', { class: 'pg-tiles' }, tile('done', 'check', 'Completed', n, '#progress/list/completed'), tile('skip', 'arrow', 'Skipped', A.skippedCount(), '#progress/list/skipped'),
       tile('pend', 'clock', 'Pending', A.pendingCount(), '#progress/list/pending'), tile('prog', 'refresh', 'In progress', A.inProgressCount(), '#progress/list/in-progress')));
