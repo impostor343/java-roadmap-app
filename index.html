@@ -5,19 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bytewise</title>
   <meta name="description" content="Bytewise — Learn, Build, Progress. Personal CSE learning roadmap.">
-  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121417" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#050507">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <script>/* apply saved palette/font before first paint (same rules as js/theme.js) */
-  (function(){try{var s=JSON.parse(localStorage.getItem('cse-roadmap-appearance'))||{},r=document.documentElement;
-  if(/^(ocean|violet|sunset|rose|teal|slate)$/.test(s.palette)){r.setAttribute('data-palette',s.palette);}
-  if(/^#[0-9a-fA-F]{6}$/.test(s.primary||'')){r.style.setProperty('--accent',s.primary);r.style.setProperty('--accent-strong',s.primary);r.style.setProperty('--deep',s.primary);}
-  if(/^#[0-9a-fA-F]{6}$/.test(s.secondary||'')){r.style.setProperty('--secondary',s.secondary);}
-  if(/^(inter|poppins|lora|classic|mono)$/.test(s.font)){r.setAttribute('data-font',s.font);}
-  if(/^(light|dark)$/.test(s.mode)){r.setAttribute('data-mode',s.mode);}else if(!s.mode){r.setAttribute('data-mode','dark');}
-  if(/^(small|large|xlarge)$/.test(s.size)){r.setAttribute('data-size',s.size);}}catch(e){}})();</script>
+  <script src="js/theme.js?v=5"></script>
   <link rel="stylesheet" href="css/styles.css?v=10">
   <link rel="stylesheet" href="css/theme.css?v=4">
   <link rel="stylesheet" href="css/cur.css?v=12">
@@ -26,6 +18,7 @@
   <link rel="stylesheet" href="css/resources.css?v=3">
   <link rel="stylesheet" href="css/bytewise-ui.css?v=2">
   <link rel="stylesheet" href="css/calendar-plan.css?v=1">
+  <link rel="stylesheet" href="css/reference.css?v=1">
 </head>
 <body>
   <header class="topbar">
@@ -43,7 +36,7 @@
     <section class="screen" id="screen-today" data-title="Home">
       <div class="home-workspace-tabs" role="tablist" aria-label="Home learning areas">
         <button type="button" class="home-workspace-tab is-active" role="tab" aria-selected="true" data-home-tab="roadmap">Roadmap</button>
-        <button type="button" class="home-workspace-tab" role="tab" aria-selected="false" data-home-tab="modules">My Modules</button>
+        <button type="button" class="home-workspace-tab" role="tab" aria-selected="false" data-home-tab="modules">Modules</button>
         <button type="button" class="home-workspace-tab" role="tab" aria-selected="false" data-home-tab="projects">Projects</button>
       </div>
       <div class="home-workspace-panel" data-home-panel="roadmap">
@@ -51,7 +44,6 @@
       </div>
       <div class="home-workspace-panel" data-home-panel="modules" hidden>
         <div id="modules-root" class="cur"><p class="empty">Loading…</p></div>
-        <div id="manual-root" class="cur"></div>
       </div>
       <div class="home-workspace-panel" data-home-panel="projects" hidden>
         <div id="projects-root" class="cur"><p class="empty">Loading…</p></div>
@@ -104,7 +96,6 @@
   </nav>
 
 
-  <script src="js/theme.js?v=4"></script>
   <script src="js/native.js?v=3"></script>
   <script src="js/util.js?v=10"></script>
   <script src="js/icons.js?v=3"></script>
@@ -115,15 +106,16 @@
   <script src="js/sessionview.js?v=9"></script>
   <script src="js/history.js?v=8"></script>
   <script src="js/gestures.js?v=2"></script>
+  <script src="js/deck.js?v=1"></script>
   <script src="js/home.js?v=11"></script>
   <script src="js/navigator.js?v=9"></script>
   <script src="js/progress.js?v=11"></script>
-  <script src="js/projects.js?v=10"></script>
+  <script src="js/projects.js?v=11"></script>
   <script src="js/questions.js?v=12"></script>
   <script src="js/resources.js?v=3"></script>
-  <script src="js/settings.js?v=12"></script>
+  <script src="js/settings.js?v=13"></script>
   <script src="js/widgets.js?v=2"></script>
   <script src="js/home-tabs.js?v=1"></script>
-  <script src="js/workspace.js?v=2"></script>
+  <script src="js/workspace.js?v=3"></script>
 </body>
 </html>
