@@ -67,12 +67,13 @@
   function renderList() {
     var box = document.getElementById('qlist'); if (!box) { return; } box.textContent = '';
     var filtering = !!q || filter !== 'all', total = 0;
+    var qi = 0;
     groups.forEach(function (g) {
       if (modFilter !== 'all' && g.key !== modFilter) { return; }
       var tops = g.topOrder.map(function (k) { var t = g.tops[k]; return { t: t, list: t.qs.filter(matches) }; }).filter(function (x) { return x.list.length; });
       if (!tops.length) { return; }
       var all = []; tops.forEach(function (x) { all = all.concat(x.list); }); total += all.length;
-      var mOpen = filtering || modFilter !== 'all' || !!openMod[g.key], sec = h('section', { class: 'card qmod' });
+      var mOpen = filtering || modFilter !== 'all' || !!openMod[g.key], sec = h('section', { class: 'card qmod pc-' + ['a', 'b', 'c'][qi++ % 3] });
       sec.appendChild(header(g.title, g.sub, all, mOpen, function () { openMod[g.key] = !openMod[g.key]; renderList(); }, 'qh-mod'));
       if (mOpen) {
         tops.forEach(function (x) {

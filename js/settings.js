@@ -70,6 +70,32 @@
     box.appendChild(h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn ghost', text: 'Reset appearance', onclick: function () { T.reset(); render(); } })));
     return box;
   }
+  // ---- Notifications: daily reminder of today's goal ----
+  function notifications() {
+    var N = window.Notify, box = card('Notifications');
+    if (!N || !N.supported()) { box.appendChild(h('p', { class: 'muted', text: 'This browser cannot show notifications.' })); return box; }
+    var st = N.get(), status = h('p', { class: 'muted small' }), preview = h('div', { class: 'notif-preview' });
+    box.appendChild(h('p', { class: 'muted small', text: 'Get a daily reminder with today\u2019s goal: the next session you have not finished.' }));
+    var toggle = h('button', { type: 'button', class: 'switch', role: 'switch', 'aria-checked': st.on ? 'true' : 'false', 'aria-label': 'Daily goal reminder' }, h('i'));
+    var time = h('input', { type: 'time', class: 'sel notif-time', value: st.time, 'aria-label': 'Reminder time' });
+    box.appendChild(h('div', { class: 'notif-row' }, h('span', { class: 'notif-lab' }, h('strong', { text: 'Remind me every day' }), h('span', { class: 'muted small', text: 'At the time you choose' })), toggle));
+    box.appendChild(h('div', { class: 'notif-row' }, h('span', { class: 'notif-lab' }, h('strong', { text: 'Reminder time' })), time));
+    function paint() {
+      var m = N.preview(); preview.replaceChildren(h('strong', { text: m.title }), h('span', { text: m.body }));
+      toggle.setAttribute('aria-checked', N.get().on ? 'true' : 'false');
+      N.permission().then(function (p) {
+        status.textContent = p === 'denied' ? 'Notifications are blocked. Allow them for Bytewise in your phone or browser settings, then switch this on again.'
+          : (N.isNative() ? (N.get().on ? 'Reminder is set. It also works when the app is closed.' : 'Off.') : (N.get().on ? 'On. In a browser the reminder shows while Bytewise is open. Install the Android app for reminders when it is closed.' : 'Off.'));
+      });
+    }
+    toggle.addEventListener('click', function () {
+      if (N.get().on) { N.disable().then(paint); } else { N.enable(time.value).then(function (r) { if (r !== 'granted') { status.textContent = 'Permission was not given, so the reminder stays off.'; } paint(); }); }
+    });
+    time.addEventListener('change', function () { if (time.value) { N.setTime(time.value).then(paint); } });
+    box.appendChild(h('p', { class: 'set-label', text: 'What you will see' })); box.appendChild(preview);
+    box.appendChild(h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn ghost', text: 'Send a test notification', onclick: function () { N.test().then(function (r) { if (r !== 'granted') { status.textContent = 'Permission was not given, so no test could be sent.'; } }); } })));
+    box.appendChild(status); paint(); return box;
+  }
   function about() {
     var box = card('Offline and install');
     var st = h('p', { class: 'muted small', text: 'Checking offline support…' }); box.appendChild(st);
@@ -81,6 +107,7 @@
   function render() {
     root.textContent = '';
     root.appendChild(appearance());
+    root.appendChild(notifications());
     root.appendChild(card('Backup and restore', h('p', { class: 'muted small', text: 'Your data lives only on this device. Clearing browser data deletes it, so export a backup regularly.' }),
       h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn primary', onclick: exportBackup, text: 'Export backup' }),
         h('label', { class: 'btn ghost' }, 'Restore backup', h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: function () { if (this.files[0]) { restore(this.files[0]); } this.value = ''; } }))), msg));

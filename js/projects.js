@@ -20,19 +20,27 @@
 
   var TONES = ['a', 'b', 'c'], SCR = ['M18 150 L78 34 L108 138 L176 20 L204 126 L278 8', 'M14 120 C70 20 96 170 150 70 S230 130 286 24', 'M20 160 L96 60 L60 56 L150 12 L128 100 L246 28 L226 120 L292 70'];
   function scribble(i) { var x = h('span', { class: 'scribble', 'aria-hidden': 'true' }); x.innerHTML = '<svg viewBox="0 0 300 180" preserveAspectRatio="xMaxYMax meet"><path d="' + SCR[i % 3] + '"/></svg>'; return x; }
-  function pcard(p, n, tag) {
-    var s = A.projectStats(p), ps = A.projectState(p.id), ic = h('span', { class: 'pc-ic', 'aria-hidden': 'true' });
+  var openSet = {};
+  function pcard(p, n) {
+    var s = A.projectStats(p), ps = A.projectState(p.id), ic = h('span', { class: 'pc-ic', 'aria-hidden': 'true' }), isOpen = !!openSet[p.id];
     ic.appendChild(I.make(PROJECT_ICONS[p.id] || 'code'));
-    var c = h(tag || 'a', { class: 'pcard pc-' + TONES[n % 3], href: tag ? null : '#projects/' + p.id },
-      h('span', { class: 'pc-top' }, h('span', { class: 'pc-tag', text: U.STATUS[ps.status] }), tag ? null : h('span', { class: 'pc-go', 'aria-hidden': 'true', text: '↗' })),
+    var go = h('button', { type: 'button', class: 'pc-go', 'aria-expanded': isOpen ? 'true' : 'false', 'aria-label': 'Open ' + p.name, text: '›' });
+    var head = h('div', { class: 'pcard pc-' + TONES[n % 3], role: 'group', 'aria-label': p.name },
+      h('span', { class: 'pc-top' }, h('span', { class: 'pc-tag', text: U.STATUS[ps.status] }), go),
       h('span', { class: 'pc-meta' }, ic, s.done + '/' + s.total + ' versions · ' + p.category),
       h('strong', { class: 'pc-title', text: p.name }),
       h('span', { class: 'pc-bar', role: 'progressbar', 'aria-valuenow': s.percent, 'aria-valuemin': 0, 'aria-valuemax': 100 }, h('i', { style: 'width:' + s.percent + '%' })));
-    c.appendChild(scribble(n)); return c;
+    head.appendChild(scribble(n));
+    var body = h('div', { class: 'acc-body', hidden: isOpen ? null : 'hidden' }), wrap = h('div', { class: 'acc' + (isOpen ? ' is-open' : ''), 'data-id': p.id, 'data-n': n }, head, body), mount = null;
+    function fill() { if (!body.firstChild) { var v = page(p.id); body.appendChild(v); mount = function () { (v._mounts || []).forEach(function (f) { f(); }); }; wrap._mount = mount; } }
+    function toggle() { var now = body.hidden; openSet[p.id] = now; body.hidden = !now; wrap.classList.toggle('is-open', now); go.setAttribute('aria-expanded', now ? 'true' : 'false'); if (now) { fill(); if (mount) { mount(); } } }
+    go.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    head.addEventListener('click', function (e) { if (!e.target.closest('button, a')) { toggle(); } });
+    if (isOpen) { fill(); }
+    return wrap;
   }
   function list() {
     var w = h('div', { class: 'mod-list' }), n = 0;
-    w.appendChild(h('h2', { class: 'screen-h', text: 'Projects' }));
     var order = ['Small', 'Medium', 'Large', 'Advanced'], groups = {}; C.projects.forEach(function (p) { (groups[p.category] = groups[p.category] || []).push(p); });
     Object.keys(groups).sort(function (a, b) { return (order.indexOf(a) + 99) % 99 - (order.indexOf(b) + 99) % 99; }).forEach(function (k) {
       w.appendChild(h('h3', { class: 'ph', text: k })); groups[k].forEach(function (p) { w.appendChild(pcard(p, n++)); }); });
@@ -41,12 +49,7 @@
 
   function page(id) {
     var p = C.project(id); if (!p) { return h('p', { text: 'Project not found.' }); }
-    var w = h('div', { class: 'mod-view' }), ps = A.projectState(id), s = A.projectStats(p); w._mounts = [];
-    w.appendChild(h('div', { class: 'view-top' }, h('a', { class: 'circ-btn', href: '#projects', 'aria-label': 'Back to projects', text: '←' })));
-    var all = C.projects, at = all.indexOf(p), pdeck = Deck.create({ slides: all.map(function (q, i) { return pcard(q, i, 'div'); }), index: at, onChange: function (i) {
-      if (all[i].id !== id) { location.replace('#projects/' + all[i].id); } } });
-    w.appendChild(pdeck.el); w._mounts.push(pdeck.mount);
-    w.appendChild(h('p', { class: 'muted small deck-hint', text: 'Swipe to switch project · ' + (at + 1) + ' of ' + all.length }));
+    var w = h('div', { class: 'acc-inner' }), ps = A.projectState(id), s = A.projectStats(p); w._mounts = [];
     w.appendChild(card('Status and progress', select(PSTAT, ps.status, function (v) { A.saveProject(id, { status: v }).then(V.refresh); }, 'Project status'),
       h('p', { class: 'bigday', text: s.percent + '% · ' + s.done + ' / ' + s.total + ' versions completed' }), U.bar(s.percent),
       h('p', { class: 'muted small', text: 'Status is yours to set. Learning sessions never complete a project or a version automatically.' })));
@@ -86,10 +89,13 @@
     w.appendChild(card('My notes', n2)); return w;
   }
 
-  function render() {
-    var r = U.route('projects'); if (r === null) { return; } root.textContent = '';
-    var view = r[0] ? page(r[0]) : list(); root.appendChild(view); (view._mounts || []).forEach(function (f) { f(); });
+  function render(focusId) {
+    if (U.route('projects') === null) { return; } root.textContent = '';
+    var view = list(); root.appendChild(view);
+    [].slice.call(root.querySelectorAll('.acc.is-open')).forEach(function (el) { if (el._mount) { el._mount(); } });
+    if (focusId) { var t = root.querySelector('.acc[data-id="' + focusId + '"]'); if (t) { t.scrollIntoView({ block: 'start' }); } }
   }
-  Promise.all([C.ready, A.ready]).then(function () { render(); window.addEventListener('hashchange', render); window.addEventListener('cur-changed', function () { if (U.route('projects') !== null) { render(); } }); })
+  function fromHash() { var r = U.route('projects'); if (r === null) { return; } var id = r[0] && C.project(r[0]) ? r[0] : ''; if (id) { openSet[id] = true; if (history.replaceState) { history.replaceState(null, '', '#projects'); } } render(id); }
+  Promise.all([C.ready, A.ready]).then(function () { fromHash(); window.addEventListener('hashchange', fromHash); window.addEventListener('cur-changed', function () { if (U.route('projects') !== null) { render(); } }); })
     .catch(function (e) { root.textContent = 'Could not load: ' + e.message; });
 })();
