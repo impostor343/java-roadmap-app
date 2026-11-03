@@ -1,5 +1,16 @@
 # HANDOFF: CSE Roadmap app (read this first)
 
+## Update (Learning Library + UI refresh)
+- **Library tab** (route still `#resources`, label "Library"): `js/resources.js` rewritten. Data: `data/library.json` (10 topic cards, 94 free books/guides/docs, every one of the 25 areas covered) plus the existing `data/free-resources.json` (41 sites). `#resources/<topicId>` shows one topic. Only legally free material is listed; `pdf` is set only where a direct PDF link is known, otherwise `url` is the book page.
+- Offline PDFs work for books and sites (IndexedDB `resourceFiles`, ids `BKxxx` / `FRxx`); marks use `resourceState`. Not in the JSON backup.
+- **css/library.css** (Library styles) and **css/refresh.css** (loaded last): one header style, solid tab bar + fade so content no longer shows through/overlaps, pastel Calendar (no dark band/cells), pastel Settings sections, Progress "This week" chart, and all motion.
+- **js/motion.js**: adds `body.anim-on` for ~2s after each screen change; animations only run then, so re-renders never replay them. `prefers-reduced-motion` disables all animation.
+- `js/progress.js`: added `weekCard()` (last 7 days of completions, streak).
+- `css/resources.css` is still loaded (it also holds Settings > Appearance rules); do not delete it.
+- Service worker cache is `bytewise-v20`.
+- To add books: edit `data/library.json` (`areas`, `title`, `author`, `url`, `pdf`, `kind`, `level`, `license`, `note`).
+
+
 ## Update (Android integration)
 - **First-launch Home fix:** `U.route` now treats an empty hash as Home. Before, opening the app at `https://localhost/` (no `#`) left Home on "Loading…".
 - **Back button (Android app):** `js/native.js` > `NativeNav`. Order: close open dialog, go up one level (`parentHash`), then Home, then minimise the app. Needs `@capacitor/app` (added to package.json).
