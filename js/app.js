@@ -3,8 +3,11 @@
   'use strict';
   var SCREENS = ['today', 'modules', 'manual', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
-  var lastId = null;
+  var lastId = null, lastHash = null;
   function showScreen() {
+    // Same route again (a stray hashchange): do nothing, so nothing is torn down and scroll is never reset.
+    if (lastHash !== null && location.hash === lastHash) { return; }
+    lastHash = location.hash;
     var route = location.hash.replace('#', '').split('/');
     var id = route[0];
     // The three learning areas live inside the Home screen, not separate screens.
