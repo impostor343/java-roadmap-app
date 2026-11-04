@@ -1,0 +1,47 @@
+/* Scroll stability fix. Loaded LAST in index.html so it wins over every other stylesheet.
+   Architecture: the PAGE (document) is the only scroller. The header is sticky, the tab bar is fixed. */
+
+/* 1. Never let html/body become their own scroll containers.
+      "overflow-x: hidden" on html AND body (set in refresh.css) turns body into a scroll container.
+      That breaks the sticky header and makes Android Chrome fight itself while you scroll.
+      "clip" cuts off sideways overflow WITHOUT creating a scroll container. */
+html, body {
+  overflow: visible;
+  overflow-x: clip;
+  overflow-anchor: none;
+  overscroll-behavior-y: none;
+  height: auto;
+}
+@supports not (overflow-x: clip) {
+  html { overflow-x: hidden; }
+  body { overflow-x: visible; }
+}
+
+/* 2. Stop Chrome from "anchoring" (auto-jumping) the scroll when content above changes. */
+main, .screen, .cur, .home-workspace-panel { overflow-anchor: none; }
+
+/* 3. Use the SMALL viewport height. 100vh changes while the Android URL bar hides/shows. */
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: 0;            /* the header already adds the safe-area gap, this was doubled */
+}
+
+/* 4. Header: its size in the page never changes, so scrolling can never resize the document. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--bg);
+}
+
+/* 5. <main> is NOT a scroller. */
+main { overflow: visible; height: auto; min-height: 0; }
+
+/* 6. Drop the permanent GPU layer on the home card (it re-rasterised during scroll on some phones). */
+.home-day-card { will-change: auto; }
+
+/* 7. The tab bar + its fade stay fixed to the screen, on their own layer. */
+.tabbar { position: fixed; transform: translateZ(0); }
