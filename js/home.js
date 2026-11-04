@@ -162,8 +162,17 @@
     return card;
   }
 
+  // Re-drawing empties the page for a moment, which made the browser jump to the top. Keep the page height and scroll position
+  // so swiping to the next or previous session stays exactly where you were scrolled.
   function render() {
     if (U.route('today') === null) { return; }
+    var keep = window.scrollY, h0 = root.offsetHeight;
+    if (h0 > 0) { root.style.minHeight = h0 + 'px'; }
+    build();
+    root.style.minHeight = '';
+    if (Math.abs(window.scrollY - keep) > 1) { window.scrollTo(0, keep); }
+  }
+  function build() {
     root.textContent = '';
     var d = currentDay(), s = C.session(d);
     if (!s) { root.appendChild(h('p', { class: 'empty' }, 'No session data found.')); return; }

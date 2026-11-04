@@ -3,6 +3,7 @@
   'use strict';
   var SCREENS = ['today', 'modules', 'manual', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
+  var lastId = null;
   function showScreen() {
     var route = location.hash.replace('#', '').split('/');
     var id = route[0];
@@ -18,7 +19,9 @@
     var title = document.getElementById('screen-' + id).getAttribute('data-title');
     document.body.setAttribute('data-screen', id);
     titleEl.textContent = title; document.title = title + ' | Bytewise';
-    window.scrollTo(0, 0); mainEl.focus({ preventScroll: true });
+    // Only jump to the top when you change screen. Moving between sessions (#today/8 -> #today/9) keeps your scroll position.
+    if (id !== lastId) { window.scrollTo(0, 0); mainEl.focus({ preventScroll: true }); }
+    lastId = id;
   }
   window.addEventListener('hashchange', showScreen); showScreen();
 })();
