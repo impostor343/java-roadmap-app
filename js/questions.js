@@ -49,6 +49,7 @@
   }
 
   function render() {
+    U.stableRender(root, function () {
     root.textContent = ''; if (!groups) { groups = build(); }
     var ps = A.practiceStats();
     root.appendChild(h('section', { class: 'card' }, h('h3', { text: 'Practice questions' }), h('p', { class: 'bigday', text: ps.solved + ' / ' + U.num(ps.total) + ' solved' }), U.bar(ps.percent), ps.inProgress ? h('p', { class: 'muted', text: ps.inProgress + ' in progress' }) : null,
@@ -61,6 +62,7 @@
     var tools = h('div', { id: 'qtools' }); tools.appendChild(ms);
     var seg = h('div', { class: 'chips' }); [['all', 'All']].concat(QS.map(function (s) { return [s, U.STATUS[s]]; })).forEach(function (f) { seg.appendChild(h('button', { type: 'button', class: 'gchip' + (filter === f[0] ? ' on' : ''), onclick: function () { filter = f[0]; topLimit = {}; render(); }, text: f[1] })); });
     tools.appendChild(seg); root.appendChild(tools); root.appendChild(h('div', { id: 'qlist' })); renderList();
+    });
   }
 
   function card(p) {
@@ -86,6 +88,7 @@
   }
 
   function renderList() {
+    U.stableRender(root, function () {
     var box = document.getElementById('qlist'); if (!box) { return; } box.textContent = '';
     renderToday();
     var tl = document.getElementById('qtools'); if (tl) { tl.hidden = !(browse || q || filter !== 'all'); }
@@ -118,6 +121,7 @@
     });
     if (!total) { box.appendChild(h('p', { class: 'muted', text: 'No questions match.' })); }
     else { box.insertBefore(h('p', { class: 'muted small', text: U.num(total) + ' questions' }), box.firstChild); }
+    });
   }
   function fromRoute() { var r = U.route('questions'); if (!r || !r[0]) { return; } var p = C.question(decodeURIComponent(r[0])); if (!p) { return; } q = p.id; open[p.id] = true; browse = true; render(); }
   window.addEventListener('hashchange', fromRoute);

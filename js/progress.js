@@ -218,14 +218,16 @@
 
   function render() {
     var r = U.route('progress'); if (r === null) { return; }
-    root.textContent = '';
-    if (r[0] === 'topics') { root.appendChild(topics()); }
-    else if (r[0] === 'module') { root.appendChild(modulePage(r[1])); }
-    else if (r[0] === 'topic') { if (C.module(r[1])) { root.appendChild(modulePage(r[1])); } else { root.appendChild(topicPage(r[1])); } }   // old links used #progress/topic/M01
-    else if (r[0] === 'list') { root.appendChild(list(r[1])); }
-    else if (r[0] === 'skipped') { root.appendChild(list('skipped')); }
-    else if (r[0] === 'more') { root.appendChild(more()); }
-    else { root.appendChild(dashboard()); }
+    U.stableRender(root, function () {
+      root.textContent = '';
+      if (r[0] === 'topics') { root.appendChild(topics()); }
+      else if (r[0] === 'module') { root.appendChild(modulePage(r[1])); }
+      else if (r[0] === 'topic') { if (C.module(r[1])) { root.appendChild(modulePage(r[1])); } else { root.appendChild(topicPage(r[1])); } }   // old links used #progress/topic/M01
+      else if (r[0] === 'list') { root.appendChild(list(r[1])); }
+      else if (r[0] === 'skipped') { root.appendChild(list('skipped')); }
+      else if (r[0] === 'more') { root.appendChild(more()); }
+      else { root.appendChild(dashboard()); }
+    });
   }
   Promise.all([C.ready, A.ready]).then(function () { render(); window.addEventListener('hashchange', render); window.addEventListener('cur-changed', function () { if (U.route('progress') !== null) { render(); } }); })
     .catch(function (e) { root.textContent = 'Could not load: ' + e.message; });

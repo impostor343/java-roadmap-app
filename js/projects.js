@@ -90,10 +90,13 @@
   }
 
   function render(focusId) {
-    if (U.route('projects') === null) { return; } root.textContent = '';
-    var view = list(); root.appendChild(view);
-    [].slice.call(root.querySelectorAll('.acc.is-open')).forEach(function (el) { if (el._mount) { el._mount(); } });
-    if (focusId) { var t = root.querySelector('.acc[data-id="' + focusId + '"]'); if (t) { t.scrollIntoView({ block: 'start' }); } }
+    if (U.route('projects') === null) { return; }
+    U.stableRender(root, function () {
+      root.textContent = '';
+      var view = list(); root.appendChild(view);
+      [].slice.call(root.querySelectorAll('.acc.is-open')).forEach(function (el) { if (el._mount) { el._mount(); } });
+    });
+    if (focusId) { var t = root.querySelector('.acc[data-id="' + focusId + '"]'); if (t) { t.scrollIntoView({ block: 'start' }); if (root.__bytewiseStableRender) { root.__bytewiseStableRender.userMoved = true; } } }
   }
   function fromHash() { var r = U.route('projects'); if (r === null) { return; } var id = r[0] && C.project(r[0]) ? r[0] : ''; if (id) { openSet[id] = true; if (history.replaceState) { history.replaceState(null, '', '#projects'); } } render(id); }
   Promise.all([C.ready, A.ready]).then(function () { fromHash(); window.addEventListener('hashchange', fromHash); window.addEventListener('cur-changed', function () { if (U.route('projects') !== null) { render(); } }); })

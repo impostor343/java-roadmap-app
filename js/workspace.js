@@ -160,9 +160,11 @@
 
   function render(focusId) {
     if (U.route('modules') === null) { return; }
-    var view = list(); mounts = {}; root.replaceChildren(view);
-    [].slice.call(root.querySelectorAll('.acc.is-open')).forEach(function (el) { var f = mounts[el.getAttribute('data-id')]; if (f) { f(); } });
-    if (focusId) { var t = root.querySelector('.acc[data-id="' + focusId + '"]'); if (t) { t.scrollIntoView({ block: 'start' }); } }
+    U.stableRender(root, function () {
+      var view = list(); mounts = {}; root.replaceChildren(view);
+      [].slice.call(root.querySelectorAll('.acc.is-open')).forEach(function (el) { var f = mounts[el.getAttribute('data-id')]; if (f) { f(); } });
+    });
+    if (focusId) { var t = root.querySelector('.acc[data-id="' + focusId + '"]'); if (t) { t.scrollIntoView({ block: 'start' }); if (root.__bytewiseStableRender) { root.__bytewiseStableRender.userMoved = true; } } }
   }
   function fromHash() {
     var r = U.route('modules'); if (r === null) { return; }

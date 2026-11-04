@@ -3,13 +3,19 @@
   'use strict';
   var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-home-tab]'));
   var panels = Array.prototype.slice.call(document.querySelectorAll('[data-home-panel]'));
+  var activeName = null, scrollByPanel = Object.create(null);
   function choose(name) {
     if (['roadmap','modules','projects'].indexOf(name) < 0) name = 'roadmap';
+    if (name === activeName) { return; }
+    if (activeName !== null) { scrollByPanel[activeName] = window.scrollY || window.pageYOffset || 0; }
+    activeName = name;
     tabs.forEach(function (b) {
       var on = b.getAttribute('data-home-tab') === name;
       b.classList.toggle('is-active', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
     panels.forEach(function (p) { p.hidden = p.getAttribute('data-home-panel') !== name; });
+    var raf = window.requestAnimationFrame || function (fn) { return window.setTimeout(fn, 16); };
+    raf(function () { window.scrollTo(0, scrollByPanel[name] || 0); });
   }
   function fromRoute() {
     var id = (location.hash || '#today').slice(1).split('/')[0];

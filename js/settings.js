@@ -138,6 +138,7 @@
     return box;
   }
   function render() {
+    U.stableRender(root, function () {
     root.textContent = '';
     var page = (U.route('settings') || [])[0];
     if (page === 'appearance') { root.appendChild(back('Appearance')); root.appendChild(preview()); root.appendChild(appearance()); if (window.Theme) { root.appendChild(contrastBox()); } return; }
@@ -153,6 +154,7 @@
       return;
     }
     root.appendChild(menu());
+    });
   }
   render();
   window.addEventListener('hashchange', function () { if (U.route('settings') !== null) { render(); } });

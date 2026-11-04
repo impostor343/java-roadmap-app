@@ -141,7 +141,7 @@
   function render() {
     if (!lib) { return; }
     var r = U.route('resources'), c = r && r[0] ? cat(r[0]) : null;
-    root.textContent = ''; root.appendChild(c ? category(c) : home());
+    U.stableRender(root, function () { root.textContent = ''; root.appendChild(c ? category(c) : home()); });
   }
   var last = '';
   function onRoute() { var r = U.route('resources'); if (r === null) { return; } var key = r.join('/'); if (key !== last) { last = key; q = ''; areaSel = 'All'; } render(); }

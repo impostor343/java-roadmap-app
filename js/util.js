@@ -27,6 +27,45 @@
     longDate: function (k) { var p = k.split('-'); return +p[2] + ' ' + MONTHS[+p[1] - 1] + ' ' + p[0]; },
     time: function (iso) { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); },
     stamp: function (iso) { return U.longDate(U.key(iso)) + ', ' + U.time(iso); },
+    // Keep the viewport stable while a screen replaces its rendered content.
+    // The old content height is held for one frame so the browser cannot collapse
+    // the document and clamp scrollY to zero during a synchronous re-render.
+    stableRender: function (root, update) {
+      if (!root || typeof update !== 'function') { if (typeof update === 'function') { update(); } return; }
+      var active = root.__bytewiseStableRender;
+      if (active) { active.depth++; try { update(); } finally { active.depth--; } return; }
+      var y = window.scrollY || window.pageYOffset || 0;
+      var oldHeight = Math.max(0, root.getBoundingClientRect().height);
+      var oldMin = root.style.minHeight;
+      var state = { depth: 1, route: location.hash, userMoved: false };
+      root.__bytewiseStableRender = state;
+      if (oldHeight > 0) { root.style.minHeight = Math.ceil(oldHeight) + 'px'; }
+      function markUserMove() { state.userMoved = true; }
+      window.addEventListener('touchmove', markUserMove, { passive: true });
+      window.addEventListener('wheel', markUserMove, { passive: true });
+      try { update(); }
+      finally {
+        state.depth--;
+        if (state.depth === 0) {
+          var raf = window.requestAnimationFrame || function (fn) { return window.setTimeout(fn, 16); };
+          raf(function () {
+            var newHeight = Math.max(0, root.getBoundingClientRect().height);
+            if (oldHeight > newHeight) { root.style.minHeight = Math.ceil(oldHeight) + 'px'; }
+            else { root.style.minHeight = oldMin; }
+            raf(function () {
+              root.style.minHeight = oldMin;
+              if (!state.userMoved && location.hash === state.route) {
+                var now = window.scrollY || window.pageYOffset || 0;
+                if (Math.abs(now - y) > 2) { window.scrollTo(0, y); }
+              }
+              window.removeEventListener('touchmove', markUserMove);
+              window.removeEventListener('wheel', markUserMove);
+              try { delete root.__bytewiseStableRender; } catch (e) { root.__bytewiseStableRender = null; }
+            });
+          });
+        }
+      }
+    },
     go: function (hash) { if (location.hash === hash) { window.dispatchEvent(new Event('hashchange')); } else { location.hash = hash; } },
     // An empty hash (first launch, or the Android app opening at https://localhost/) means Home, so Home must match it.
     route: function (screen) { var p = location.hash.replace('#', '').split('/'); if (!p[0]) { p = ['today']; } return p[0] === screen ? p.slice(1) : null; },

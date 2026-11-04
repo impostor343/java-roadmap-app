@@ -68,7 +68,7 @@
   }
 
   var host = null;
-  function draw() { if (host) { var fresh = block(lastBlock); host.replaceWith(fresh); host = fresh; } }
+  function draw() { if (host) { U.stableRender(root, function () { var fresh = block(lastBlock); host.replaceWith(fresh); host = fresh; }); } }
 
   function block(i) {
     var gs = C.groups(); if (i < 0 || i >= gs.length || isNaN(i)) { i = 0; }
@@ -103,15 +103,17 @@
 
   function render() {
     var r = U.route('calendar'); if (r === null) { return; }
-    root.textContent = '';
-    if (r[0] === 'day') { var d = parseInt(r[1], 10); if (!(d >= 1 && d <= C.total)) { U.go('#calendar'); return; }
-      selDay = d; root.appendChild(h('a', { class: 'btn ghost back', href: '#calendar/' + C.groupOf(d), text: '← Days ' + C.groups()[C.groupOf(d)].from + '–' + C.groups()[C.groupOf(d)].to })); root.appendChild(V.detail(d)); return; }
-    if (r[0] === 'history') { root.appendChild(tabs('hist')); root.appendChild(window.History.render(r[1])); return; }
-    root.appendChild(tabs('cur'));
-    var i = r[0] !== undefined ? parseInt(r[0], 10) : null;
-    if (i === null || isNaN(i)) { var nx = A.nextIncomplete(); i = C.groupOf(nx || 1); }
-    if (r[1] !== undefined && parseInt(r[1], 10) >= 1) { selDay = parseInt(r[1], 10); }
-    host = block(i); root.appendChild(host);
+    U.stableRender(root, function () {
+      root.textContent = '';
+      if (r[0] === 'day') { var d = parseInt(r[1], 10); if (!(d >= 1 && d <= C.total)) { U.go('#calendar'); return; }
+        selDay = d; root.appendChild(h('a', { class: 'btn ghost back', href: '#calendar/' + C.groupOf(d), text: '← Days ' + C.groups()[C.groupOf(d)].from + '–' + C.groups()[C.groupOf(d)].to })); root.appendChild(V.detail(d)); return; }
+      if (r[0] === 'history') { root.appendChild(tabs('hist')); root.appendChild(window.History.render(r[1])); return; }
+      root.appendChild(tabs('cur'));
+      var i = r[0] !== undefined ? parseInt(r[0], 10) : null;
+      if (i === null || isNaN(i)) { var nx = A.nextIncomplete(); i = C.groupOf(nx || 1); }
+      if (r[1] !== undefined && parseInt(r[1], 10) >= 1) { selDay = parseInt(r[1], 10); }
+      host = block(i); root.appendChild(host);
+    });
   }
   Promise.all([C.ready, A.ready]).then(function () { render(); window.addEventListener('hashchange', render); window.addEventListener('cur-changed', function () { if (U.route('calendar') !== null) { render(); } }); })
     .catch(function (e) { root.textContent = 'Could not load: ' + e.message; });

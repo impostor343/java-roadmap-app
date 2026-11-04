@@ -1,19 +1,16 @@
-// Router shell: the six tabs (Home, Calendar, Questions, Projects, Progress, Resources) plus Settings, chosen by the URL hash.
+// Router shell: screen changes keep each tab's last reading position.
 (function () {
   'use strict';
   var SCREENS = ['today', 'modules', 'manual', 'calendar', 'questions', 'projects', 'progress', 'resources', 'settings'];
   var titleEl = document.getElementById('screen-title'), tabLinks = document.querySelectorAll('.tabbar a'), mainEl = document.getElementById('main');
-  var lastId = null, lastHash = null;
-  function showScreen() {
-    // Same route again (a stray hashchange): do nothing, so nothing is torn down and scroll is never reset.
-    if (lastHash !== null && location.hash === lastHash) { return; }
-    lastHash = location.hash;
-    var route = location.hash.replace('#', '').split('/');
-    var id = route[0];
-    // The three learning areas live inside the Home screen, not separate screens.
-    // Keep their hash routes for deep links while rendering the Home shell.
+  var lastId = null, scrollByScreen = Object.create(null);
+  function screenId() {
+    var id = (location.hash.replace('#', '').split('/')[0] || 'today');
     if (id === 'modules' || id === 'manual' || id === 'projects') { id = 'today'; }
-    if (SCREENS.indexOf(id) === -1) { id = 'today'; }
+    return SCREENS.indexOf(id) === -1 ? 'today' : id;
+  }
+  function showScreen() {
+    var id = screenId();
     var sections = document.querySelectorAll('.screen');
     for (var i = 0; i < sections.length; i++) { sections[i].hidden = (sections[i].id !== 'screen-' + id); }
     for (var j = 0; j < tabLinks.length; j++) {
@@ -22,11 +19,19 @@
     var title = document.getElementById('screen-' + id).getAttribute('data-title');
     document.body.setAttribute('data-screen', id);
     titleEl.textContent = title; document.title = title + ' | Bytewise';
-    // Only jump to the top when you change screen. Moving between sessions (#today/8 -> #today/9) keeps your scroll position.
-    if (id !== lastId) { window.scrollTo(0, 0); mainEl.focus({ preventScroll: true }); }
-    lastId = id;
+    if (id !== lastId) {
+      if (lastId !== null) { scrollByScreen[lastId] = window.scrollY || window.pageYOffset || 0; }
+      lastId = id;
+      var raf = window.requestAnimationFrame || function (fn) { return window.setTimeout(fn, 16); };
+      raf(function () {
+        var target = scrollByScreen[id] || 0;
+        window.scrollTo(0, target);
+        mainEl.focus({ preventScroll: true });
+      });
+    }
   }
-  window.addEventListener('hashchange', showScreen); showScreen();
+  window.addEventListener('hashchange', showScreen);
+  showScreen();
 })();
 
 // Offline support: the service worker caches the app and data after the first visit.
