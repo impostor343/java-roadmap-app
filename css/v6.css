@@ -110,6 +110,35 @@ html[data-mode="light"] .pcard, html[data-mode="light"] .upn-row, html[data-mode
 html[data-mode="light"] .wk, html[data-mode="light"] .set-row { box-shadow: 0 6px 18px -14px rgba(20,20,40,.3); }
 @media (prefers-reduced-motion: reduce) { .tap-full, .wk-day { transition: none; } }
 
-/* swipe feel: keep the card on its own layer, and keep the page from anchoring to a shifting scroll position */
-.home-day-card { will-change: transform; overflow-anchor: none; }
-#screen-today { overflow-anchor: none; }
+/* Stop the browser's pull-to-refresh and edge bounce from reloading the page while you scroll */
+html, body { overscroll-behavior-y: contain; }
+
+/* New fonts (SIL Open Font License, Latin subset, stored in fonts/): Studio, Outfit, Editorial, Dev */
+@font-face{font-family:"Bricolage Grotesque";font-weight:300 599;font-style:normal;font-display:swap;src:url("../fonts/bricolage-400.woff") format("woff")}
+@font-face{font-family:"Bricolage Grotesque";font-weight:600 900;font-style:normal;font-display:swap;src:url("../fonts/bricolage-700.woff") format("woff")}
+@font-face{font-family:"Instrument Sans";font-weight:300 599;font-style:normal;font-display:swap;src:url("../fonts/instrument-400.woff") format("woff")}
+@font-face{font-family:"Instrument Sans";font-weight:600 900;font-style:normal;font-display:swap;src:url("../fonts/instrument-700.woff") format("woff")}
+@font-face{font-family:"Outfit";font-weight:300 599;font-style:normal;font-display:swap;src:url("../fonts/outfit-400.woff") format("woff")}
+@font-face{font-family:"Outfit";font-weight:600 900;font-style:normal;font-display:swap;src:url("../fonts/outfit-700.woff") format("woff")}
+@font-face{font-family:"JetBrains Mono";font-weight:300 599;font-style:normal;font-display:swap;src:url("../fonts/jbmono-400.woff") format("woff")}
+@font-face{font-family:"JetBrains Mono";font-weight:600 900;font-style:normal;font-display:swap;src:url("../fonts/jbmono-700.woff") format("woff")}
+@font-face{font-family:"Work Sans";font-weight:300 599;font-style:normal;font-display:swap;src:url("../fonts/worksans-400.woff") format("woff")}
+@font-face{font-family:"Work Sans";font-weight:600 900;font-style:normal;font-display:swap;src:url("../fonts/worksans-700.woff") format("woff")}
+@font-face{font-family:"Instrument Serif";font-weight:300 900;font-style:normal;font-display:swap;src:url("../fonts/instrumentserif-400.woff") format("woff")}
+html[data-font="studio"] { --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; --font-display: "Bricolage Grotesque", "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+html[data-font="outfit"] { --font-body: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; --font-display: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+html[data-font="editorial"] { --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; --font-display: "Instrument Serif", Georgia, "Times New Roman", serif; }
+html[data-font="dev"] { --font-body: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; --font-display: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+/* the serif and mono heading fonts look best a little lighter and tighter than the bold sans defaults */
+html[data-font="editorial"] .home-day-title, html[data-font="editorial"] .pc-title, html[data-font="editorial"] .screen-h, html[data-font="editorial"] .topbar h1 { letter-spacing: -.01em; font-size-adjust: none; }
+html[data-font="dev"] .home-day-title, html[data-font="dev"] .pc-title { letter-spacing: -.04em; font-size: clamp(1.3rem, 5.4vw, 1.9rem); }
+html[data-font="dev"] .topbar h1, html[data-font="dev"] .screen-h { letter-spacing: -.05em; }
+
+/* readable secondary text on the coloured Home card, whatever palette is chosen */
+.home-day-card .home-date-label { color: color-mix(in srgb, var(--on-accent) 74%, transparent); }
+.home-day-card .home-swipe-hint { color: color-mix(in srgb, var(--on-accent) 66%, transparent); opacity: 1; }
+/* Instrument Serif is narrow, so give it more size to match the other fonts */
+html[data-font="editorial"] .home-day-title { font-size: clamp(2rem, 8vw, 2.7rem); line-height: 1.05; }
+html[data-font="editorial"] .pc-title { font-size: clamp(1.7rem, 7.4vw, 2.2rem); line-height: 1.05; }
+html[data-font="editorial"] .topbar h1, html[data-font="editorial"] .screen-h { font-size: 2.5rem; }
+html[data-font="editorial"] .cur h2, html[data-font="editorial"] .qt-title, html[data-font="editorial"] .home-resume-title { font-size: 1.5rem; }
