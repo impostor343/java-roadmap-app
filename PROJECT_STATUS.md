@@ -84,3 +84,12 @@ data into data/roadmap.json and review it with the user.
 - Added 252 module-specific curated tasks (at least 8 per each of 31 modules), plus existing workbook exercises and 56 LeetCode catalogue problems.
 - Questions include multiple practice formats, difficulty, prompts, acceptance criteria, hints, time estimates and module mapping.
 - Questions UI now supports module, difficulty, type, text search and personal-status filters.
+
+## Update (v6 batch)
+- Questions: "Practice today" (3-5 questions for the current session); full bank behind search / Browse. `#questions/<id>` opens one question.
+- Calendar: week strip + "Up next" list; the 30-day grid is collapsed under "Full 30-day grid".
+- Settings: menu -> Appearance (live preview, contrast check + auto-fix), Reminders, Backup and data.
+- Cards: short titles (js/shorten.js); tap a title to see the full name.
+- Books linked to modules (data/module-books.json, js/books.js): "Read:" row on the Home card with page bookmark and Open book; Books section in Info.
+- Home: "Continue where you stopped" card and categorised search (js/search.js: All / Questions / Sessions / Modules).
+- Widget: android-build/add_widgets.py draws the whole Home card, coloured from the app palette (js/widgets.js sends Theme.widgetColors()). Needs the APK rebuilt; not tested on a device.
