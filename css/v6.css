@@ -109,3 +109,7 @@ html[data-mode="light"] .pcard .scribble, html[data-mode="light"] .home-day-card
 html[data-mode="light"] .pcard, html[data-mode="light"] .upn-row, html[data-mode="light"] .home-resume { box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 8px 22px -14px rgba(20,20,40,.25); }
 html[data-mode="light"] .wk, html[data-mode="light"] .set-row { box-shadow: 0 6px 18px -14px rgba(20,20,40,.3); }
 @media (prefers-reduced-motion: reduce) { .tap-full, .wk-day { transition: none; } }
+
+/* swipe feel: keep the card on its own layer, and keep the page from anchoring to a shifting scroll position */
+.home-day-card { will-change: transform; overflow-anchor: none; }
+#screen-today { overflow-anchor: none; }
