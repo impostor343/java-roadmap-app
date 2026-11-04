@@ -2,7 +2,6 @@
 
 /* ---- one header style for every screen ---- */
 .topbar .tb-ic, .topbar .tb-sub, body[data-screen] .topbar .tb-ic, body[data-screen] .topbar .tb-sub { display: none !important; }
-
 /* ---- bottom dock: solid bar + fade so page content never shows through or collides ---- */
 .tabbar { z-index: 60; background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--line); box-shadow: 0 14px 36px rgba(0, 0, 0, .32); }
 body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; height: calc(var(--nav-h, 72px) + 38px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 56%, color-mix(in srgb, var(--bg) 0%, transparent)); pointer-events: none; }
@@ -10,10 +9,8 @@ main { padding-bottom: calc(var(--nav-h, 72px) + 64px + env(safe-area-inset-bott
 .tabbar a { font-size: .68rem; letter-spacing: -.01em; transition: color .2s ease, transform .15s ease; }
 .tabbar a:active { transform: scale(.93); }
 .tabbar a[aria-current="page"] svg { animation: pop .38s cubic-bezier(.3, 1.4, .5, 1); }
-
 /* ---- sticky glass header ---- */
 .topbar { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
-
 /* ---- Calendar: lighter, colourful ---- */
 .cur .seg { background: var(--surface-2); border: 0; }
 .cur .seg a.on { background: var(--accent); color: var(--on-accent); font-weight: 700; box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 30%, transparent); }
@@ -37,14 +34,12 @@ main { padding-bottom: calc(var(--nav-h, 72px) + 64px + env(safe-area-inset-bott
 .cur .gcell.ms::after { background: var(--tertiary); left: 8px; right: 8px; bottom: 4px; }
 .cur .glegend { margin: 12px 4px; }
 .cur .card.agenda { border: 0; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
-
 /* ---- Settings: pastel sections ---- */
 #settings-root > .card { border: 0; }
 #settings-root > .card:nth-of-type(3n+1) { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
 #settings-root > .card:nth-of-type(3n+2) { background: color-mix(in srgb, var(--secondary) 15%, var(--surface)); }
 #settings-root > .card:nth-of-type(3n) { background: color-mix(in srgb, var(--tertiary) 15%, var(--surface)); }
 #settings-root .card > h2, #settings-root .card > h3 { font-family: var(--font-display); }
-
 /* ---- Progress: weekly chart card ---- */
 .pg-week { margin: 0 0 12px; padding: 18px 18px 14px; border-radius: 28px; background: var(--secondary); color: var(--on-secondary); }
 .pg-week-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
@@ -57,7 +52,6 @@ main { padding-bottom: calc(var(--nav-h, 72px) + 64px + env(safe-area-inset-bott
 .pg-bar-col.today i { outline: 2px solid var(--on-secondary); outline-offset: 2px; }
 .pg-bar-col em { font-style: normal; opacity: .75; }
 .pg-bar-col b { font-size: .72rem; }
-
 /* ---- motion ---- */
 @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes pop { 0% { transform: scale(.78); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
@@ -88,3 +82,12 @@ main { padding-bottom: calc(var(--nav-h, 72px) + 64px + env(safe-area-inset-bott
 .pcard:active, .lib-cat:active, .pg-tile:active, .pg-row:active { transform: scale(.975); }
 .btn:active, .home-btn:active, .circ-btn:active { transform: scale(.95); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---- Scroll stability fix ----
+   Prevent browser overscroll navigation / pull-to-refresh where supported.
+   This does not disable normal vertical scrolling inside Bytewise. */
+html,
+body {
+  overscroll-behavior-y: none;
+  overflow-x: hidden;
+}
