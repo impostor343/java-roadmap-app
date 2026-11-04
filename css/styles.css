@@ -244,10 +244,9 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .screen:not([hidden]) { animation: fade-in 160ms ease-out; }
-  @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-}
+/* Screen changes must not animate the page container: translated screen layers
+   can look like the document itself is jumping during mobile scroll. */
+.screen:not([hidden]) { animation: none !important; }
 
 /* Stage 3: actions and Info sheet */
 .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 20px; }

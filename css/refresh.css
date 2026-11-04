@@ -60,9 +60,9 @@ main { padding-bottom: calc(var(--nav-h, 72px) + 64px + env(safe-area-inset-bott
 @keyframes growY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes ringIn { from { opacity: 0; transform: scale(.8) rotate(-50deg); } to { opacity: 1; transform: none; } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-.anim-on .screen:not([hidden]) { animation: screenIn .36s cubic-bezier(.2, .8, .2, 1) backwards; }
-.anim-on :is(.pcard, .pg-hero, .pg-tile, .pg-row, .pg-next, .pg-week, .lib-hero, .lib-cat, .lib-card, .mini-card, .srow, .qbank-card, .project-item, .topic-item, .item, .gcell:not(.pad), .card.agenda, .home-workspace-tabs) { animation: rise .55s cubic-bezier(.2, .8, .2, 1) backwards; }
-.anim-on :is(.cur, .pg, .lib, .mod-list, .pg-tiles, .pg-list, .lib-grid, .slist, .acc-inner, .deck-list) > :nth-child(1) { animation-delay: 0ms; }
+.anim-on .screen:not([hidden]) { animation: none !important; }
+.anim-on :is(.pcard, .pg-hero, .pg-tile, .pg-row, .pg-next, .pg-week, .lib-hero, .lib-cat, .lib-card, .mini-card, .srow, .qbank-card, .project-item, .topic-item, .item, .gcell:not(.pad), .card.agenda, .home-workspace-tabs) { animation: none !important; }
+.anim-on :is(.cur, .pg, .lib, .mod-list, .pg-tiles, .pg-list, .lib-grid, .slist, .acc-inner, .deck-list) > * { animation-delay: 0ms !important; }
 .anim-on :is(.cur, .pg, .lib, .mod-list, .pg-tiles, .pg-list, .lib-grid, .slist, .acc-inner, .deck-list) > :nth-child(2) { animation-delay: 45ms; }
 .anim-on :is(.cur, .pg, .lib, .mod-list, .pg-tiles, .pg-list, .lib-grid, .slist, .acc-inner, .deck-list) > :nth-child(3) { animation-delay: 90ms; }
 .anim-on :is(.cur, .pg, .lib, .mod-list, .pg-tiles, .pg-list, .lib-grid, .slist, .acc-inner, .deck-list) > :nth-child(4) { animation-delay: 135ms; }
@@ -91,3 +91,16 @@ body {
   overscroll-behavior-y: none;
   overflow-x: hidden;
 }
+
+
+/* ---- app-wide mobile scroll stability ----
+   Keep native document scrolling and browser scroll anchoring enabled. The old
+   overflow-anchor:none rule disabled the browser's protection against layout shifts. */
+html { min-height: 100%; }
+body { min-height: 100vh !important; overflow-x: hidden; }
+main, .screen, #today-card, #calendar, #questions-root, #projects-root,
+#modules-root, #progress-root, #resources-root, #settings-root {
+  overflow-anchor: auto !important;
+}
+/* A solid sticky header avoids expensive blur/compositing while the WebView scrolls. */
+.topbar { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; background: var(--bg) !important; }
