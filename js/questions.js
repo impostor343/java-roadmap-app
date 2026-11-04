@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   var C = window.Curriculum, A = window.State, V = window.SessionView, h = U.h, root = document.getElementById('questions-root');
-  var QS = ['not-started', 'in-progress', 'solved'], filter = 'all', q = '', modFilter = 'all', open = {}, openMod = {}, openTop = {}, topLimit = {}, groups = null;
+  var QS = ['not-started', 'in-progress', 'solved'], browse = false, filter = 'all', q = '', modFilter = 'all', open = {}, openMod = {}, openTop = {}, topLimit = {}, groups = null;
   var PAGE = 20;
 
   function build() {   // static grouping, built once
@@ -29,17 +29,38 @@
   }
   function count(list) { var s = 0; list.forEach(function (p) { if (A.practiceRec(p.id).status === 'solved') { s++; } }); return s; }
 
+
+  // ---- Practice today: 3-5 questions tied to the session you are on; the full bank stays behind search / Browse ----
+  function todayDay() { return A.inProgressDays()[0] || A.nextIncomplete() || C.total; }
+  function todayList(day) {
+    var s = C.session(day), out = [], seen = {};
+    function add(p) { if (p && !seen[p.id] && out.length < 5) { seen[p.id] = 1; out.push(p); } }
+    (s.questionIds || []).forEach(function (id) { add(C.question(id)); });
+    var pool = C.questionsOfTopic(s.topicId).concat(C.practice.filter(function (p) { return p.moduleId === s.moduleId; }));
+    pool.filter(function (p) { return A.practiceRec(p.id).status !== 'solved'; }).forEach(add);
+    return out.length >= 3 ? out : out.concat(pool.filter(function (p) { return !seen[p.id]; }).slice(0, 3 - out.length));
+  }
+  function renderToday() {
+    var box = document.getElementById('qtoday'); if (!box) { return; } box.textContent = '';
+    var day = todayDay(), s = C.session(day), list = todayList(day), solved = list.filter(function (p) { return A.practiceRec(p.id).status === 'solved'; }).length;
+    box.appendChild(h('div', { class: 'qt-head' }, h('div', {}, h('span', { class: 'qt-tag', text: 'Practice today' }), h('strong', { class: 'qt-title', text: U.shortSession(s.title) }), h('span', { class: 'muted small', text: 'Day ' + day + ' · ' + U.shortModule(C.module(s.moduleId)) })),
+      h('span', { class: 'qt-count', text: solved + '/' + list.length })));
+    list.forEach(function (p) { box.appendChild(card(p)); });
+  }
+
   function render() {
     root.textContent = ''; if (!groups) { groups = build(); }
     var ps = A.practiceStats();
     root.appendChild(h('section', { class: 'card' }, h('h3', { text: 'Practice questions' }), h('p', { class: 'bigday', text: ps.solved + ' / ' + U.num(ps.total) + ' solved' }), U.bar(ps.percent), ps.inProgress ? h('p', { class: 'muted', text: ps.inProgress + ' in progress' }) : null,
-      h('p', { class: 'muted small', text: 'Grouped by module, then topic. Tap a module to open it.' })));
-    root.appendChild(h('input', { class: 'sel', type: 'search', placeholder: 'Search questions…', value: q, 'aria-label': 'Search questions', oninput: function () { q = this.value; topLimit = {}; renderList(); } }));
+      h('p', { class: 'muted small', text: 'Start with today\u2019s questions below. The full bank is behind search.' })));
+    root.appendChild(h('section', { id: 'qtoday', class: 'qtoday' }));
+    root.appendChild(h('input', { class: 'sel', type: 'search', placeholder: 'Search the full question bank…', value: q, 'aria-label': 'Search questions', oninput: function () { q = this.value; topLimit = {}; renderList(); } }));
+    if (!browse && !q) { /* filters appear once you search or browse */ }
     var ms = h('select', { class: 'sel', 'aria-label': 'Module', onchange: function () { modFilter = this.value; topLimit = {}; renderList(); } });
     ms.appendChild(h('option', { value: 'all', text: 'All modules' })); groups.forEach(function (g) { var o = h('option', { value: g.key, text: g.title }); if (g.key === modFilter) { o.selected = true; } ms.appendChild(o); });
-    root.appendChild(ms);
+    var tools = h('div', { id: 'qtools' }); tools.appendChild(ms);
     var seg = h('div', { class: 'chips' }); [['all', 'All']].concat(QS.map(function (s) { return [s, U.STATUS[s]]; })).forEach(function (f) { seg.appendChild(h('button', { type: 'button', class: 'gchip' + (filter === f[0] ? ' on' : ''), onclick: function () { filter = f[0]; topLimit = {}; render(); }, text: f[1] })); });
-    root.appendChild(seg); root.appendChild(h('div', { id: 'qlist' })); renderList();
+    tools.appendChild(seg); root.appendChild(tools); root.appendChild(h('div', { id: 'qlist' })); renderList();
   }
 
   function card(p) {
@@ -66,6 +87,12 @@
 
   function renderList() {
     var box = document.getElementById('qlist'); if (!box) { return; } box.textContent = '';
+    renderToday();
+    var tl = document.getElementById('qtools'); if (tl) { tl.hidden = !(browse || q || filter !== 'all'); }
+    if (!browse && !q && filter === 'all' && modFilter === 'all') {
+      box.appendChild(h('button', { type: 'button', class: 'btn ghost qbrowse', text: 'Browse the full bank (' + U.num(C.practice.length) + ' questions)', onclick: function () { browse = true; renderList(); } }));
+      return;
+    }
     var filtering = !!q || filter !== 'all', total = 0;
     var qi = 0;
     groups.forEach(function (g) {
@@ -92,6 +119,8 @@
     if (!total) { box.appendChild(h('p', { class: 'muted', text: 'No questions match.' })); }
     else { box.insertBefore(h('p', { class: 'muted small', text: U.num(total) + ' questions' }), box.firstChild); }
   }
-  Promise.all([C.ready, A.ready]).then(render).catch(function (e) { root.textContent = 'Could not load: ' + e.message; });
+  function fromRoute() { var r = U.route('questions'); if (!r || !r[0]) { return; } var p = C.question(decodeURIComponent(r[0])); if (!p) { return; } q = p.id; open[p.id] = true; browse = true; render(); }
+  window.addEventListener('hashchange', fromRoute);
+  Promise.all([C.ready, A.ready]).then(function () { render(); fromRoute(); }).catch(function (e) { root.textContent = 'Could not load: ' + e.message; });
   window.addEventListener('cur-changed', function () { if (U.route('questions') !== null && !document.activeElement.matches('textarea,input')) { render(); } });
 })();

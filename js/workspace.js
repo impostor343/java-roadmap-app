@@ -34,7 +34,7 @@
     var head = h('div', { class: 'pcard pc-' + tone, role: 'group', 'aria-label': m.name + ', ' + st.percent + '% done' },
       h('span', { class: 'pc-top' }, h('span', { class: 'pc-tag', text: U.STATUS[status] }), go),
       h('span', { class: 'pc-meta' }, (function () { var i = h('span', { class: 'pc-ic', 'aria-hidden': 'true' }); i.appendChild(I.make(C.moduleIcon(m.id))); return i; })(), st.done + '/' + st.total + ' sessions'),
-      h('strong', { class: 'pc-title', text: m.name }),
+      U.tapFull(h('strong', { class: 'pc-title' }), U.shortModule(m), m.name),
       h('span', { class: 'pc-bar', role: 'progressbar', 'aria-valuenow': st.percent, 'aria-valuemin': 0, 'aria-valuemax': 100 }, h('i', { style: 'width:' + st.percent + '%' })));
     head.appendChild(scribble(n));
     var body = h('div', { class: 'acc-body', hidden: isOpen ? null : 'hidden' }), wrap = h('div', { class: 'acc' + (isOpen ? ' is-open' : ''), 'data-id': m.id }, head, body);
@@ -109,7 +109,7 @@
     var card = h('div', { class: 'pcard pc-' + tone + ' sess-card' + (status === 'completed' ? ' is-done' : '') },
       h('span', { class: 'pc-top' }, h('span', { class: 'pc-pill', text: s.time || 'Time not set' }), h('span', { class: 'pc-tag', text: U.STATUS[status] })),
       h('span', { class: 'pc-meta', text: s.topic || s.module }),
-      h('strong', { class: 'pc-title', text: s.title }),
+      U.tapFull(h('strong', { class: 'pc-title' }), U.shortSession(s.title), s.title),
       h('span', { class: 'sess-foot', text: 'Session ' + (k + 1) + ' of ' + total + '  ·  Roadmap day ' + day }));
     card.appendChild(scribble(k)); return card;
   }

@@ -76,6 +76,12 @@
     if (s.practice || s.task) { inner.appendChild(infoSection('▣', 'Task', [['What to do', s.task], ['Practice', s.practice], ['Practice type', s.practiceType], ['Platform guidance', s.platform]])); }
     inner.appendChild(infoSection('▣', 'Learning', [['Module', s.module], ['Topic', s.topic], ['Learning objective', s.outcome], ['Exit check', s.mastery], ['Revision', s.revision]]));
     var resources = [];
+    var bks = window.Books ? Books.forModule(s.moduleId) : [];
+    if (bks.length) {
+      var bl = h('div', { class: 'home-info-links' });
+      bks.forEach(function (bk) { bl.appendChild(h('button', { class: 'home-info-book', type: 'button', text: bk.title + (Books.hasOffline(bk.id) ? '  ·  offline PDF' : '') + '  ↗', onclick: function () { Books.open(bk, d); } })); });
+      inner.appendChild(infoSection('▤', 'Books for this module', [['Free books', bl]]));
+    }
     if (s.resource) { resources.push(['Resource', s.resource]); }
     if (s.resourceLinks && s.resourceLinks.length) {
       var links = h('div', { class: 'home-info-links' });
@@ -125,21 +131,59 @@
     return section;
   }
 
+
+  // ---- books linked to the session's module ----
+  function bookRow(d, s) {
+    var B = window.Books, wrap = h('div', { class: 'home-book', 'data-noswipe': '1' });
+    if (!B) { return wrap; }
+    var books = B.forModule(s.moduleId); if (!books.length) { return wrap; }
+    var b = books[0], pg = h('input', { class: 'home-book-page', type: 'number', inputmode: 'numeric', min: 1, placeholder: 'p.', 'aria-label': 'Page you reached in ' + b.title });
+    pg.value = B.page(b.id) || '';
+    pg.addEventListener('change', function () { B.setPage(b.id, parseInt(pg.value, 10) || 0, d); });
+    wrap.appendChild(h('span', { class: 'home-book-label' }, 'Read: ', h('strong', { text: b.title.split(/[,:(]/)[0].trim() })));
+    var open = h('button', { class: 'home-book-btn', type: 'button', text: 'Open book' });
+    open.addEventListener('click', function () { B.setPage(b.id, parseInt(pg.value, 10) || 0, d); B.open(b, d); });
+    wrap.appendChild(h('span', { class: 'home-book-ctl' }, pg, open));
+    return wrap;
+  }
+  function resumeCard(shownDay) {
+    var day = A.inProgressDays()[0] || A.nextIncomplete();
+    if (!day || day === shownDay) { return null; }
+    var s = C.session(day), B = window.Books, last = B && B.lastRead(), book = null, page = 0;
+    if (B && s) { var bs = B.forModule(s.moduleId); book = (last && last.day === day ? B.book(last.id) : null) || bs[0] || null; page = book ? B.page(book.id) : 0; }
+    var card = h('section', { class: 'home-resume', 'aria-label': 'Continue where you stopped' });
+    card.appendChild(h('span', { class: 'home-resume-tag', text: A.status(day) === 'in-progress' ? 'Continue where you stopped' : 'Up next' }));
+    card.appendChild(h('strong', { class: 'home-resume-title', text: U.shortSession(s.title) }));
+    card.appendChild(h('span', { class: 'home-resume-sub', text: 'Day ' + day + ' · ' + U.shortModule(C.module(s.moduleId)) + (book ? ' · ' + book.title + (page ? ' p.' + page : '') : '') }));
+    var row = h('div', { class: 'home-resume-row' });
+    row.appendChild(h('button', { class: 'home-resume-go', type: 'button', text: 'Open session', onclick: function () { U.go('#today/' + day); } }));
+    if (book) { row.appendChild(h('button', { class: 'home-resume-book', type: 'button', text: page ? 'Book p.' + page : 'Open book', onclick: function () { B.open(book, day); } })); }
+    card.appendChild(row);
+    return card;
+  }
+
   function render() {
     if (U.route('today') === null) { return; }
     root.textContent = '';
     var d = currentDay(), s = C.session(d);
     if (!s) { root.appendChild(h('p', { class: 'empty' }, 'No session data found.')); return; }
+    var mod0 = C.module(s.moduleId);
     selectedDay = d;
 
     var page = h('div', { class: 'home-page' });
+    var rc = resumeCard(d); if (rc) { page.appendChild(rc); }
     var card = h('section', { class: 'home-day-card' });
     card.appendChild(h('p', { class: 'home-date-label' }, s.phase));
-    card.appendChild(h('div', { class: 'home-module-pill' }, '‹/› ', s.module));
+    var mpill = h('div', { class: 'home-module-pill' }, '‹/› ', h('span'));
+    U.tapFull(mpill.lastChild, U.shortModule(mod0), s.module);
+    card.appendChild(mpill);
     card.appendChild(h('div', { class: 'home-symbol' }, '✦'));
-    card.appendChild(h('h2', { class: 'home-day-title' }, s.title));
+    var ttl = h('h2', { class: 'home-day-title' });
+    U.tapFull(ttl, U.shortSession(s.title), s.title);
+    card.appendChild(ttl);
     card.appendChild(h('p', { class: 'home-day-count' }, 'Day ' + d + ' of ' + U.num(C.total)));
     card.appendChild(h('p', { class: 'home-day-time' }, '◷  ', s.time || 'Time not specified'));
+    card.appendChild(bookRow(d, s));
     card.appendChild(h('span', { class: 'home-status' }, statusLabel(d)));
     if (enterDir) { card.classList.add('enter-' + enterDir); enterDir = null; }
     // Swipe the card: left = following session, right = previous session (never changes completion status)
@@ -190,7 +234,7 @@
     root.appendChild(page);
   }
 
-  Promise.all([C.ready, A.ready]).then(render).catch(function (e) {
+  Promise.all([C.ready, A.ready, window.Books ? Books.ready.catch(function () {}) : null]).then(render).catch(function (e) {
     root.textContent = 'Could not load: ' + e.message;
   });
   window.addEventListener('hashchange', function () {

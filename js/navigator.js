@@ -32,6 +32,41 @@
     return box;
   }
 
+
+  // Week strip: 7 consecutive curriculum days around the selected one (days are IDs, not dates), plus an "Up next" list.
+  var gridOpen = false;
+  function weekStart(d) { return Math.max(1, Math.min(C.total - 6, d - 3)); }
+  function pickDay(d) { selDay = d; var b = C.groupOf(d); if (b === lastBlock) { draw(); } else { U.go('#calendar/' + b + '/' + d); } }
+  function weekStrip(nextDay) {
+    var from = weekStart(selDay), wrap = h('section', { class: 'wk', 'aria-label': 'Week of sessions' }), row = h('div', { class: 'wk-row' });
+    var now = new Date(), mon = U.MONTHS[now.getMonth()];
+    wrap.appendChild(h('div', { class: 'wk-top' }, h('strong', { text: 'Learning plan' }), h('span', { class: 'wk-date', text: now.getDate() + ' ' + mon + ' ' + now.getFullYear() })));
+    wrap.appendChild(h('div', { class: 'wk-nav' },
+      h('button', { type: 'button', class: 'wk-arrow', 'aria-label': 'Previous week', disabled: from <= 1 ? 'disabled' : null, onclick: function () { pickDay(Math.max(1, selDay - 7)); }, text: '‹' }),
+      h('span', { class: 'wk-range', text: 'Days ' + from + '–' + (from + 6) }),
+      h('button', { type: 'button', class: 'wk-arrow', 'aria-label': 'Next week', disabled: from + 6 >= C.total ? 'disabled' : null, onclick: function () { pickDay(Math.min(C.total, selDay + 7)); }, text: '›' })));
+    for (var d = from; d < from + 7; d++) {
+      var s = C.session(d), st = A.status(d), on = d === selDay;
+      row.appendChild(h('button', { type: 'button', class: 'wk-day st-' + st + (on ? ' on' : '') + (d === nextDay ? ' next' : '') + (s.projectId ? ' ms' : ''), 'aria-pressed': on ? 'true' : 'false',
+        'aria-label': 'Day ' + d + ': ' + s.title + ', ' + U.STATUS[st] + (d === nextDay ? ', next session' : ''), onclick: (function (x) { return function () { pickDay(x); }; })(d) },
+        h('span', { class: 'wk-lab', text: 'Day' }), h('strong', { class: 'wk-num', text: String(d) }), h('i', { class: 'wk-dot', 'aria-hidden': 'true' })));
+    }
+    wrap.appendChild(row); return wrap;
+  }
+  function upNext(nextDay) {
+    var box = h('section', { class: 'upn' }), list = [], d;
+    for (d = selDay; d <= C.total && list.length < 5; d++) { list.push(d); }
+    box.appendChild(h('h3', { class: 'upn-h', text: selDay === nextDay ? 'Up next' : 'From day ' + selDay }));
+    list.forEach(function (day, n) {
+      var s = C.session(day), st = A.status(day), tone = ['a', 'b', 'c'][n % 3];
+      box.appendChild(h('a', { class: 'upn-row pc-' + tone + ' st-' + st, href: '#calendar/day/' + day },
+        h('span', { class: 'upn-num', text: String(day) }),
+        h('span', { class: 'upn-main' }, h('strong', { text: U.shortSession(s.title) }), h('span', { text: U.shortModule(C.module(s.moduleId)) + (s.time ? ' · ' + s.time : '') })),
+        h('span', { class: 'upn-st', text: st === 'completed' ? '✓' : st === 'skipped' ? '↪' : st === 'in-progress' ? '◷' : '›' })));
+    });
+    return box;
+  }
+
   var host = null;
   function draw() { if (host) { var fresh = block(lastBlock); host.replaceWith(fresh); host = fresh; } }
 
@@ -50,13 +85,19 @@
     var jump = h('input', { class: 'gjump', type: 'number', inputmode: 'numeric', min: 1, max: C.total, placeholder: 'Go to day', 'aria-label': 'Go to a curriculum day',
       onchange: function () { var n = parseInt(this.value, 10); if (n >= 1 && n <= C.total) { selDay = n; var b = C.groupOf(n); if (b === i) { draw(); } else { U.go('#calendar/' + b); } } } });
     w.appendChild(h('div', { class: 'ghead' }, title, h('div', { class: 'gtools' }, jump, todayBtn, prev, next)));
-    w.appendChild(h('p', { class: 'muted small gsub', text: done + ' of ' + (g.to - g.from + 1) + ' completed in this block · numbers are curriculum days, not dates' }));
+    w.appendChild(weekStrip(nextDay));
+    w.appendChild(agenda(selDay, nextDay));
+    w.appendChild(upNext(nextDay));
+    var det = h('details', { class: 'gfull' }); if (gridOpen) { det.open = true; }
+    det.addEventListener('toggle', function () { gridOpen = det.open; });
+    det.appendChild(h('summary', { text: 'Full 30-day grid' }));
+    det.appendChild(h('p', { class: 'muted small gsub', text: done + ' of ' + (g.to - g.from + 1) + ' completed in this block · numbers are curriculum days, not dates' }));
     var grid = h('div', { class: 'ggrid', role: 'group', 'aria-label': 'Sessions in days ' + g.from + ' to ' + g.to });
     for (var d = g.from; d <= g.to; d++) { grid.appendChild(dayCell(d, d === selDay, nextDay)); }
     var rem = (g.to - g.from + 1) % 7; if (rem) { for (var k = rem; k < 7; k++) { grid.appendChild(h('span', { class: 'gcell pad', 'aria-hidden': 'true' })); } }
-    w.appendChild(grid);
-    w.appendChild(h('p', { class: 'glegend muted small' }, h('span', { class: 'lg next', text: '●' }), ' next  ', h('span', { class: 'lg done', text: '✓' }), ' done  ', h('span', { class: 'lg skip', text: '↪' }), ' skipped  ', h('span', { class: 'lg prog', text: '◷' }), ' in progress  ', h('span', { class: 'lg ms', text: '▌' }), ' project milestone'));
-    w.appendChild(agenda(selDay, nextDay));
+    det.appendChild(grid);
+    det.appendChild(h('p', { class: 'glegend muted small' }, h('span', { class: 'lg next', text: '●' }), ' next  ', h('span', { class: 'lg done', text: '✓' }), ' done  ', h('span', { class: 'lg skip', text: '↪' }), ' skipped  ', h('span', { class: 'lg prog', text: '◷' }), ' in progress  ', h('span', { class: 'lg ms', text: '▌' }), ' project milestone'));
+    w.appendChild(det);
     return w;
   }
 

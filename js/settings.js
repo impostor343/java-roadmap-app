@@ -104,16 +104,55 @@
     navigator.serviceWorker.getRegistration().then(function (r) { st.textContent = r && r.active ? 'Offline ready: the app and all roadmap data are saved on this device after your first visit. Use the browser menu > Install app / Add to Home screen.' : 'Offline copy is being prepared. Reload once while online, then check again.'; });
     return box;
   }
+  // ---- Appearance page: live preview first, then the colour / font / mode / size controls, then a contrast check ----
+  function preview() {
+    var box = h('section', { class: 'card ap-preview', 'aria-label': 'Live preview' }), row = h('div', { class: 'ap-cards' });
+    box.appendChild(h('h3', { text: 'Live preview' }));
+    [['a', 'Java basics', 'Day 12'], ['b', 'Collections', 'Day 41'], ['c', 'Spring Boot', 'Day 88']].forEach(function (c) {
+      row.appendChild(h('div', { class: 'ap-card pc-' + c[0] }, h('span', { class: 'ap-sym', text: '✦' }), h('strong', { text: c[1] }), h('span', { text: c[2] })));
+    });
+    box.appendChild(row);
+    box.appendChild(h('div', { class: 'ap-row' }, h('span', { class: 'ap-pill', text: 'Pending' }), h('button', { type: 'button', class: 'ap-btn', text: '✓ Done' }), h('button', { type: 'button', class: 'ap-btn alt', text: 'Info' })));
+    return box;
+  }
+  function contrastBox() {
+    var T = window.Theme, box = h('section', { class: 'card ap-contrast' }), list = h('div', { class: 'ap-checks' }), fix = h('button', { type: 'button', class: 'btn ghost', text: 'Fix text contrast automatically' });
+    box.appendChild(h('h3', { text: 'Contrast check' }));
+    box.appendChild(h('p', { class: 'muted small', text: 'Checks that text is readable on each card colour. Pick custom colours above and this updates straight away.' }));
+    function paint() {
+      var res = T.checks(), bad = res.filter(function (r) { return !r.ok; }).length;
+      list.textContent = '';
+      res.forEach(function (r) { list.appendChild(h('div', { class: 'ap-check ck-' + (r.ok ? 'ok' : 'bad') }, h('span', { text: r.ok ? '✓' : '✕' }), h('span', { text: r.label }), h('span', { class: 'ap-ratio', text: r.ratio.toFixed(1) + ':1' }))); });
+      fix.style.display = bad ? '' : 'none';
+    }
+    fix.addEventListener('click', function () { T.fixContrast(); render(); });
+    box.appendChild(list); box.appendChild(fix); paint();
+    new MutationObserver(function () { if (box.isConnected) { paint(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
+    return box;
+  }
+  function back(title) { return h('div', { class: 'set-back' }, h('a', { href: '#settings', class: 'set-backlink', text: '‹ Settings' }), h('h2', { class: 'set-pagetitle', text: title })); }
+  function menu() {
+    var rows = [['appearance', '◐', 'Appearance', 'Colours, font, light or dark, text size'], ['reminders', '◷', 'Reminders', 'Daily goal notification'], ['data', '▤', 'Backup and data', 'Export, restore, offline use, earlier records']];
+    var box = h('div', { class: 'set-menu' });
+    rows.forEach(function (r) { box.appendChild(h('a', { class: 'set-row', href: '#settings/' + r[0] }, h('span', { class: 'set-ico', 'aria-hidden': 'true', text: r[1] }), h('span', { class: 'set-txt' }, h('strong', { text: r[2] }), h('span', { class: 'muted small', text: r[3] })), h('span', { class: 'set-chev', 'aria-hidden': 'true', text: '›' }))); });
+    return box;
+  }
   function render() {
     root.textContent = '';
-    root.appendChild(appearance());
-    root.appendChild(notifications());
-    root.appendChild(card('Backup and restore', h('p', { class: 'muted small', text: 'Your data lives only on this device. Clearing browser data deletes it, so export a backup regularly.' }),
+    var page = (U.route('settings') || [])[0];
+    if (page === 'appearance') { root.appendChild(back('Appearance')); root.appendChild(preview()); root.appendChild(appearance()); if (window.Theme) { root.appendChild(contrastBox()); } return; }
+    if (page === 'reminders') { root.appendChild(back('Reminders')); root.appendChild(notifications()); return; }
+    if (page === 'data') {
+      root.appendChild(back('Backup and data'));
+      root.appendChild(card('Backup and restore', h('p', { class: 'muted small', text: 'Your data lives only on this device. Clearing browser data deletes it, so export a backup regularly.' }),
       h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'btn primary', onclick: exportBackup, text: 'Export backup' }),
         h('label', { class: 'btn ghost' }, 'Restore backup', h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: function () { if (this.files[0]) { restore(this.files[0]); } this.value = ''; } }))), msg));
     root.appendChild(about());
     root.appendChild(legacy());
     S.all('meta').then(function (m) { var b = m.filter(function (x) { return x.key === 'lastBackupAt'; })[0]; root.appendChild(h('p', { class: 'muted small', text: b ? 'Last backup exported: ' + U.stamp(b.value) : 'No backup exported yet from this version.' })); }).catch(function () {});
+      return;
+    }
+    root.appendChild(menu());
   }
   render();
   window.addEventListener('hashchange', function () { if (U.route('settings') !== null) { render(); } });

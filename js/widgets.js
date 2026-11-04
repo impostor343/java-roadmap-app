@@ -9,7 +9,11 @@
 
   function snapshot() {
     var d = A.nextIncomplete(), s = d ? C.session(d) : null;
-    return { total: C.total, done: A.doneCount(), skipped: A.skippedCount(), nextDay: d || 0, title: s ? s.title : '', module: s ? s.module : '', time: s ? (s.time || '') : '', status: d ? A.status(d) : '' };
+    var st = d ? A.status(d) : '', lab = { completed: '✓ Completed', skipped: '↪ Skipped', 'in-progress': '◷ In progress' }[st] || '○ Pending';
+    var colors = window.Theme && Theme.widgetColors ? Theme.widgetColors() : {};
+    // The widget mirrors the Home card: same text, and the colours come from the palette you have chosen in the app.
+    return { total: C.total, done: A.doneCount(), skipped: A.skippedCount(), nextDay: d || 0, title: s ? U.shortSession(s.title) : '', module: s ? U.shortModule(C.module(s.moduleId)) : '', time: s ? (s.time || 'Time not specified') : '', status: st,
+      phase: s ? s.phase : '', statusLabel: lab, colors: colors };
   }
   function push() { var b = bridge(); if (!b || !b.update) { return; } try { Promise.resolve(b.update(snapshot())).catch(function () {}); } catch (e) {} }
   function soon() { clearTimeout(timer); timer = setTimeout(push, 300); }
@@ -29,12 +33,20 @@
       }
       return;
     }
+    var infoMatch = /^#widget-info\/(\d{1,4})$/.exec(r || '');
+    if (infoMatch) {
+      var di = parseInt(infoMatch[1], 10);
+      if (di >= 1 && di <= C.total) { location.hash = '#today/' + di; setTimeout(function () { var b = document.querySelector('.home-btn.info'); if (b) { b.click(); } }, 500); }
+      return;
+    }
     if (/^#(today(\/\d{1,4})?|progress|calendar)$/.test(r || '')) { location.hash = r; }
   }
   function pullRoute() { var b = bridge(); if (b && b.getLaunchRoute) { Promise.resolve(b.getLaunchRoute()).then(function (x) { route(x && x.route); }, function () {}); } }
 
   Promise.all([C.ready, A.ready]).then(function () { push(); pullRoute(); }).catch(function () {});
   window.addEventListener('cur-changed', soon);
+  // palette changes in Settings repaint the widget too (the theme writes its colours onto <html style>)
+  new MutationObserver(soon).observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
   window.addEventListener('cse-native-route', pullRoute);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { push(); } else { pullRoute(); } });
   window.WidgetSync = { push: push, snapshot: snapshot };

@@ -72,8 +72,28 @@
     var m = document.querySelector('meta[name="theme-color"]') || document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'theme-color' }));
     m.setAttribute('content', b.bg);
   }
+
+  // Contrast report for the three card colours: text on each card, and the accent used as text on the page and on the other cards.
+  function checks(s) {
+    var mode = resolvedMode(s.mode), b = BASE[mode], out = [];
+    [['Card 1', s.primary], ['Card 2', s.secondary], ['Card 3', s.tertiary]].forEach(function (c) {
+      var r = ratio(c[1], on(c[1])); out.push({ label: c[0] + ' text', ratio: r, ok: r >= 4.5 });
+    });
+    var rp = ratio(s.primary, b.bg); out.push({ label: 'Card 1 colour on the page background', ratio: rp, ok: rp >= 3 });
+    return out;
+  }
+  // Colours the home-screen widget copies from the app (same derivation as the Home card).
+  function widgetColors(s) {
+    var p = s.primary, q = s.secondary, ink = on(p), dark = '#17171C';
+    return { card: p, ink: ink, muted: mix(ink, p, 0.38), pill: mix(p, ink, 0.12), done: mix(p, '#FFFFFF', 0.55), doneInk: on(mix(p, '#FFFFFF', 0.55)),
+      prev: mix(p, ink, 0.28), prevInk: on(mix(p, ink, 0.28)), info: q, infoInk: on(q), next: dark, nextInk: '#FFFFFF' };
+  }
   var cur = load();
   window.Theme = {
+    checks: function () { return checks(cur); }, widgetColors: function () { return widgetColors(cur); }, fixContrast: function () {
+      // nudge any card colour that cannot carry readable text toward a lighter tone until it can
+      var patch = {}; ['primary', 'secondary', 'tertiary'].forEach(function (k) { var c = cur[k]; if (ratio(c, on(c)) < 4.5) { var t = 0.05, n = c; while (t <= 0.8 && ratio(n, on(n)) < 4.5) { n = mix(c, lum(c) > 0.3 ? '#FFFFFF' : '#000000', t); t += 0.05; } patch[k] = n; } });
+      if (Object.keys(patch).length) { this.set(patch); } return Object.keys(patch).length; },
     PALETTES: PALETTES, FONTS: FONTS, MODES: MODES, SIZES: SIZES, DEFAULTS: DEFAULTS,
     get: function () { return { palette: cur.palette, font: cur.font, mode: cur.mode, size: cur.size, primary: cur.primary, secondary: cur.secondary, tertiary: cur.tertiary }; },
     set: function (patch) {
