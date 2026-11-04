@@ -99,6 +99,16 @@ public class WidgetBridgePlugin extends Plugin {
         e.putString("module", textOf(call, "module"));
         e.putString("time", textOf(call, "time"));
         e.putString("status", textOf(call, "status"));
+        e.putString("phase", textOf(call, "phase"));
+        e.putString("statusLabel", textOf(call, "statusLabel"));
+        JSObject colors = call.getObject("colors");
+        if (colors != null) {
+            String[] keys = {"card", "ink", "muted", "pill", "done", "doneInk", "prev", "prevInk", "info", "infoInk", "next", "nextInk"};
+            for (String k : keys) {
+                String v = colors.getString(k);
+                if (v != null && v.matches("#[0-9A-Fa-f]{6}")) e.putString("c_" + k, v);
+            }
+        }
         e.apply();
         WidgetRenderer.updateAll(ctx);
         call.resolve();
@@ -121,6 +131,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.view.View;
 import android.widget.RemoteViews;
 import java.util.Locale;
 
@@ -144,39 +156,59 @@ public final class WidgetRenderer {
     }
     private static String n(int v) { return String.format(Locale.US, "%,d", v); }
 
+    private static int col(SharedPreferences sp, String key, String fallback) {
+        String v = sp.getString("c_" + key, fallback);
+        try { return Color.parseColor(v); } catch (Exception ex) { return Color.parseColor(fallback); }
+    }
+    private static void tint(RemoteViews rv, int viewId, int color) { rv.setInt(viewId, "setColorFilter", color); }
+
+    // The widget is the Home card: phase, module pill, symbol, title, day, time, status, Done and Previous / Info / Next.
+    // Colours are copied from the palette chosen in the app (sent by the web side); the defaults below are only used before the first sync.
     public static RemoteViews buildNext(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         RemoteViews rv = new RemoteViews(ctx.getPackageName(), R.layout.widget_next);
         boolean synced = sp.getBoolean("synced", false);
-        int total = sp.getInt("total", 0), day = sp.getInt("nextDay", 0);
-        int done = sp.getInt("done", 0);
-        int pct = total > 0 ? (int)Math.floor(done * 100.0 / total) : 0;
-        rv.setTextViewText(R.id.widget_brand, "Bytewise  ·  Learn • Build • Progress");
-        rv.setTextViewText(R.id.widget_percent, synced ? pct + "%" : "—");
+        int total = sp.getInt("total", 0), day = sp.getInt("nextDay", 0), done = sp.getInt("done", 0);
+        String phase, module, title, dayText, time, status;
         if (!synced) {
-            rv.setTextViewText(R.id.widget_day, "Open the app once");
-            rv.setTextViewText(R.id.widget_title, "Your next learning session will appear here.");
-            rv.setTextViewText(R.id.widget_meta, "Live progress syncs from your app");
+            phase = "Bytewise"; module = "Open the app once"; title = "Your next session appears here"; dayText = ""; time = ""; status = "";
             day = 1;
         } else if (day <= 0) {
-            rv.setTextViewText(R.id.widget_day, "Roadmap complete");
-            rv.setTextViewText(R.id.widget_title, "All sessions are completed or skipped.");
-            rv.setTextViewText(R.id.widget_meta, n(done) + " completed · " + pct + "% complete");
-            day = total;
+            phase = "Bytewise"; module = "Roadmap complete"; title = "All sessions are completed or skipped"; dayText = n(done) + " of " + n(total) + " done"; time = ""; status = "";
+            day = Math.max(1, total);
         } else {
-            rv.setTextViewText(R.id.widget_day, "Day " + n(day) + " / " + n(total));
-            rv.setTextViewText(R.id.widget_title, sp.getString("title", ""));
-            String module = sp.getString("module", "");
-            String time = sp.getString("time", "");
-            String meta = module;
-            if (time != null && !time.isEmpty()) meta = (meta == null || meta.isEmpty()) ? time : meta + "  ·  " + time;
-            rv.setTextViewText(R.id.widget_meta, meta);
+            phase = sp.getString("phase", ""); module = sp.getString("module", ""); title = sp.getString("title", "");
+            dayText = "Day " + n(day) + " of " + n(total);
+            time = sp.getString("time", ""); status = sp.getString("statusLabel", "");
         }
+        rv.setTextViewText(R.id.w_phase, phase);
+        rv.setTextViewText(R.id.w_module, "</>  " + module);
+        rv.setTextViewText(R.id.w_symbol, "\u2726");
+        rv.setTextViewText(R.id.w_title, title);
+        rv.setTextViewText(R.id.w_day, dayText);
+        rv.setTextViewText(R.id.w_time, time.isEmpty() ? "" : "\u25F7  " + time);
+        rv.setTextViewText(R.id.w_status, status);
+        rv.setViewVisibility(R.id.w_status_bg, status.isEmpty() ? View.GONE : View.VISIBLE);
+        rv.setViewVisibility(R.id.w_status, status.isEmpty() ? View.GONE : View.VISIBLE);
+
+        int card = col(sp, "card", "#D5F7A0"), ink = col(sp, "ink", "#0D0D10"), muted = col(sp, "muted", "#5C6650");
+        int pill = col(sp, "pill", "#B9DC8C"), doneC = col(sp, "done", "#E9FBC9"), doneInk = col(sp, "doneInk", "#0D0D10");
+        int prevC = col(sp, "prev", "#A9B29A"), prevInk = col(sp, "prevInk", "#0D0D10");
+        int infoC = col(sp, "info", "#CDB8F5"), infoInk = col(sp, "infoInk", "#0D0D10");
+        int nextC = col(sp, "next", "#17171C"), nextInk = col(sp, "nextInk", "#FFFFFF");
+        tint(rv, R.id.w_card_bg, card);
+        tint(rv, R.id.w_module_bg, pill); tint(rv, R.id.w_status_bg, pill);
+        tint(rv, R.id.w_done_bg, doneC); tint(rv, R.id.w_prev_bg, prevC); tint(rv, R.id.w_info_bg, infoC); tint(rv, R.id.w_next_bg, nextC);
+        rv.setTextColor(R.id.w_phase, muted); rv.setTextColor(R.id.w_module, ink); rv.setTextColor(R.id.w_symbol, ink);
+        rv.setTextColor(R.id.w_title, ink); rv.setTextColor(R.id.w_day, muted); rv.setTextColor(R.id.w_time, muted); rv.setTextColor(R.id.w_status, ink);
+        rv.setTextColor(R.id.w_done, doneInk); rv.setTextColor(R.id.w_prev, prevInk); rv.setTextColor(R.id.w_info, infoInk); rv.setTextColor(R.id.w_next, nextInk);
+
         int prev = Math.max(1, day - 1), next = Math.min(Math.max(1, total), day + 1);
         rv.setOnClickPendingIntent(R.id.widget_root, open(ctx, "#today/" + day, 101));
-        rv.setOnClickPendingIntent(R.id.widget_previous, open(ctx, "#today/" + prev, 102));
-        rv.setOnClickPendingIntent(R.id.widget_done, open(ctx, "#widget-done/" + day, 103));
-        rv.setOnClickPendingIntent(R.id.widget_next, open(ctx, "#today/" + next, 104));
+        rv.setOnClickPendingIntent(R.id.w_prev, open(ctx, "#today/" + prev, 102));
+        rv.setOnClickPendingIntent(R.id.w_done, open(ctx, "#widget-done/" + day, 103));
+        rv.setOnClickPendingIntent(R.id.w_info, open(ctx, "#widget-info/" + day, 105));
+        rv.setOnClickPendingIntent(R.id.w_next, open(ctx, "#today/" + next, 104));
         return rv;
     }
 
@@ -238,64 +270,70 @@ public class ProgressWidget extends AppWidgetProvider {
 
 TV = 'android:layout_width="match_parent" android:layout_height="wrap_content"'
 LAYOUT_NEXT = '''<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
-    android:orientation="vertical"
-    android:padding="14dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:gravity="center_vertical" android:orientation="horizontal">
-        <TextView android:id="@+id/widget_brand" android:layout_width="0dp"
-            android:layout_height="wrap_content" android:layout_weight="1" android:maxLines="1"
-            android:text="Bytewise  ·  Learn • Build • Progress" android:textColor="@color/widget_accent"
-            android:textSize="12sp" android:textStyle="bold" />
-        <TextView android:id="@+id/widget_percent" android:layout_width="58dp"
-            android:layout_height="40dp" android:gravity="center"
-            android:background="@drawable/widget_action_primary_bg"
-            android:text="0%" android:textColor="#FFFFFF"
-            android:textSize="16sp" android:textStyle="bold" />
+    <ImageView android:id="@+id/w_card_bg" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scaleType="fitXY" android:src="@drawable/widget_shape_card" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:gravity="center_horizontal" android:orientation="vertical" android:padding="14dp">
+
+        <TextView android:id="@+id/w_phase" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:ellipsize="end" android:gravity="center" android:maxLines="1" android:textSize="12sp" />
+
+        <FrameLayout android:layout_width="match_parent" android:layout_height="34dp" android:layout_marginTop="6dp">
+            <ImageView android:id="@+id/w_module_bg" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="fitXY" android:src="@drawable/widget_shape_pill" />
+            <TextView android:id="@+id/w_module" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:ellipsize="end" android:gravity="center_vertical" android:maxLines="1"
+                android:paddingStart="14dp" android:paddingEnd="14dp" android:textSize="13sp" android:textStyle="bold" />
+        </FrameLayout>
+
+        <TextView android:id="@+id/w_symbol" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:textSize="26sp" />
+
+        <TextView android:id="@+id/w_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:ellipsize="end" android:gravity="center" android:maxLines="3" android:textSize="20sp" android:textStyle="bold" />
+
+        <TextView android:id="@+id/w_day" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:gravity="center" android:maxLines="1" android:textSize="14sp" />
+        <TextView android:id="@+id/w_time" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center" android:maxLines="1" android:textSize="13sp" />
+
+        <FrameLayout android:layout_width="match_parent" android:layout_height="32dp" android:layout_marginTop="6dp">
+            <ImageView android:id="@+id/w_status_bg" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="fitXY" android:src="@drawable/widget_shape_pill" />
+            <TextView android:id="@+id/w_status" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:gravity="center" android:maxLines="1" android:textSize="13sp" />
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="8dp">
+            <ImageView android:id="@+id/w_done_bg" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:scaleType="fitXY" android:src="@drawable/widget_shape_btn" />
+            <TextView android:id="@+id/w_done" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:gravity="center" android:text="\u2713  Done" android:textSize="15sp" android:textStyle="bold" />
+        </FrameLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:orientation="horizontal">
+        <FrameLayout android:layout_width="0dp" android:layout_height="42dp" android:layout_weight="1">
+            <ImageView android:id="@+id/w_prev_bg" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_shape_btn" />
+            <TextView android:id="@+id/w_prev" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:maxLines="1" android:text="\u2039  Previous" android:textSize="13sp" android:textStyle="bold" />
+        </FrameLayout>
+        <FrameLayout android:layout_width="0dp" android:layout_height="42dp" android:layout_weight="1" android:layout_marginStart="6dp">
+            <ImageView android:id="@+id/w_info_bg" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_shape_btn" />
+            <TextView android:id="@+id/w_info" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:maxLines="1" android:text="\u24D8  Info" android:textSize="13sp" android:textStyle="bold" />
+        </FrameLayout>
+        <FrameLayout android:layout_width="0dp" android:layout_height="42dp" android:layout_weight="1" android:layout_marginStart="6dp">
+            <ImageView android:id="@+id/w_next_bg" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/widget_shape_btn" />
+            <TextView android:id="@+id/w_next" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:maxLines="1" android:text="Next  \u203A" android:textSize="13sp" android:textStyle="bold" />
+        </FrameLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <TextView android:id="@+id/widget_day" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginTop="8dp"
-        android:text="Day 1 / 1,029" android:textColor="@color/widget_ink"
-        android:textSize="18sp" android:textStyle="bold" />
-    <TextView android:id="@+id/widget_title" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginTop="3dp"
-        android:ellipsize="end" android:maxLines="2" android:textColor="@color/widget_ink"
-        android:textSize="15sp" android:textStyle="bold" />
-    <TextView android:id="@+id/widget_meta" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:layout_marginTop="4dp"
-        android:ellipsize="end" android:maxLines="1" android:textColor="@color/widget_muted"
-        android:textSize="12sp" />
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center">
-        <TextView android:id="@+id/widget_previous" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_weight="1"
-            android:gravity="center" android:background="@drawable/widget_action_bg"
-            android:paddingStart="4dp" android:paddingEnd="4dp"
-            android:text="‹  Previous" android:textColor="@color/widget_ink"
-            android:textSize="12sp" android:textStyle="bold" />
-        <TextView android:id="@+id/widget_done" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_marginStart="6dp"
-            android:layout_weight="1.15" android:gravity="center"
-            android:background="@drawable/widget_action_primary_bg"
-            android:paddingStart="4dp" android:paddingEnd="4dp"
-            android:text="✓  Done" android:textColor="#FFFFFF"
-            android:textSize="12sp" android:textStyle="bold" />
-        <TextView android:id="@+id/widget_next" android:layout_width="0dp"
-            android:layout_height="42dp" android:layout_marginStart="6dp"
-            android:layout_weight="1" android:gravity="center"
-            android:background="@drawable/widget_action_bg"
-            android:paddingStart="4dp" android:paddingEnd="4dp"
-            android:text="Next  ›" android:textColor="@color/widget_ink"
-            android:textSize="12sp" android:textStyle="bold" />
-    </LinearLayout>
-</LinearLayout>
+</FrameLayout>
 '''
 
 LAYOUT_PROGRESS = '''<?xml version="1.0" encoding="utf-8"?>
@@ -399,9 +437,16 @@ for name, src in JAVA.items():
     write(os.path.join(java_dir, name), src.replace('PKG', PKG))
 write(os.path.join(res, 'layout', 'widget_next.xml'), LAYOUT_NEXT)
 write(os.path.join(res, 'layout', 'widget_progress.xml'), LAYOUT_PROGRESS)
-write(os.path.join(res, 'xml', 'widget_next_info.xml'), provider('widget_next', 300, 190))
+write(os.path.join(res, 'xml', 'widget_next_info.xml'), provider('widget_next', 250, 330))
 write(os.path.join(res, 'xml', 'widget_progress_info.xml'), provider('widget_progress', 250, 110))
 write(os.path.join(res, 'drawable', 'widget_bg.xml'), BG)
+for nm, rad in (('widget_shape_card', 28), ('widget_shape_pill', 18), ('widget_shape_btn', 22)):
+    write(os.path.join(res, 'drawable', nm + '.xml'), '''<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FFFFFFFF" />
+    <corners android:radius="%ddp" />
+</shape>
+''' % rad)
 write(os.path.join(res, 'drawable', 'widget_action_bg.xml'), '''<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="@color/widget_track" />
