@@ -63,7 +63,7 @@
     });
     box.appendChild(colors);
     box.appendChild(group('Colour palette', T.PALETTES, 'palette', function (o) { return h('button', { type: 'button', class: 'swatch' }, h('span', { class: 'dots3' }, o.colors.map(function (c) { return h('i', { style: 'background:' + c }); })), o.name); }));
-    box.appendChild(group('Font', T.FONTS, 'font', function (o) { var st = o.id === 'default' ? '' : 'font-family:' + ({ inter: '"Inter",sans-serif', poppins: '"Poppins",sans-serif', lora: '"Lora",serif', classic: 'Georgia,serif', mono: 'ui-monospace,Menlo,Consolas,monospace' }[o.id]);
+    box.appendChild(group('Font', T.FONTS, 'font', function (o) { var st = o.id === 'default' ? '' : 'font-family:' + ({ inter: '"Inter",sans-serif', poppins: '"Poppins",sans-serif', lora: '"Lora",serif', classic: 'Georgia,serif', mono: 'ui-monospace,Menlo,Consolas,monospace', studio: '"Bricolage Grotesque",sans-serif', outfit: '"Outfit",sans-serif', editorial: '"Instrument Serif",serif', dev: '"JetBrains Mono",monospace' }[o.id]);
       return h('button', { type: 'button', class: 'fontopt' }, h('span', {}, h('strong', { text: o.name }), h('span', { class: 'muted small fo-note', text: o.note })), h('span', { class: 'sample', style: st, text: 'Aa 123' })); }));
     box.appendChild(group('Light or dark', T.MODES, 'mode', function (o) { return h('button', { type: 'button', class: 'segbtn', text: o.name }); }));
     box.appendChild(group('Text size', T.SIZES, 'size', function (o) { return h('button', { type: 'button', class: 'segbtn', text: o.name }); }));

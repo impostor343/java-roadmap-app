@@ -11,12 +11,19 @@
     { id: 'sunset', name: 'Sunset', colors: ['#FFD39A', '#FFB8A0', '#F6E58E'] },
     { id: 'rose', name: 'Rose', colors: ['#FFB9D4', '#E2B9FF', '#FFD6B3'] },
     { id: 'teal', name: 'Teal', colors: ['#9BE8DC', '#B6F0A8', '#A5D8F5'] },
-    { id: 'slate', name: 'Graphite', colors: ['#C5CDD9', '#AEB8C8', '#D9D2C5'] }
+    { id: 'slate', name: 'Graphite', colors: ['#C5CDD9', '#AEB8C8', '#D9D2C5'] },
+    { id: 'citrus', name: 'Citrus', colors: ['#F7E86A', '#FFB36B', '#B6EC8A'] },
+    { id: 'coral', name: 'Coral Reef', colors: ['#FF9C8F', '#FFCB85', '#7FE0D0'] },
+    { id: 'skypop', name: 'Sky Pop', colors: ['#79C8FF', '#C3B5FF', '#FFE27A'] },
+    { id: 'indigo', name: 'Indigo', colors: ['#A4ABFF', '#7DD3FF', '#FFB9EE'] },
+    { id: 'moss', name: 'Moss', colors: ['#B0E08A', '#F3DE8A', '#86E0C2'] }
   ];
   PALETTES.forEach(function (p) { p.color = p.colors[0]; });
   var FONTS = [
     { id: 'default', name: 'Default', note: 'Poppins headings, Inter text' }, { id: 'inter', name: 'Inter', note: 'Clean and neutral' }, { id: 'poppins', name: 'Poppins', note: 'Rounded and friendly' },
-    { id: 'lora', name: 'Lora', note: 'Bookish serif' }, { id: 'classic', name: 'Classic serif', note: 'Georgia style' }, { id: 'mono', name: 'Monospace', note: 'Code look' }
+    { id: 'lora', name: 'Lora', note: 'Bookish serif' }, { id: 'classic', name: 'Classic serif', note: 'Georgia style' }, { id: 'mono', name: 'Monospace', note: 'Code look' },
+    { id: 'studio', name: 'Studio', note: 'Bricolage headings, Instrument Sans text' }, { id: 'outfit', name: 'Outfit', note: 'Geometric and friendly' },
+    { id: 'editorial', name: 'Editorial', note: 'Instrument Serif headings, easy reading' }, { id: 'dev', name: 'Dev', note: 'JetBrains Mono headings, Work Sans text' }
   ];
   var MODES = [{ id: 'auto', name: 'Match phone' }, { id: 'light', name: 'Light' }, { id: 'dark', name: 'Dark' }];
   var SIZES = [{ id: 'small', name: 'Small' }, { id: 'normal', name: 'Normal' }, { id: 'large', name: 'Large' }, { id: 'xlarge', name: 'Extra large' }];
